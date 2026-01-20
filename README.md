@@ -24,8 +24,8 @@ This app is designed for quick voice notes while riding:
 ### Download Pre-built APK
 
 Download the latest APK from:
-- **[Releases Page](../../releases)** - Stable releases with version tags
-- **[Actions Tab](../../actions)** - Latest builds from CI pipeline
+- **[Releases Page](https://github.com/c0dev0id/autorecord-app/releases)** - Stable releases with version tags
+- **[Actions Tab](https://github.com/c0dev0id/autorecord-app/actions)** - Latest builds from CI pipeline
 
 ### Installation
 

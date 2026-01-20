@@ -35,12 +35,12 @@ git push origin v1.0.1
 ### 4. Wait for Build
 
 - GitHub Actions will automatically build the APKs
-- Navigate to [Actions](../../actions) to monitor progress
+- Navigate to [Actions](https://github.com/c0dev0id/autorecord-app/actions) to monitor progress
 - Build typically takes 3-5 minutes
 
 ### 5. Release Created
 
-- Check the [Releases](../../releases) page
+- Check the [Releases](https://github.com/c0dev0id/autorecord-app/releases) page
 - Release will include:
   - Debug APK (`motorcycle-voice-notes-1.0.1-debug.apk`)
   - Release APK (`motorcycle-voice-notes-1.0.1-release-unsigned.apk`)
@@ -51,7 +51,7 @@ git push origin v1.0.1
 
 If you need to trigger a release manually:
 
-1. Go to [Actions](../../actions) tab
+1. Go to [Actions](https://github.com/c0dev0id/autorecord-app/actions) tab
 2. Select "Android Release Build"
 3. Click "Run workflow"
 4. Enter version number (e.g., `1.0.1`)
@@ -135,7 +135,7 @@ git push origin v1.0.1
 
 ### Build Failed
 
-1. Check [Actions](../../actions) tab for error logs
+1. Check [Actions](https://github.com/c0dev0id/autorecord-app/actions) tab for error logs
 2. Verify `app/build.gradle` syntax is correct
 3. Ensure all Kotlin files compile locally: `./gradlew build`
 4. Check workflow file syntax at `.github/workflows/android-release.yml`
@@ -150,13 +150,13 @@ git push origin v1.0.1
 
 ### From Releases Page
 
-1. Go to [Releases](../../releases)
+1. Go to [Releases](https://github.com/c0dev0id/autorecord-app/releases)
 2. Click on the latest release
 3. Download APK from "Assets" section
 
 ### From Actions
 
-1. Go to [Actions](../../actions)
+1. Go to [Actions](https://github.com/c0dev0id/autorecord-app/actions)
 2. Click on a successful workflow run
 3. Scroll to "Artifacts" section
 4. Download the APK artifact
