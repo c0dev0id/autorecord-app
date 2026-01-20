@@ -21,12 +21,22 @@ This app is designed for quick voice notes while riding:
 
 ## Quick Start
 
-1. Install the APK on your Android device
-2. Launch the app and complete first-time setup:
+### Download Pre-built APK
+
+Download the latest APK from:
+- **[Releases Page](../../releases)** - Stable releases with version tags
+- **[Actions Tab](../../actions)** - Latest builds from CI pipeline
+
+### Installation
+
+1. Download the APK file to your Android device
+2. Enable "Install from Unknown Sources" if prompted
+3. Install the APK
+4. Launch the app and complete first-time setup:
    - Grant microphone, location, and storage permissions
    - Choose a save directory for recordings
    - Select a trigger app (e.g., Google Maps, Spotify)
-3. On subsequent launches, the app automatically:
+5. On subsequent launches, the app automatically:
    - Acquires GPS location
    - Records 10 seconds of audio
    - Saves the file
@@ -34,7 +44,13 @@ This app is designed for quick voice notes while riding:
 
 ## Building from Source
 
-See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed build instructions.
+The project includes automated CI/CD pipelines via GitHub Actions:
+
+- **Automatic builds** on every push
+- **Release builds** on version tags
+- **Pull request checks** to ensure code quality
+
+See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed manual build instructions, or check the [GitHub Actions workflows](.github/workflows/README.md) for automated builds.
 
 ## Requirements
 

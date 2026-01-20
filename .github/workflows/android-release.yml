@@ -1,0 +1,130 @@
+name: Android Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  build:
+    name: Build and Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Rename APKs
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          if [ -z "$VERSION" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/motorcycle-voice-notes-${VERSION}-debug.apk
+          cp app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/motorcycle-voice-notes-${VERSION}-release-unsigned.apk
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/motorcycle-voice-notes-*-debug.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: app/build/outputs/apk/release/motorcycle-voice-notes-*-release-unsigned.apk
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app/build/outputs/apk/debug/motorcycle-voice-notes-*-debug.apk
+            app/build/outputs/apk/release/motorcycle-voice-notes-*-release-unsigned.apk
+          body: |
+            ## Motorcycle Voice Notes Release
+
+            ### Installation
+
+            Download the appropriate APK:
+            - **Debug APK**: For development and testing (recommended for most users)
+            - **Release APK**: Unsigned release version
+
+            ### First-Time Setup
+
+            1. Install the APK on your Android device (enable "Install from Unknown Sources")
+            2. Launch the app and grant required permissions:
+               - Microphone (for audio recording)
+               - Fine Location (for GPS coordinates)
+               - Storage (for saving files)
+            3. Configure:
+               - Choose a save directory for recordings
+               - Select a trigger app to launch after recording
+
+            ### Usage
+
+            After setup, the app will:
+            1. Acquire GPS location
+            2. Announce "Location acquired, recording for 10 seconds"
+            3. Record audio for 10 seconds
+            4. Announce "Recording stopped"
+            5. Save file as: `latitude_longitude_timestamp.3gp`
+            6. Launch your configured trigger app
+
+            ### Requirements
+
+            - Android 8.0 (API 26) or higher
+            - GPS capability
+            - Microphone
+
+            For build instructions and source code, see the [repository](https://github.com/${{ github.repository }}).
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Summary
+        run: |
+          echo "## Build Complete! 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### APK Files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          ls -lh app/build/outputs/apk/debug/*.apk >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          ls -lh app/build/outputs/apk/release/*.apk >> $GITHUB_STEP_SUMMARY
