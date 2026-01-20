@@ -392,8 +392,14 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
     
-    private fun createOrUpdateGpxFile(location: Location, fileName: String) {
+    private fun createOrUpdateGpxFile(location: Location?, fileName: String) {
         try {
+            // Add null check at the beginning
+            if (location == null) {
+                Toast.makeText(this, "Location not available for GPX", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
             val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
             val saveDir = prefs.getString("saveDirectory", null) ?: return
             
