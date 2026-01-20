@@ -194,10 +194,13 @@ jobs:
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
           echo "keystore.properties created"
 
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Rename APK
+      - name: Rename APKs
         run: |
           VERSION="${{ github.event.inputs.version }}"
           VERSION_NUMBER="${VERSION#v}"  # Remove 'v' prefix for filename
@@ -205,32 +208,45 @@ jobs:
           echo "Version: $VERSION"
           echo "Version number: $VERSION_NUMBER"
           echo "Listing APK files:"
+          ls -la app/build/outputs/apk/debug/ || echo "Debug directory not found"
           ls -la app/build/outputs/apk/release/ || echo "Release directory not found"
 
-          # Check for signed or unsigned APK
+          # Rename debug APK
+          if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
+            cp app/build/outputs/apk/debug/app-debug.apk motorcycle-voice-notes-${VERSION_NUMBER}-debug.apk
+            echo "DEBUG_APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}-debug.apk" >> $GITHUB_ENV
+            echo "Debug APK found and renamed"
+          else
+            echo "Error: No debug APK found!"
+            exit 1
+          fi
+
+          # Check for signed or unsigned release APK
           if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
             cp app/build/outputs/apk/release/app-release.apk motorcycle-voice-notes-${VERSION_NUMBER}.apk
-            echo "APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}.apk" >> $GITHUB_ENV
+            echo "RELEASE_APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}.apk" >> $GITHUB_ENV
             echo "APK_TYPE=signed" >> $GITHUB_ENV
-            echo "Signed APK found and renamed"
+            echo "Signed release APK found and renamed"
           elif [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
             cp app/build/outputs/apk/release/app-release-unsigned.apk motorcycle-voice-notes-${VERSION_NUMBER}-unsigned.apk
-            echo "APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}-unsigned.apk" >> $GITHUB_ENV
+            echo "RELEASE_APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}-unsigned.apk" >> $GITHUB_ENV
             echo "APK_TYPE=unsigned" >> $GITHUB_ENV
-            echo "Unsigned APK found and renamed"
+            echo "Unsigned release APK found and renamed"
           else
             echo "Error: No release APK found!"
             exit 1
           fi
 
-          # Show APK size
-          ls -lh $APK_FILE
+          # Show APK sizes
+          echo "APK sizes:"
+          ls -lh $DEBUG_APK_FILE
+          ls -lh $RELEASE_APK_FILE
 
       - name: Verify APK signature (if signed)
         if: env.APK_TYPE == 'signed'
         run: |
-          echo "Verifying APK signature..."
-          jarsigner -verify -verbose ${{ env.APK_FILE }} 2>&1 | grep -i "jar verified" && echo "✓ APK signature verified successfully" || echo "⚠ APK signature verification failed"
+          echo "Verifying release APK signature..."
+          jarsigner -verify -verbose ${{ env.RELEASE_APK_FILE }} 2>&1 | grep -i "jar verified" && echo "✓ Release APK signature verified successfully" || echo "⚠ Release APK signature verification failed"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -238,7 +254,9 @@ jobs:
           tag_name: ${{ github.event.inputs.version }}
           name: Motorcycle Voice Notes ${{ github.event.inputs.version }}
           body_path: changelog.md
-          files: ${{ env.APK_FILE }}
+          files: |
+            ${{ env.RELEASE_APK_FILE }}
+            ${{ env.DEBUG_APK_FILE }}
           draft: false
           prerelease: false
         env:
@@ -250,11 +268,15 @@ jobs:
           echo "## 🎉 Release Created Successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version**: $VERSION" >> $GITHUB_STEP_SUMMARY
-          echo "**APK Type**: ${{ env.APK_TYPE }}" >> $GITHUB_STEP_SUMMARY
-          echo "**APK File**: ${{ env.APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release APK Type**: ${{ env.APK_TYPE }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**APK Size**:" >> $GITHUB_STEP_SUMMARY
-          ls -lh ${{ env.APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          echo "**APK Files**:" >> $GITHUB_STEP_SUMMARY
+          echo "- Release APK: ${{ env.RELEASE_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Debug APK: ${{ env.DEBUG_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**APK Sizes**:" >> $GITHUB_STEP_SUMMARY
+          ls -lh ${{ env.RELEASE_APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          ls -lh ${{ env.DEBUG_APK_FILE }} >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Changelog" >> $GITHUB_STEP_SUMMARY
           cat changelog.md >> $GITHUB_STEP_SUMMARY
