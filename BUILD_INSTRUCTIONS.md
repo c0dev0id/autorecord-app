@@ -99,7 +99,47 @@ For a release APK (smaller, optimized):
 ./gradlew assembleRelease
 ```
 
-Note: Release APKs need to be signed. For development/testing, the debug APK is sufficient.
+**Note**: 
+- If you have configured signing (see below), this will create a signed APK
+- Without signing configuration, this creates an unsigned APK suitable for testing
+- For production use, you should use a signed APK
+
+### Building Signed Release APK
+
+To build a properly signed release APK for distribution:
+
+1. **Generate a keystore** (one-time setup):
+   ```bash
+   keytool -genkey -v -keystore release.keystore -alias motorcycle-voice-notes \
+     -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+2. **Create keystore.properties** (one-time setup):
+   ```bash
+   cp keystore.properties.template keystore.properties
+   ```
+   
+   Edit `keystore.properties` with your details:
+   ```properties
+   storeFile=/absolute/path/to/release.keystore
+   storePassword=your-keystore-password
+   keyAlias=motorcycle-voice-notes
+   keyPassword=your-key-password
+   ```
+
+3. **Build the signed APK**:
+   ```bash
+   ./gradlew assembleRelease
+   ```
+
+4. **Output location**:
+   ```
+   app/build/outputs/apk/release/app-release.apk
+   ```
+
+**For complete signing instructions**, including troubleshooting, Google Play publishing, and CI/CD setup, see [SIGNING.md](SIGNING.md).
+
+**Security**: Never commit your keystore or `keystore.properties` file! They are already in `.gitignore`.
 
 ## Installing the APK
 

@@ -50,7 +50,9 @@ The project includes automated CI/CD pipelines via GitHub Actions:
 - **Release builds** on version tags
 - **Pull request checks** to ensure code quality
 
-See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed manual build instructions, or check the [GitHub Actions workflows](.github/workflows/README.md) for automated builds.
+You can build both debug and signed release APKs. See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed manual build instructions, or check the [GitHub Actions workflows](.github/workflows/README.md) for automated builds.
+
+For creating signed APKs suitable for distribution or Google Play Store publishing, see the comprehensive [SIGNING.md](SIGNING.md) guide.
 
 ## Requirements
 

@@ -93,14 +93,25 @@ Before creating a release:
 
 Currently, release APKs are unsigned. To sign them:
 
-### Create Keystore
+### Option 1: Local Signing (Recommended)
 
-```bash
-keytool -genkey -v -keystore release.keystore -alias motorcycle-voice-notes \
-  -keyalg RSA -keysize 2048 -validity 10000
-```
+Follow the comprehensive guide in [SIGNING.md](SIGNING.md) which covers:
+- Generating a keystore
+- Configuring signing in the project
+- Building signed APKs locally
+- Setting up CI/CD with GitHub Actions
 
-### Add Secrets to GitHub
+Quick steps:
+1. Generate a keystore: `keytool -genkey -v -keystore release.keystore -alias motorcycle-voice-notes -keyalg RSA -keysize 2048 -validity 10000`
+2. Create `keystore.properties` from template: `cp keystore.properties.template keystore.properties`
+3. Edit `keystore.properties` with your keystore details
+4. Build signed APK: `./gradlew assembleRelease`
+
+See [SIGNING.md](SIGNING.md) for complete instructions.
+
+### Option 2: GitHub Actions Signing
+
+To enable automatic signing in CI/CD:
 
 Go to Repository Settings > Secrets and Variables > Actions
 

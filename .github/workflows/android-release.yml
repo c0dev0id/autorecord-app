@@ -33,6 +33,27 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      # Optional: Uncomment the following steps to enable APK signing in GitHub Actions
+      # You need to add the following secrets to your repository:
+      #   - KEYSTORE_FILE: Base64-encoded keystore file
+      #   - KEYSTORE_PASSWORD: Your keystore password
+      #   - KEY_ALIAS: Your key alias
+      #   - KEY_PASSWORD: Your key password
+      # See SIGNING.md for detailed instructions
+      
+      # - name: Decode Keystore
+      #   if: ${{ secrets.KEYSTORE_FILE != '' }}
+      #   run: |
+      #     echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
+      
+      # - name: Create keystore.properties
+      #   if: ${{ secrets.KEYSTORE_FILE != '' }}
+      #   run: |
+      #     echo "storeFile=release.keystore" >> keystore.properties
+      #     echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
+      #     echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
+      #     echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
+
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -78,12 +99,15 @@ jobs:
             echo "Warning: app-debug.apk not found"
           fi
           
-          # Copy release APK if it exists
-          if [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
+          # Copy release APK (check for both signed and unsigned versions)
+          if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
+            cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/motorcycle-voice-notes-${VERSION}-release.apk
+            echo "Signed Release APK renamed successfully"
+          elif [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
             cp app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/motorcycle-voice-notes-${VERSION}-release-unsigned.apk
-            echo "Release APK renamed successfully"
+            echo "Unsigned Release APK renamed successfully"
           else
-            echo "Warning: app-release-unsigned.apk not found"
+            echo "Warning: No release APK found"
           fi
 
       - name: Upload Debug APK
@@ -96,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
-          path: app/build/outputs/apk/release/motorcycle-voice-notes-*-release-unsigned.apk
+          path: app/build/outputs/apk/release/motorcycle-voice-notes-*-release*.apk
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -104,7 +128,7 @@ jobs:
         with:
           files: |
             app/build/outputs/apk/debug/motorcycle-voice-notes-*-debug.apk
-            app/build/outputs/apk/release/motorcycle-voice-notes-*-release-unsigned.apk
+            app/build/outputs/apk/release/motorcycle-voice-notes-*-release*.apk
           body: |
             ## Motorcycle Voice Notes Release
 
@@ -112,7 +136,9 @@ jobs:
 
             Download the appropriate APK:
             - **Debug APK**: For development and testing (recommended for most users)
-            - **Release APK**: Unsigned release version
+            - **Release APK**: Optimized production version (may be signed or unsigned)
+
+            > **Note**: If the release APK is signed, it can be used for production. If unsigned, you may need to sign it yourself using your own keystore. See [SIGNING.md](https://github.com/${{ github.repository }}/blob/main/SIGNING.md) for instructions.
 
             ### First-Time Setup
 
