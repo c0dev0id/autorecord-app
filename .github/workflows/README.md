@@ -51,7 +51,47 @@ The workflow will create a draft release with both APKs attached.
 
 ---
 
-### 3. Pull Request Check (`pr-check.yml`)
+### 3. Create Release (`create-release.yml`)
+
+**Triggers:**
+- Manual trigger only (workflow_dispatch)
+
+**Actions:**
+- Validates version format (must be `v1.0.0` format)
+- Creates and pushes a git tag to the current HEAD commit
+- Generates a user-friendly changelog from commits
+- Builds signed or unsigned release APK
+- Creates a GitHub Release with changelog and APK
+- Verifies APK signature (if signed)
+
+**Usage:**
+
+1. Go to **Actions** tab in GitHub
+2. Select **"Create Release"** workflow
+3. Click **"Run workflow"**
+4. Enter version tag in format `v1.0.0` (e.g., `v1.0.0`, `v2.1.3`)
+5. Click **"Run workflow"**
+
+The workflow will:
+- Tag the current HEAD commit
+- Build the APK (signed if secrets are configured, unsigned otherwise)
+- Generate a changelog categorizing commits into Features, Improvements, and Bug Fixes
+- Create a GitHub Release with the APK and user-friendly notes
+- Provide a build summary with APK details
+
+**Signing Configuration (Optional):**
+
+To build signed APKs, add these secrets to your repository:
+- `KEYSTORE_FILE`: Base64-encoded keystore file
+- `KEYSTORE_PASSWORD`: Your keystore password
+- `KEY_ALIAS`: Your key alias
+- `KEY_PASSWORD`: Your key password
+
+If secrets are not configured, the workflow will build an unsigned APK.
+
+---
+
+### 4. Pull Request Check (`pr-check.yml`)
 
 **Triggers:**
 - Pull request opened, synchronized, or reopened
@@ -87,7 +127,22 @@ Artifacts are retained for:
 
 To create a new release:
 
-### Automated (Recommended)
+### Option 1: Manual Release Workflow (Recommended)
+
+Use the **Create Release** workflow to create a tagged release in one step:
+
+1. Go to **Actions** > **Create Release**
+2. Click **"Run workflow"**
+3. Enter version tag (e.g., `v1.0.0`)
+4. Click **"Run workflow"**
+
+The workflow will automatically:
+- Tag the current HEAD commit
+- Generate a user-friendly changelog
+- Build the APK (signed if configured, unsigned otherwise)
+- Create a GitHub Release with APK and changelog
+
+### Option 2: Automated via Git Tags
 
 1. **Update version** in `app/build.gradle`:
    ```gradle
@@ -112,7 +167,7 @@ To create a new release:
 
 5. **Check Releases page** for the new release with APKs
 
-### Manual
+### Option 3: Manual Build
 
 1. Go to Actions > Android Release Build
 2. Click "Run workflow"

@@ -1,0 +1,261 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release and Build APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for changelog generation
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version must be in format v1.0.0 (with 'v' prefix)"
+            exit 1
+          fi
+          echo "Version format is valid: $VERSION"
+
+      - name: Check if tag already exists
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Error: Tag $VERSION already exists!"
+            exit 1
+          fi
+          echo "Tag $VERSION does not exist, proceeding..."
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+          echo "Created and pushed tag: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+
+          # Get the previous tag (if any)
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "No previous tag found, generating full changelog"
+            COMMITS=$(git log --pretty=format:"- %s" --no-merges)
+          else
+            echo "Previous tag: $PREVIOUS_TAG"
+            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s" --no-merges)
+          fi
+
+          # Filter and categorize commits for end users
+          FEATURES=""
+          IMPROVEMENTS=""
+          FIXES=""
+          OTHER=""
+
+          while IFS= read -r line; do
+            # Skip lines starting with merge, workflow files, or CI keywords
+            if echo "$line" | grep -qiE "^- (merge |rebase |update.*workflow|update.*github action|ci:|cd:)"; then
+              continue
+            fi
+
+            # Skip test-only commits
+            if echo "$line" | grep -qiE "^- (test:|spec:|add.*test|update.*test)$"; then
+              continue
+            fi
+
+            # Categorize commits
+            if echo "$line" | grep -qiE "^- (feat:|feature:)"; then
+              FEATURES="${FEATURES}${line}\n"
+            elif echo "$line" | grep -qiE "^- (fix:|bugfix:|bug:)"; then
+              FIXES="${FIXES}${line}\n"
+            elif echo "$line" | grep -qiE "^- (improve:|improvement:|enhancement:|perf:|performance:)"; then
+              IMPROVEMENTS="${IMPROVEMENTS}${line}\n"
+            else
+              # Include all other commits as-is to avoid removing important context
+              OTHER="${OTHER}${line}\n"
+            fi
+          done <<< "$COMMITS"
+
+          # Build the changelog
+          CHANGELOG="## What's Changed\n\n"
+
+          if [ -n "$FEATURES" ]; then
+            CHANGELOG="${CHANGELOG}### ✨ New Features\n${FEATURES}\n"
+          fi
+
+          if [ -n "$IMPROVEMENTS" ]; then
+            CHANGELOG="${CHANGELOG}### 🚀 Improvements\n${IMPROVEMENTS}\n"
+          fi
+
+          if [ -n "$FIXES" ]; then
+            CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes\n${FIXES}\n"
+          fi
+
+          if [ -n "$OTHER" ]; then
+            CHANGELOG="${CHANGELOG}### 📝 Other Changes\n${OTHER}\n"
+          fi
+
+          # If no categorized changes, show a simple message
+          if [ -z "$FEATURES" ] && [ -z "$IMPROVEMENTS" ] && [ -z "$FIXES" ] && [ -z "$OTHER" ]; then
+            CHANGELOG="## What's Changed\n\nInitial release of Motorcycle Voice Notes.\n\n"
+          fi
+
+          # Add installation instructions
+          CHANGELOG="${CHANGELOG}---\n\n"
+          CHANGELOG="${CHANGELOG}## 📦 Installation\n\n"
+          CHANGELOG="${CHANGELOG}1. Download the APK file below\n"
+          CHANGELOG="${CHANGELOG}2. Enable \"Install from Unknown Sources\" on your Android device if prompted\n"
+          CHANGELOG="${CHANGELOG}3. Install the APK\n"
+          CHANGELOG="${CHANGELOG}4. Grant required permissions (microphone, location, storage)\n"
+          CHANGELOG="${CHANGELOG}5. Configure save directory and trigger app\n\n"
+          CHANGELOG="${CHANGELOG}## 📱 Requirements\n\n"
+          CHANGELOG="${CHANGELOG}- Android 8.0 (API 26) or higher\n"
+          CHANGELOG="${CHANGELOG}- GPS capability\n"
+          CHANGELOG="${CHANGELOG}- Microphone\n\n"
+          CHANGELOG="${CHANGELOG}For more information, visit the [repository](https://github.com/${{ github.repository }})."
+
+          # Save changelog to file
+          echo -e "$CHANGELOG" > changelog.md
+          cat changelog.md
+
+          # Save for later use
+          echo "changelog_file=changelog.md" >> $GITHUB_OUTPUT
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Check for signing secrets and decode keystore if available
+      - name: Check for signing configuration
+        id: check_signing
+        run: |
+          if [ -n "${{ secrets.KEYSTORE_FILE }}" ]; then
+            echo "signing_available=true" >> $GITHUB_OUTPUT
+            echo "Signing secrets are available"
+          else
+            echo "signing_available=false" >> $GITHUB_OUTPUT
+            echo "No signing secrets found, will build unsigned APK"
+          fi
+
+      - name: Decode Keystore
+        if: steps.check_signing.outputs.signing_available == 'true'
+        run: |
+          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > release.keystore
+          echo "Keystore decoded successfully"
+
+      - name: Create keystore.properties
+        if: steps.check_signing.outputs.signing_available == 'true'
+        run: |
+          echo "storeFile=release.keystore" >> keystore.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
+          echo "keystore.properties created"
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Rename APK
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          VERSION_NUMBER="${VERSION#v}"  # Remove 'v' prefix for filename
+
+          echo "Version: $VERSION"
+          echo "Version number: $VERSION_NUMBER"
+          echo "Listing APK files:"
+          ls -la app/build/outputs/apk/release/ || echo "Release directory not found"
+
+          # Check for signed or unsigned APK
+          if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
+            cp app/build/outputs/apk/release/app-release.apk motorcycle-voice-notes-${VERSION_NUMBER}.apk
+            echo "APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}.apk" >> $GITHUB_ENV
+            echo "APK_TYPE=signed" >> $GITHUB_ENV
+            echo "Signed APK found and renamed"
+          elif [ -f "app/build/outputs/apk/release/app-release-unsigned.apk" ]; then
+            cp app/build/outputs/apk/release/app-release-unsigned.apk motorcycle-voice-notes-${VERSION_NUMBER}-unsigned.apk
+            echo "APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}-unsigned.apk" >> $GITHUB_ENV
+            echo "APK_TYPE=unsigned" >> $GITHUB_ENV
+            echo "Unsigned APK found and renamed"
+          else
+            echo "Error: No release APK found!"
+            exit 1
+          fi
+
+          # Show APK size
+          ls -lh $APK_FILE
+
+      - name: Verify APK signature (if signed)
+        if: env.APK_TYPE == 'signed'
+        run: |
+          echo "Verifying APK signature..."
+          jarsigner -verify -verbose ${{ env.APK_FILE }} 2>&1 | grep -i "jar verified" && echo "✓ APK signature verified successfully" || echo "⚠ APK signature verification failed"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: Motorcycle Voice Notes ${{ github.event.inputs.version }}
+          body_path: changelog.md
+          files: ${{ env.APK_FILE }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Summary
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          echo "## 🎉 Release Created Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "**APK Type**: ${{ env.APK_TYPE }}" >> $GITHUB_STEP_SUMMARY
+          echo "**APK File**: ${{ env.APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**APK Size**:" >> $GITHUB_STEP_SUMMARY
+          ls -lh ${{ env.APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Changelog" >> $GITHUB_STEP_SUMMARY
+          cat changelog.md >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "View the release at: https://github.com/${{ github.repository }}/releases/tag/$VERSION" >> $GITHUB_STEP_SUMMARY
