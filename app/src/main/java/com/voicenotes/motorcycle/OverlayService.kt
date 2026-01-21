@@ -157,10 +157,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             updateBubbleLine1(getString(R.string.location_acquired_coords, coords))
         }
         
-        // Speak "Location acquired" and then "Recording started"
+        // Speak "Location acquired" and then "Speak your message"
         speakText(getString(R.string.location_acquired)) {
-            speakText(getString(R.string.recording_started)) {
-                startRecording()
+            speakText("Speak your message now") {
+                startSpeechRecognitionBeforeRecording()
             }
         }
     }
@@ -252,9 +252,13 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                     start()
                 }
             }
-
-            // Start live speech recognition
-            startLiveSpeechRecognition()
+            
+            // Keep showing the transcribed text on line 2 during recording
+            if (!transcribedText.isNullOrEmpty()) {
+                updateBubbleLine2("\"${transcribedText}\"")
+            } else {
+                updateBubbleLine2("🎤 Recording...")
+            }
             
             // Start countdown
             startCountdown()
@@ -302,38 +306,68 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         handler.post(countdownRunnable!!)
     }
 
-    private fun startLiveSpeechRecognition() {
+    private fun startSpeechRecognitionBeforeRecording() {
         try {
+            // Load recording duration from preferences
+            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            recordingDuration = prefs.getInt("recordingDuration", 10)
+            
             transcribedText = null
+            updateBubbleLine1("Listening...")
+            updateBubbleLine2("🎤 Speak now...")
             
             val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, recordingDuration * 1000L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2000L)
             }
             
             speechRecognizer?.setRecognitionListener(object : RecognitionListener {
-                override fun onReadyForSpeech(params: Bundle?) {}
-                override fun onBeginningOfSpeech() {}
+                override fun onReadyForSpeech(params: Bundle?) {
+                    updateBubbleLine2("🎤 Listening...")
+                }
+                override fun onBeginningOfSpeech() {
+                    updateBubbleLine2("🎤 Recognizing...")
+                }
                 override fun onRmsChanged(rmsdB: Float) {}
                 override fun onBufferReceived(buffer: ByteArray?) {}
-                override fun onEndOfSpeech() {}
-                override fun onError(error: Int) {}
+                override fun onEndOfSpeech() {
+                    // Speech ended, now start recording
+                }
+                override fun onError(error: Int) {
+                    // If transcription fails, continue with recording anyway
+                    updateBubbleLine2("Starting recording...")
+                    handler.postDelayed({
+                        speakText(getString(R.string.recording_started)) {
+                            startRecording()
+                        }
+                    }, 500)
+                }
                 
                 override fun onResults(results: Bundle?) {
                     val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
                         transcribedText = matches[0]
-                        updateBubbleLine2(transcribedText ?: "")
+                        updateBubbleLine2("\"${transcribedText}\"")
+                    } else {
+                        updateBubbleLine2("")
                     }
+                    // Now start the actual recording
+                    handler.postDelayed({
+                        speakText(getString(R.string.recording_started)) {
+                            startRecording()
+                        }
+                    }, 500)
                 }
                 
                 override fun onPartialResults(partialResults: Bundle?) {
                     val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
-                        transcribedText = matches[0]
-                        updateBubbleLine2(transcribedText ?: "")
+                        val partialText = matches[0]
+                        updateBubbleLine2("\"${partialText}...\"")
                     }
                 }
                 
@@ -343,6 +377,13 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             speechRecognizer?.startListening(recognizerIntent)
         } catch (e: Exception) {
             e.printStackTrace()
+            updateBubbleLine2("Speech recognition failed")
+            // Continue with recording even if speech recognition fails
+            handler.postDelayed({
+                speakText(getString(R.string.recording_started)) {
+                    startRecording()
+                }
+            }, 1000)
         }
     }
 
@@ -351,9 +392,6 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             // Stop countdown
             countdownRunnable?.let { handler.removeCallbacks(it) }
             
-            // Stop speech recognition
-            speechRecognizer?.stopListening()
-            
             mediaRecorder?.apply {
                 stop()
                 release()
@@ -361,7 +399,12 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             mediaRecorder = null
 
             updateBubbleLine1(getString(R.string.recording_stopped_msg))
-            updateBubbleLine2("")
+            // Keep the transcribed text visible on line 2
+            if (!transcribedText.isNullOrEmpty()) {
+                updateBubbleLine2("\"${transcribedText}\"")
+            } else {
+                updateBubbleLine2("")
+            }
 
             // Speak "Recording stopped"
             speakText(getString(R.string.recording_stopped)) {

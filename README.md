@@ -1,100 +1,58 @@
 # Motorcycle Voice Notes
 
-An Android app designed for recording voice notes while riding a motorcycle. The app automatically acquires your GPS location, records a 10-second voice note with speech-to-text transcription, saves it with location and timestamp information, and then launches your preferred navigation or music app.
+A lightweight Android app for motorcyclists to quickly record voice notes with GPS location tracking while riding.
 
-## Screenshots
+## What It Does
 
-> **Note**: Screenshots will be added after building and testing the app on an Android device. See [SCREENSHOTS.md](SCREENSHOTS.md) for detailed screenshot requirements and guidelines.
+Motorcycle Voice Notes is designed for hands-free operation while riding. When you launch the app:
 
-### Main Screen
-<!-- Screenshot of main activity showing recording interface -->
+1. **Speaks your GPS coordinates** via text-to-speech
+2. **Captures your voice message** through speech recognition
+3. **Records audio** (configurable 1-99 seconds, default 10 seconds)
+4. **Saves the recording** with GPS coordinates in the filename
+5. **Creates a GPX waypoint** with your transcribed message
+6. **Launches your preferred app** (navigation, music, etc.)
 
-### First Run Tutorial
-<!-- Screenshot of tutorial dialog explaining how the app works -->
+## Key Features
 
-### Settings Screen
-<!-- Screenshot of configuration screen -->
+- **GPS Tagging**: Every recording is named with precise coordinates and timestamp
+- **Speech-to-Text**: Your spoken words become waypoint descriptions in the GPX file
+- **Bluetooth Support**: Automatically uses your Bluetooth headset/helmet system
+- **Customizable**: Set recording duration, storage location, and trigger app
+- **GPX Export**: All locations saved to `acquired_locations.gpx` for easy import into mapping apps
+- **Minimal Interaction**: Launch once, everything happens automatically
+- **Overlay Bubble**: Visual feedback during recording with transcribed text display
 
-### App Selection
-<!-- Screenshot of app chooser dialog -->
+## Perfect For
 
-For detailed screenshot specifications, see [SCREENSHOTS.md](SCREENSHOTS.md).
-
-## Features
-
-- **Automatic GPS Location**: Acquires precise GPS coordinates on app launch
-- **Voice Feedback**: Announces recording start and stop via text-to-speech
-- **Configurable Recording Duration**: Records 1-99 seconds of audio in MP3 format (AAC encoding), default 10 seconds
-- **Live Speech-to-Text**: Transcribes your voice in real-time during recording
-- **Smart Naming**: Saves files as `latitude,longitude_timestamp.mp3`
-- **Coordinate-Based Waypoints**: GPX waypoint names use "VoiceNote: " + coordinates format
-- **Transcription in Descriptions**: GPX waypoint descriptions contain your transcribed speech
-- **GPX Waypoint Tracking**: Creates/updates `acquired_locations.gpx` with waypoints for each recording
-- **Bluetooth Microphone Support**: Automatically prefers Bluetooth microphones when connected
-- **Always Recording**: Records again every time you launch the app
-- **Background Operation**: Continues recording while your trigger app runs
-- **Landscape Support**: Works in both portrait and landscape orientations
-- **Hands-Free Design**: Minimal interaction required while riding
-- **First-Run Tutorial**: Explains how the app works on first launch
-
-## User Guide
-
-For detailed setup and usage instructions, see the **[User Guide](USER_GUIDE.md)**.
-
-Quick start:
-1. Install the app and launch it
-2. Grant microphone, location, Bluetooth, and notification permissions
-3. Choose where to save recordings
-4. Select which app to launch after recording
-5. View the tutorial explaining how the app works
-6. Start recording! The app will handle the rest automatically
-
-## Perfect for Motorcyclists
-
-This app is designed for quick voice notes while riding:
-- Record observations, directions, or reminders
-- Automatically tagged with GPS location
-- Speech transcribed and used as waypoint names
-- Bluetooth headset support for clearer audio
-- Minimal distraction from riding
-- Quick return to navigation or music app
-- Records every time you launch it
+- Recording riding observations and directions
+- Making quick voice memos without stopping
+- Tagging interesting locations with voice notes
+- Building route waypoints for future reference
+- Hands-free operation with Bluetooth helmet systems
 
 ## Quick Start
 
-### Download Pre-built APK
-
-Download the latest APK from:
-- **[Releases Page](https://github.com/c0dev0id/autorecord-app/releases)** - Stable releases with version tags
-- **[Actions Tab](https://github.com/c0dev0id/autorecord-app/actions)** - Latest builds from CI pipeline
-
 ### Installation
 
-1. Download the APK file to your Android device
-2. Enable "Install from Unknown Sources" if prompted
-3. Install the APK
-4. Launch the app and complete first-time setup:
-   - Grant microphone, location, and storage permissions
-   - Choose a save directory for recordings
-   - Select a trigger app (e.g., Google Maps, Spotify)
-   - Configure recording duration (optional, defaults to 10 seconds)
-5. On subsequent launches, the app automatically:
-   - Acquires GPS location
-   - Records audio for your configured duration
-   - Saves the file
-   - Launches your trigger app
+1. Download the APK from [Releases](https://github.com/c0dev0id/autorecord-app/releases) or [Actions](https://github.com/c0dev0id/autorecord-app/actions)
+2. Install on your Android device (Android 8.0+)
+3. Launch the app and complete initial setup:
+   - Grant permissions (microphone, location, Bluetooth, overlay)
+   - Choose recording storage location
+   - Select trigger app (auto-detects DMD2 if installed)
+   - Optionally set recording duration (default: 10 seconds)
 
-## Building from Source
+### Usage
 
-The project includes automated CI/CD pipelines via GitHub Actions:
+Just launch the app whenever you want to record a note. The app handles everything automatically and returns you to your selected app.
 
-- **Automatic builds** on every push
-- **Release builds** on version tags
-- **Pull request checks** to ensure code quality
+## File Format
 
-You can build both debug and signed release APKs. See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed manual build instructions, or check the [GitHub Actions workflows](.github/workflows/README.md) for automated builds.
-
-For creating signed APKs suitable for distribution or Google Play Store publishing, see the comprehensive [SIGNING.md](SIGNING.md) guide.
+- **Audio**: MP3 files with AAC encoding (128 kbps, 44.1 kHz)
+- **Naming**: `latitude,longitude_timestamp.mp3`
+- **Example**: `34.052235,-118.243683_20260120_143022.mp3`
+- **GPX File**: `acquired_locations.gpx` with waypoints containing your transcribed voice notes
 
 ## Requirements
 
@@ -102,33 +60,25 @@ For creating signed APKs suitable for distribution or Google Play Store publishi
 - GPS capability
 - Microphone
 - Storage access
+- Bluetooth (optional, for headset support)
 
-## Permissions
+## Building from Source
 
-The app requires:
-- **Microphone**: To record audio
-- **Fine Location**: To tag recordings with GPS coordinates
-- **Bluetooth**: To detect and use Bluetooth microphones
-- **Bluetooth Connect**: To connect to Bluetooth audio devices (Android 12+)
-- **Modify Audio Settings**: To route audio to Bluetooth devices
-- **Storage**: To save recording files
-- **Notifications**: To provide status updates (Android 13+)
-- **Query All Packages**: To list installed apps for trigger app selection
+See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build setup and instructions.
 
-## Technical Stack
+## Technical Details
 
 - **Language**: Kotlin
 - **Build System**: Gradle
-- **Location Services**: Google Play Services Location API
-- **Audio Recording**: MediaRecorder
+- **Location**: Google Play Services Location API
+- **Audio**: MediaRecorder with AAC encoding
+- **Speech Recognition**: Android SpeechRecognizer API
 - **Text-to-Speech**: Android TTS Engine
 
-## File Format
+## License
 
-Recordings are saved as `.mp3` files with AAC encoding at 128 kbps and 44.1 kHz sample rate, providing excellent quality for voice while keeping file sizes reasonable.
+This project is provided as-is for personal use.
 
-Filename format: `<latitude>,<longitude>_<timestamp>.mp3`
+---
 
-Example: `34.052235,-118.243683_20260120_143022.mp3`
-
-A GPX file (`acquired_locations.gpx`) is automatically created/updated with waypoints for each recording. The waypoint names use the format "VoiceNote: " followed by coordinates, while the waypoint descriptions contain the transcribed text from your voice note when available, making it easy to identify locations by what you said.
+**Safety First**: Never manipulate your phone while riding. Configure the app before you start riding, and use voice commands or pull over safely to launch it.

@@ -201,6 +201,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/grant_all_permissions"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="12dp" />
+
+                <Button
+                    android:id="@+id/requestOverlayButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Grant Overlay Permission"
                     android:textSize="14sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

@@ -31,9 +31,11 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var chooseTriggerAppButton: Button
     private lateinit var setDurationButton: Button
     private lateinit var requestPermissionsButton: Button
+    private lateinit var requestOverlayButton: Button
     private lateinit var quitButton: Button
 
     private val PERMISSIONS_REQUEST_CODE = 200
+    private val OVERLAY_PERMISSION_REQUEST_CODE = 201
 
     private val requiredPermissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
@@ -68,9 +70,13 @@ class SettingsActivity : AppCompatActivity() {
         chooseTriggerAppButton = findViewById(R.id.chooseTriggerAppButton)
         setDurationButton = findViewById(R.id.setDurationButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
+        requestOverlayButton = findViewById(R.id.requestOverlayButton)
         quitButton = findViewById(R.id.quitButton)
 
         loadCurrentSettings()
+        
+        // Auto-configure DMD2 if installed and no trigger app is set
+        autoConfigureDMD2IfAvailable()
 
         chooseDirectoryButton.setOnClickListener {
             openDirectoryPicker()
@@ -84,12 +90,51 @@ class SettingsActivity : AppCompatActivity() {
             requestAllPermissions()
         }
 
+        requestOverlayButton.setOnClickListener {
+            requestOverlayPermission()
+        }
+
         setDurationButton.setOnClickListener {
             saveDuration()
         }
 
         quitButton.setOnClickListener {
             finishAffinity()
+        }
+    }
+    
+    private fun autoConfigureDMD2IfAvailable() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val triggerApp = prefs.getString("triggerApp", null)
+        
+        // Only auto-configure if no trigger app is set
+        if (triggerApp.isNullOrEmpty()) {
+            val dmd2Package = "com.riser.dmd2"
+            if (isAppInstalled(dmd2Package)) {
+                try {
+                    val pm = packageManager
+                    val dmd2App = pm.getApplicationInfo(dmd2Package, PackageManager.GET_META_DATA)
+                    val dmd2Name = dmd2App.loadLabel(pm).toString()
+                    
+                    saveTriggerApp(dmd2Package, dmd2Name)
+                    Toast.makeText(
+                        this,
+                        "DMD2 detected and set as default trigger app",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (e: PackageManager.NameNotFoundException) {
+                    // App was uninstalled between check and retrieval, ignore
+                }
+            }
+        }
+    }
+    
+    private fun isAppInstalled(packageName: String): Boolean {
+        return try {
+            packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
         }
     }
 
@@ -104,11 +149,61 @@ class SettingsActivity : AppCompatActivity() {
         triggerAppText.text = triggerAppName ?: getString(R.string.not_set)
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
+        
+        // Update overlay button text based on permission status
+        updateOverlayButtonText()
+    }
+
+    private fun updateOverlayButtonText() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.canDrawOverlays(this)) {
+                requestOverlayButton.text = "Overlay Permission: ✓ Granted"
+                requestOverlayButton.isEnabled = false
+            } else {
+                requestOverlayButton.text = "Grant Overlay Permission"
+                requestOverlayButton.isEnabled = true
+            }
+        } else {
+            requestOverlayButton.text = "Overlay Permission: Not Required"
+            requestOverlayButton.isEnabled = false
+        }
+    }
+
+    private fun requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.overlay_permission_required)
+                .setMessage(R.string.overlay_permission_message)
+                .setPositiveButton("Grant") { _, _ ->
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    )
+                    startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        } else {
+            Toast.makeText(this, "Overlay permission already granted", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        
+        if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
+            updateOverlayButtonText()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun openDirectoryPicker() {
         try {
-            // For Android 11+, we need to use the default directory approach
+            // For Android 11+, we need proper storage permissions
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 // Check if we have MANAGE_EXTERNAL_STORAGE permission
                 if (!Environment.isExternalStorageManager()) {
@@ -117,13 +212,23 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            // Use a default directory for simplicity
-            val defaultPath = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_MUSIC
-            ).absolutePath + "/VoiceNotes"
-
-            saveDirectoryPath(defaultPath)
-            Toast.makeText(this, "Using directory: $defaultPath", Toast.LENGTH_LONG).show()
+            // Show options to user: Use default or choose custom
+            AlertDialog.Builder(this)
+                .setTitle("Choose Storage Location")
+                .setMessage("Select where to save recordings:")
+                .setPositiveButton("Use Default") { _, _ ->
+                    val defaultPath = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_MUSIC
+                    ).absolutePath + "/VoiceNotes"
+                    saveDirectoryPath(defaultPath)
+                    Toast.makeText(this, "Using default directory", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("Choose Custom") { _, _ ->
+                    // Use the document picker for custom location
+                    directoryPickerLauncher.launch(null)
+                }
+                .setNeutralButton("Cancel", null)
+                .show()
 
         } catch (e: Exception) {
             Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
@@ -150,19 +255,46 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun handleDirectorySelection(uri: Uri) {
         try {
+            // Take persistable URI permission
             contentResolver.takePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
 
+            // Convert DocumentFile URI to a file path if possible
             val documentFile = DocumentFile.fromTreeUri(this, uri)
-            val path = documentFile?.uri?.path ?: uri.path
+            
+            // For custom URIs, we need to store the URI itself since we can't always get a file path
+            // But for simplicity, we'll try to extract a path
+            val path = when {
+                uri.path?.contains("/tree/primary:") == true -> {
+                    // Primary storage
+                    val relativePath = uri.path!!.substringAfter("/tree/primary:")
+                    Environment.getExternalStorageDirectory().absolutePath + "/" + relativePath
+                }
+                uri.path?.contains("/document/primary:") == true -> {
+                    val relativePath = uri.path!!.substringAfter("/document/primary:")
+                    Environment.getExternalStorageDirectory().absolutePath + "/" + relativePath
+                }
+                else -> {
+                    // Fallback to default
+                    Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_MUSIC
+                    ).absolutePath + "/VoiceNotes"
+                }
+            }
 
-            saveDirectoryPath(path ?: "")
-            Toast.makeText(this, "Directory selected", Toast.LENGTH_SHORT).show()
+            saveDirectoryPath(path)
+            Toast.makeText(this, "Custom directory set", Toast.LENGTH_SHORT).show()
 
         } catch (e: Exception) {
+            e.printStackTrace()
             Toast.makeText(this, "Error selecting directory: ${e.message}", Toast.LENGTH_LONG).show()
+            // Fallback to default
+            val defaultPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_MUSIC
+            ).absolutePath + "/VoiceNotes"
+            saveDirectoryPath(defaultPath)
         }
     }
 
