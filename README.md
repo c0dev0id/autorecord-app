@@ -49,9 +49,9 @@ Just launch the app whenever you want to record a note. The app handles everythi
 
 ## File Format
 
-- **Audio**: MP3 files with AAC encoding (128 kbps, 44.1 kHz)
-- **Naming**: `latitude,longitude_timestamp.mp3`
-- **Example**: `34.052235,-118.243683_20260120_143022.mp3`
+- **Audio**: MPEG-4 files with AAC encoding (128 kbps, 44.1 kHz)
+- **Naming**: `latitude,longitude_timestamp.m4a`
+- **Example**: `34.052235,-118.243683_20260120_143022.m4a`
 - **GPX File**: `acquired_locations.gpx` with waypoints containing your transcribed voice notes
 
 ## Requirements
