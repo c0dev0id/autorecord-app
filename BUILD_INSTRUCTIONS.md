@@ -98,7 +98,7 @@ If you're using GitHub Actions to build your app:
 
 1. Go to your repository Settings → Secrets and variables → Actions
 2. Click "New repository secret"
-3. Name: `GOOGLE_CLOUD_API_JSON`
+3. Name: `GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON`
 4. Value: The entire content of your service account JSON file
 5. Click "Add secret"
 

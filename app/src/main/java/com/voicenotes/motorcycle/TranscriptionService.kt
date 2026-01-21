@@ -24,15 +24,24 @@ class TranscriptionService(private val context: Context) {
         try {
             val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
             
+            // Enhanced error checking with specific messages
             if (serviceAccountJson.isBlank() || serviceAccountJson == "{}") {
-                return@withContext Result.failure(Exception("Google Cloud service account credentials not configured"))
+                val errorMsg = "Google Cloud service account credentials not configured. " +
+                    "Please add GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON to gradle.properties (local) or " +
+                    "as a GitHub Secret named 'GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON' (CI/CD)."
+                Log.e("TranscriptionService", errorMsg)
+                return@withContext Result.failure(Exception(errorMsg))
             }
 
-            // Validate service account JSON format
+            // Validate service account JSON format with detailed error
             if (!serviceAccountJson.contains("\"type\"") || 
                 !serviceAccountJson.contains("\"project_id\"") || 
                 !serviceAccountJson.contains("\"private_key\"")) {
-                return@withContext Result.failure(Exception("Invalid service account JSON format. Must contain type, project_id, and private_key fields."))
+                val errorMsg = "Invalid service account JSON format. " +
+                    "The JSON must contain 'type', 'project_id', and 'private_key' fields. " +
+                    "Current value starts with: ${serviceAccountJson.take(50)}..."
+                Log.e("TranscriptionService", errorMsg)
+                return@withContext Result.failure(Exception(errorMsg))
             }
 
             // Read audio file
