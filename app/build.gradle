@@ -66,4 +66,20 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'androidx.activity:activity-ktx:1.8.1'
     implementation 'androidx.cardview:cardview:1.0.0'
+    
+    // Networking for OSM API
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+    
+    // OAuth 2.0 for OpenStreetMap
+    implementation 'net.openid:appauth:0.11.1'
+    
+    // Encrypted storage for tokens
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    
+    // Coroutines for async operations
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
 }

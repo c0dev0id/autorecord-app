@@ -366,8 +366,6 @@ High-priority enhancements that could be considered:
 
 Other potential future features:
 
-- **Cloud-based transcription**: Optional Google Cloud Speech-to-Text integration for better accuracy
-- **Offline transcription**: Use offline models for privacy-conscious users
 - Audio playback within app
 - Cloud backup integration
 - Voice commands for app launch
@@ -376,6 +374,87 @@ Other potential future features:
 - Recording organization/tagging
 - Export recordings as podcast feed
 - Integration with fitness tracking apps
+
+## OpenStreetMap Notes Integration
+
+### Overview
+
+The app now includes optional integration with OpenStreetMap to automatically create notes at recording locations with transcribed text.
+
+### How It Works
+
+1. **Enable Feature**: Check "Add Location Note to OSM Account" in Configuration
+2. **Authentication**: Connect to your OpenStreetMap account via OAuth 2.0
+3. **Automatic Creation**: After each recording, if online, a note is created at the location
+4. **Graceful Degradation**: If offline, note creation is skipped without affecting recordings
+
+### Technical Implementation
+
+**OAuth 2.0 Flow**:
+- Uses AppAuth library for secure OAuth 2.0 implementation
+- Implements PKCE (Proof Key for Code Exchange) for enhanced security
+- Tokens stored in EncryptedSharedPreferences using AES-256-GCM encryption
+- Automatic token refresh handled by AppAuth
+
+**API Integration**:
+- Retrofit + OkHttp for HTTP communication
+- Endpoint: `POST https://api.openstreetmap.org/api/0.6/notes`
+- Parameters: latitude, longitude, text (transcribed content)
+- Authorization: OAuth 2.0 Bearer token
+- Response: XML format (handled as string)
+
+**Network Handling**:
+- Checks connectivity before API calls
+- 30-second timeout for all operations
+- Asynchronous execution using Kotlin coroutines
+- Silent failure - never blocks recording workflow
+
+**Security**:
+- Tokens encrypted at rest using Android KeyStore
+- No sensitive data in logs
+- OAuth tokens never exposed to user
+- Secure token storage separate from app SharedPreferences
+
+**User Experience**:
+- One-time OAuth flow
+- Persistent connection across app restarts
+- Clear connection status in settings
+- Easy disconnect/reconnect
+- No interruption to recording process
+
+### Features
+
+- **Automatic Note Creation**: Notes created with GPS coordinates and transcribed text
+- **OAuth 2.0 Authentication**: Secure authentication with OpenStreetMap
+- **Encrypted Token Storage**: Tokens stored securely using EncryptedSharedPreferences
+- **Offline Handling**: Graceful degradation when no network available
+- **Connection Management**: Easy connect/disconnect from settings
+- **Non-Blocking**: Never interrupts the recording workflow
+- **Error Resilience**: Handles API failures, rate limits, and expired tokens
+
+### Benefits
+
+- **Share Discoveries**: Contribute points of interest to the OSM community
+- **Route Documentation**: Build a publicly accessible record of your routes
+- **Community Contribution**: Help improve OpenStreetMap data
+- **Backup Location Data**: Notes persist on OSM servers
+- **Cross-Platform Access**: View notes on any device via openstreetmap.org
+
+### Privacy & Data
+
+- Notes created in OSM are **public** and visible to all users
+- Your OSM username is associated with created notes
+- Transcribed text is uploaded to OSM (consider privacy when speaking)
+- Token encryption ensures secure local storage
+- No data shared beyond what's necessary for OSM API
+
+### Limitations
+
+- Requires internet connectivity (offline recordings still work normally)
+- Requires an OpenStreetMap account
+- Subject to OSM API rate limits
+- Notes are public on OpenStreetMap
+- Text limited to 2000 characters (auto-truncated if longer)
 
 ## Technical Implementation Notes
 

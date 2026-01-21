@@ -20,6 +20,7 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
 - **Bluetooth Support**: Automatically uses your Bluetooth headset/helmet system
 - **Customizable**: Set recording duration, storage location, and trigger app
 - **GPX Export**: All locations saved to `acquired_locations.gpx` for easy import into mapping apps
+- **OpenStreetMap Integration**: Optionally create notes at recording locations in your OSM account
 - **Minimal Interaction**: Launch once, everything happens automatically
 - **Overlay Bubble**: Visual feedback during recording with transcribed text display
 
@@ -47,6 +48,17 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
 
 Just launch the app whenever you want to record a note. The app handles everything automatically and returns you to your selected app.
 
+### OpenStreetMap Integration (Optional)
+
+The app can automatically create notes at recording locations in your OpenStreetMap account:
+
+1. Open the Configuration screen
+2. Check "Add Location Note to OSM Account"
+3. Click "Connect to OpenStreetMap" and sign in with your OSM account
+4. Once connected, notes will be created automatically after each recording (when online)
+
+**Note**: This requires an OpenStreetMap account and internet connectivity. If offline, note creation is skipped automatically without affecting recordings.
+
 ## File Format
 
 - **Audio**: MP3 files with AAC encoding (128 kbps, 44.1 kHz)
@@ -61,6 +73,7 @@ Just launch the app whenever you want to record a note. The app handles everythi
 - Microphone
 - Storage access
 - Bluetooth (optional, for headset support)
+- Internet connection (optional, for OpenStreetMap integration)
 
 ## Building from Source
 
@@ -74,6 +87,9 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build setup and 
 - **Audio**: MediaRecorder with AAC encoding
 - **Speech Recognition**: Android SpeechRecognizer API
 - **Text-to-Speech**: Android TTS Engine
+- **HTTP Client**: Retrofit + OkHttp (for OSM API)
+- **OAuth**: AppAuth library (for OSM authentication)
+- **Secure Storage**: EncryptedSharedPreferences (for tokens)
 
 ## License
 

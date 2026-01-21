@@ -35,4 +35,17 @@
     <string name="recording_started">Recording started</string>
     <string name="overlay_permission_required">Overlay Permission Required</string>
     <string name="overlay_permission_message">This app needs permission to display over other apps for the bubble overlay feature</string>
+    
+    <!-- OSM Notes feature strings -->
+    <string name="osm_enable_checkbox">Add Location Note to OSM Account</string>
+    <string name="osm_section_title">OpenStreetMap Integration</string>
+    <string name="osm_connect_button">Connect to OpenStreetMap</string>
+    <string name="osm_disconnect_button">Disconnect</string>
+    <string name="osm_status_connected">Connected as: %s</string>
+    <string name="osm_status_not_connected">Not connected</string>
+    <string name="osm_info_text">When enabled, a note will be created at the recording location in your OpenStreetMap account with the transcribed text.</string>
+    <string name="osm_disconnect_title">Disconnect from OpenStreetMap</string>
+    <string name="osm_disconnect_message">Are you sure you want to disconnect? You\'ll need to authenticate again to create notes.</string>
+    <string name="osm_disconnect_confirm">Disconnect</string>
+    <string name="osm_disconnected">Disconnected from OpenStreetMap</string>
 </resources>

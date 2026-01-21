@@ -31,6 +31,11 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.voicenotes.motorcycle.osm.OsmNotesManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,6 +60,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private var recordingDuration = 10
     private var remainingSeconds = 0
     private var countdownRunnable: Runnable? = null
+    
+    // OSM integration
+    private lateinit var osmNotesManager: OsmNotesManager
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()
@@ -68,6 +77,7 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         textToSpeech = TextToSpeech(this, this)
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        osmNotesManager = OsmNotesManager(this)
         
         createOverlay()
     }
@@ -427,6 +437,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 val waypointName = "VoiceNote: ${lat},${lng}"
                 val waypointDesc = transcribedText ?: fileName
                 createOrUpdateGpxFile(location, waypointName, waypointDesc)
+                
+                // Create OSM note if enabled
+                createOsmNoteIfEnabled(location, waypointDesc)
             }
         }
 
@@ -437,6 +450,28 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         handler.postDelayed({
             stopSelfAndFinish()
         }, 2000)
+    }
+    
+    private fun createOsmNoteIfEnabled(location: Location, noteText: String) {
+        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val osmEnabled = prefs.getBoolean("osmEnabled", false)
+        
+        if (!osmEnabled) {
+            return
+        }
+        
+        // Launch coroutine to create note asynchronously
+        serviceScope.launch {
+            try {
+                osmNotesManager.createNote(
+                    location.latitude,
+                    location.longitude,
+                    noteText
+                )
+            } catch (e: Exception) {
+                // Silently fail - already logged in OsmNotesManager
+            }
+        }
     }
 
     private fun createOrUpdateGpxFile(location: Location?, waypointName: String, waypointDesc: String) {
