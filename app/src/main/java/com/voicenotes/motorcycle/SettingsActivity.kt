@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,8 +24,11 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var directoryPathText: TextView
     private lateinit var triggerAppText: TextView
+    private lateinit var durationValueText: TextView
+    private lateinit var durationEditText: EditText
     private lateinit var chooseDirectoryButton: Button
     private lateinit var chooseTriggerAppButton: Button
+    private lateinit var setDurationButton: Button
     private lateinit var requestPermissionsButton: Button
     private lateinit var quitButton: Button
 
@@ -60,8 +64,11 @@ class SettingsActivity : AppCompatActivity() {
 
         directoryPathText = findViewById(R.id.directoryPathText)
         triggerAppText = findViewById(R.id.triggerAppText)
+        durationValueText = findViewById(R.id.durationValueText)
+        durationEditText = findViewById(R.id.durationEditText)
         chooseDirectoryButton = findViewById(R.id.chooseDirectoryButton)
         chooseTriggerAppButton = findViewById(R.id.chooseTriggerAppButton)
+        setDurationButton = findViewById(R.id.setDurationButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         quitButton = findViewById(R.id.quitButton)
 
@@ -79,6 +86,10 @@ class SettingsActivity : AppCompatActivity() {
             requestAllPermissions()
         }
 
+        setDurationButton.setOnClickListener {
+            saveDuration()
+        }
+
         quitButton.setOnClickListener {
             finishAffinity()
         }
@@ -89,9 +100,12 @@ class SettingsActivity : AppCompatActivity() {
         val saveDir = prefs.getString("saveDirectory", null)
         val triggerApp = prefs.getString("triggerApp", null)
         val triggerAppName = prefs.getString("triggerAppName", null)
+        val recordingDuration = prefs.getInt("recordingDuration", 10)
 
         directoryPathText.text = saveDir ?: getString(R.string.not_set)
         triggerAppText.text = triggerAppName ?: getString(R.string.not_set)
+        durationValueText.text = "$recordingDuration seconds"
+        durationEditText.setText(recordingDuration.toString())
     }
 
     private fun openDirectoryPicker() {
@@ -207,6 +221,33 @@ class SettingsActivity : AppCompatActivity() {
             .apply()
         triggerAppText.text = appName
         Toast.makeText(this, "Trigger app set to: $appName", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun saveDuration() {
+        val durationStr = durationEditText.text.toString()
+        
+        if (durationStr.isEmpty()) {
+            Toast.makeText(this, R.string.invalid_duration, Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        try {
+            val duration = durationStr.toInt()
+            
+            if (duration < 1 || duration > 99) {
+                Toast.makeText(this, R.string.invalid_duration, Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            prefs.edit().putInt("recordingDuration", duration).apply()
+            
+            durationValueText.text = "$duration seconds"
+            Toast.makeText(this, getString(R.string.duration_saved, duration), Toast.LENGTH_SHORT).show()
+            
+        } catch (e: NumberFormatException) {
+            Toast.makeText(this, R.string.invalid_duration, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun requestAllPermissions() {

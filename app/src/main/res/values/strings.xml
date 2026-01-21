@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Motorcycle Voice Notes</string>
     <string name="settings_title">Configuration</string>
-    <string name="location_acquired">Location acquired, recording for 10 seconds</string>
+    <string name="location_acquired">Location acquired, recording</string>
     <string name="recording_stopped">Recording complete</string>
     <string name="permission_required">Permissions Required</string>
     <string name="grant_permissions">This app requires microphone and location permissions to record voice notes with GPS coordinates</string>
@@ -19,4 +19,9 @@
     <string name="grant_all_permissions">Grant Required Permissions</string>
     <string name="configuration_info">Configure where recordings are saved and which app launches after recording completes</string>
     <string name="quit_app">Quit</string>
+    <string name="recording_duration">Recording Duration (seconds)</string>
+    <string name="duration_hint">Enter 1-99 seconds</string>
+    <string name="invalid_duration">Duration must be between 1 and 99 seconds</string>
+    <string name="duration_saved">Recording duration set to %d seconds</string>
+    <string name="set_duration_button">Set Duration</string>
 </resources>

@@ -24,7 +24,7 @@ For detailed screenshot specifications, see [SCREENSHOTS.md](SCREENSHOTS.md).
 
 - **Automatic GPS Location**: Acquires precise GPS coordinates on app launch
 - **Voice Feedback**: Announces recording start and stop via text-to-speech
-- **Quick Recording**: Records exactly 10 seconds of audio in MP3 format (AAC encoding)
+- **Configurable Recording Duration**: Records 1-99 seconds of audio in MP3 format (AAC encoding), default 10 seconds
 - **Live Speech-to-Text**: Transcribes your voice in real-time during recording
 - **Smart Naming**: Saves files as `latitude,longitude_timestamp.mp3`
 - **Coordinate-Based Waypoints**: GPX waypoint names use "VoiceNote: " + coordinates format
@@ -77,9 +77,10 @@ Download the latest APK from:
    - Grant microphone, location, and storage permissions
    - Choose a save directory for recordings
    - Select a trigger app (e.g., Google Maps, Spotify)
+   - Configure recording duration (optional, defaults to 10 seconds)
 5. On subsequent launches, the app automatically:
    - Acquires GPS location
-   - Records 10 seconds of audio
+   - Records audio for your configured duration
    - Saves the file
    - Launches your trigger app
 

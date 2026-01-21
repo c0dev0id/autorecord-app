@@ -19,7 +19,7 @@
 **How It Works**:
 - No manual start/stop buttons required
 - Recording begins after GPS location is acquired
-- Fixed 10-second duration for consistency
+- Configurable duration (1-99 seconds, default 10)
 - Saves automatically without user intervention
 
 **Benefits**:
@@ -55,7 +55,7 @@
 - Encoding: AAC (Advanced Audio Coding)
 - Bitrate: 128 kbps
 - Sample Rate: 44.1 kHz
-- Duration: Fixed 10 seconds
+- Duration: Configurable (1-99 seconds, default 10)
 
 **Benefits**:
 - Universal compatibility
@@ -85,23 +85,28 @@
 - Better for motorcycle riding
 - Professional audio capture
 
-### Fixed Duration Recording
+### Configurable Duration Recording
 
-**Description**: All recordings are exactly 10 seconds long.
+**Description**: Recording duration can be configured from 1 to 99 seconds.
+
+**Configuration**:
+- Set in Settings screen
+- Range: 1-99 seconds
+- Default: 10 seconds
+- Persists across app restarts
 
 **Why This Design**:
-- Keeps notes concise and to the point
-- Prevents accidentally long recordings
-- Consistent file sizes
-- Quick to review later
-- Encourages focused thoughts
+- Flexibility for different use cases
+- Short notes (1-5 seconds) for quick markers
+- Medium notes (10-30 seconds) for observations
+- Long notes (60+ seconds) for detailed descriptions
+- User controls recording length
 
 **Use Cases**:
-- Quick observations
-- Turn-by-turn directions
-- Scenic spot markers
-- Emergency notes
-- Point of interest marking
+- Quick location markers (1-5 seconds)
+- Turn-by-turn directions (10-20 seconds)
+- Scenic spot descriptions (30-60 seconds)
+- Detailed notes or thoughts (60-99 seconds)
 
 ## Location Features
 
@@ -156,7 +161,7 @@
 **Description**: Voice announcements guide you through the recording process.
 
 **Announcements**:
-1. "Location acquired, recording for 10 seconds" - When recording starts
+1. "Location acquired, recording" - When recording starts
 2. "Recording stopped" - When recording completes
 
 **Benefits**:
@@ -197,7 +202,7 @@
 
 **Content Explained**:
 - GPS location acquisition
-- 10-second recording process
+- Configurable recording duration
 - Speech-to-text transcription
 - File saving with coordinates
 - GPX waypoint creation
@@ -267,7 +272,7 @@
 
 **How It Works**:
 - Recording doesn't stop if trigger app launches
-- Continues recording for full 10 seconds
+- Continues recording for configured duration
 - Saves file in background
 - Creates GPX waypoint even if backgrounded
 
@@ -361,8 +366,8 @@ High-priority enhancements that could be considered:
 
 Other potential future features:
 
-- Adjustable recording duration
-- Multiple recording modes (quick/long)
+- **Cloud-based transcription**: Optional Google Cloud Speech-to-Text integration for better accuracy
+- **Offline transcription**: Use offline models for privacy-conscious users
 - Audio playback within app
 - Cloud backup integration
 - Voice commands for app launch
@@ -433,8 +438,9 @@ If true MP3 encoding is required, a third-party library like LAME would need to 
 
 ### Storage Requirements
 - App size: ~5-10 MB
-- Per recording: ~1-2 MB (10 seconds at 128 kbps)
-- 100 recordings: ~100-200 MB
+- Per recording (10-second default): ~1-2 MB (at 128 kbps)
+- Per recording (60 seconds): ~6-12 MB (at 128 kbps)
+- 100 recordings (10 seconds each): ~100-200 MB
 - GPX file: Minimal (<1 KB per waypoint)
 
 ### Network Usage

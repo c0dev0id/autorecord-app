@@ -42,6 +42,17 @@ The app requires the following permissions to function:
 
 Tap **"Grant Required Permissions"** and allow all requested permissions.
 
+### 4. Configure Recording Duration (Optional)
+
+You can customize how long each recording lasts:
+
+- The default recording duration is **10 seconds**
+- You can change this to any value between **1 and 99 seconds**
+- Open the Settings screen and find the "Recording Duration (seconds)" card
+- Enter your desired duration (e.g., 5 for quick markers, 30 for detailed notes)
+- Tap "Set Duration" to save
+- This setting persists across all future recordings
+
 ## How It Works
 
 ### First Run After Setup
@@ -52,8 +63,8 @@ On your first actual recording session, you'll see a tutorial explaining:
 2. **Tutorial screen appears** explaining the process
 3. Tap "Start Recording" to begin
 4. The app acquires your GPS location
-5. Voice announcement: "Location acquired, recording for 10 seconds"
-6. Records for exactly 10 seconds (using Bluetooth mic if available)
+5. Voice announcement: "Location acquired, recording"
+6. Records for your configured duration (using Bluetooth mic if available)
 7. Audio is transcribed to text in real-time
 8. Voice announcement: "Recording complete"
 9. Saves the file with GPS coordinates in filename
@@ -67,7 +78,7 @@ Every time you launch the app:
 1. Launch the app
 2. Recording process starts automatically
 3. GPS acquisition
-4. 10-second recording with live transcription
+4. Recording with live transcription (duration you configured)
 5. File saved with waypoint created using your spoken text
 6. Your trigger app launches
 7. You can continue using your trigger app without interruption
@@ -81,7 +92,7 @@ Every time you launch the app:
 - **Format:** MP3 (MPEG-4 AAC encoding)
 - **Bitrate:** 128 kbps
 - **Sample Rate:** 44.1 kHz
-- **Duration:** 10 seconds fixed
+- **Duration:** Configurable (1-99 seconds, default 10 seconds)
 - **Microphone:** Prefers Bluetooth microphones when available
 
 ### Speech-to-Text Transcription

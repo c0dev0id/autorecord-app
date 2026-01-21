@@ -122,6 +122,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
     
     private fun showFirstRunExplanation() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val recordingDuration = prefs.getInt("recordingDuration", 10)
+        
         AlertDialog.Builder(this)
             .setTitle("How This App Works")
             .setMessage("""
@@ -130,7 +133,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 Here's what happens when you launch the app:
                 
                 1. 📍 GPS location is acquired
-                2. 🎤 Records 10 seconds of audio in MP3 format
+                2. 🎤 Records $recordingDuration seconds of audio in MP3 format
                 3. 🗣️ Audio is transcribed to text in real-time
                 4. 💾 Saved with GPS coordinates in filename
                 5. 📌 Waypoint created in GPX file using transcribed text
@@ -280,6 +283,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         try {
             val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
             val saveDir = prefs.getString("saveDirectory", null)
+            val recordingDuration = prefs.getInt("recordingDuration", 10)
 
             if (saveDir.isNullOrEmpty()) {
                 Toast.makeText(this, "Save directory not configured", Toast.LENGTH_SHORT).show()
@@ -332,15 +336,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 }
             }
 
-            infoText.text = "Recording for 10 seconds..."
+            infoText.text = "Recording for $recordingDuration seconds..."
 
             // Start live speech recognition during recording
             startLiveSpeechRecognition()
 
-            // Stop recording after 10 seconds
+            // Stop recording after configured duration
             handler.postDelayed({
                 stopRecording()
-            }, 10000)
+            }, recordingDuration * 1000L)
 
         } catch (e: Exception) {
             Toast.makeText(this, "Recording failed: ${e.message}", Toast.LENGTH_LONG).show()
