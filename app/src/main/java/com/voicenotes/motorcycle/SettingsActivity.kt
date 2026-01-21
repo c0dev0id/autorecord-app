@@ -34,7 +34,6 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var requestPermissionsButton: Button
     private lateinit var permissionStatusList: TextView
     private lateinit var quitButton: Button
-    private lateinit var checkboxSaveToSdCard: CheckBox
     private lateinit var openFolderButton: Button
     private lateinit var buttonDebugLog: Button
     private lateinit var appVersionText: TextView
@@ -58,6 +57,15 @@ class SettingsActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             add(Manifest.permission.BLUETOOTH_CONNECT)
         }
+        // Add storage permissions for public Music directory
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+ needs MANAGE_EXTERNAL_STORAGE for Music directory
+            // This will be handled separately with ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+        } else {
+            // Android 10 and below need WRITE_EXTERNAL_STORAGE
+            add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }.toTypedArray()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +79,6 @@ class SettingsActivity : AppCompatActivity() {
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         permissionStatusList = findViewById(R.id.permissionStatusList)
         quitButton = findViewById(R.id.quitButton)
-        checkboxSaveToSdCard = findViewById(R.id.checkboxSaveToSdCard)
         openFolderButton = findViewById(R.id.openFolderButton)
         buttonDebugLog = findViewById(R.id.buttonDebugLog)
         appVersionText = findViewById(R.id.appVersionText)
@@ -85,12 +92,7 @@ class SettingsActivity : AppCompatActivity() {
         oauthManager = OsmOAuthManager(this)
         
         // Display app version
-        try {
-            val packageInfo = packageManager.getPackageInfo(packageName, 0)
-            appVersionText.text = "Version ${packageInfo.versionName}"
-        } catch (e: Exception) {
-            appVersionText.text = "Version unknown"
-        }
+        appVersionText.text = getAppVersion()
         
         // Setup OAuth launcher
         oauthLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -124,10 +126,6 @@ class SettingsActivity : AppCompatActivity() {
 
         quitButton.setOnClickListener {
             finishAffinity()
-        }
-        
-        checkboxSaveToSdCard.setOnCheckedChangeListener { _, isChecked ->
-            handleStorageLocationChange(isChecked)
         }
         
         openFolderButton.setOnClickListener {
@@ -168,28 +166,28 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun getAppVersion(): String {
+        return try {
+            // Try to get git tag or commit hash from BuildConfig
+            val buildConfigVersion = BuildConfig.VERSION_NAME
+            
+            // Check if VERSION_NAME is set to a git value
+            if (buildConfigVersion.startsWith("v") || buildConfigVersion.contains("dev-")) {
+                "Version $buildConfigVersion"
+            } else {
+                // Fallback to package version
+                val packageInfo = packageManager.getPackageInfo(packageName, 0)
+                "Version ${packageInfo.versionName}"
+            }
+        } catch (e: Exception) {
+            "Version unknown"
+        }
+    }
+
     private fun getDefaultSavePath(): String {
         return Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_MUSIC
         ).absolutePath + "/VoiceNotes"
-    }
-    
-    private fun getDefaultSdCardPath(): String? {
-        // Try to detect SD card path
-        val externalDirs = ContextCompat.getExternalFilesDirs(this, null)
-        if (externalDirs.size > 1 && externalDirs[1] != null) {
-            // Second external storage is typically SD card
-            val sdCardPath = externalDirs[1]!!.absolutePath
-            // Get the base SD card path (before Android/data/...)
-            val sdCardRoot = sdCardPath.substringBefore("/Android")
-            return "$sdCardRoot/VoiceNotes"
-        }
-        return null
-    }
-    
-    private fun isSdCardPresent(): Boolean {
-        val externalDirs = ContextCompat.getExternalFilesDirs(this, null)
-        return externalDirs.size > 1 && externalDirs[1] != null
     }
     
     private fun showDebugLog() {
@@ -218,8 +216,10 @@ class SettingsActivity : AppCompatActivity() {
     }
     
     private fun openStorageFolder() {
+        // Always use the fixed internal storage path
+        val saveDir = getDefaultSavePath()
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val saveDir = prefs.getString("saveDirectory", null) ?: getDefaultSavePath()
+        prefs.edit().putString("saveDirectory", saveDir).apply()
         
         try {
             val folder = File(saveDir)
@@ -247,39 +247,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
     
-    private fun handleStorageLocationChange(useSdCard: Boolean) {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        
-        val newPath = if (useSdCard) {
-            getDefaultSdCardPath() ?: getDefaultSavePath()
-        } else {
-            getDefaultSavePath()
-        }
-        
-        // Save the new path and SD card preference
-        prefs.edit().apply {
-            putString("saveDirectory", newPath)
-            putBoolean("useSdCard", useSdCard)
-            apply()
-        }
-        
-        // Update UI
-        directoryPathText.text = newPath
-        
-        // Create directory
-        try {
-            val directory = File(newPath)
-            if (!directory.exists()) {
-                directory.mkdirs()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(this, "Warning: Could not create directory", Toast.LENGTH_SHORT).show()
-        }
-        
-        // Check and request storage permissions if needed
-        checkStoragePermissions()
-    }
-    
     private fun checkStoragePermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ - check if we need MANAGE_EXTERNAL_STORAGE
@@ -291,18 +258,19 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun loadCurrentSettings() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val saveDir = prefs.getString("saveDirectory", null)
         val recordingDuration = prefs.getInt("recordingDuration", 10)
-        val useSdCard = prefs.getBoolean("useSdCard", false)
-
-        // Display current path or default path if not set
-        directoryPathText.text = saveDir ?: getDefaultSavePath()
         
-        // Set SD card checkbox state
-        checkboxSaveToSdCard.isChecked = useSdCard
+        // Always use fixed internal storage path
+        val defaultPath = getDefaultSavePath()
+        val saveDir = prefs.getString("saveDirectory", null)
         
-        // Enable SD card checkbox only if SD card is present
-        checkboxSaveToSdCard.isEnabled = isSdCardPresent()
+        // If no directory configured, set it now
+        if (saveDir.isNullOrEmpty()) {
+            prefs.edit().putString("saveDirectory", defaultPath).apply()
+        }
+        
+        // Display the fixed path
+        directoryPathText.text = defaultPath
         
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
@@ -348,6 +316,20 @@ class SettingsActivity : AppCompatActivity() {
                 getString(R.string.permission_not_granted, getString(R.string.permission_bluetooth))
             })
         }
+        
+        // Check storage permission
+        val hasStorage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+: Check Environment.isExternalStorageManager()
+            Environment.isExternalStorageManager()
+        } else {
+            // Android 10-: Check WRITE_EXTERNAL_STORAGE
+            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
+        statusLines.add(if (hasStorage) {
+            getString(R.string.permission_granted, getString(R.string.permission_storage))
+        } else {
+            getString(R.string.permission_not_granted, getString(R.string.permission_storage))
+        })
         
         // Check overlay permission
         val hasOverlay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

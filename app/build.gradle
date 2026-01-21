@@ -3,6 +3,31 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def getVersionName() {
+    try {
+        // Try to get the current git tag
+        def tag = 'git describe --tags --exact-match HEAD'.execute().text.trim()
+        if (tag) {
+            return tag // Returns like "v1.0.0"
+        }
+    } catch (Exception ignored) {
+        // Not on a tag
+    }
+    
+    try {
+        // Get short commit hash
+        def hash = 'git rev-parse --short HEAD'.execute().text.trim()
+        if (hash) {
+            return "dev-${hash}" // Returns like "dev-abc1234"
+        }
+    } catch (Exception ignored) {
+        // Git not available
+    }
+    
+    // Fallback
+    return "1.0.0"
+}
+
 android {
     namespace 'com.voicenotes.motorcycle'
     compileSdk 34
@@ -12,7 +37,7 @@ android {
         minSdk 26
         targetSdk 34
         versionCode 1
-        versionName "1.0.0"
+        versionName getVersionName()
         
         // Read service account JSON from gradle.properties
         buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON", "\"${project.findProperty('GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON') ?: '{}'}\""
