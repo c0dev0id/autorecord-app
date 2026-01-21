@@ -42,6 +42,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        // Initialize AppContextHolder for DebugLogger
+        AppContextHolder.context = applicationContext
 
         statusText = findViewById(R.id.statusText)
         infoText = findViewById(R.id.infoText)

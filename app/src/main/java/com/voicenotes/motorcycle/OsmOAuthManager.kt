@@ -26,6 +26,12 @@ class OsmOAuthManager(private val context: Context) {
         if (CLIENT_ID.isBlank() || CLIENT_ID == "your_osm_client_id") {
             throw IllegalStateException("OSM Client ID not configured")
         }
+        
+        DebugLogger.logInfo(
+            service = "OSM OAuth",
+            message = "Starting OAuth flow with client ID: ${CLIENT_ID.take(10)}..."
+        )
+        
         val serviceConfig = AuthorizationServiceConfiguration(
             Uri.parse(OSM_AUTH_ENDPOINT),
             Uri.parse(OSM_TOKEN_ENDPOINT)
@@ -44,6 +50,13 @@ class OsmOAuthManager(private val context: Context) {
             .setCodeVerifier(codeVerifier)  // Enable PKCE
             .build()
         
+        DebugLogger.logApiRequest(
+            service = "OSM OAuth",
+            method = "GET",
+            url = OSM_AUTH_ENDPOINT,
+            headers = mapOf("scope" to "read_prefs write_notes")
+        )
+        
         val authIntent = authService.getAuthorizationRequestIntent(authRequest)
         launcher.launch(authIntent)
     }
@@ -53,11 +66,22 @@ class OsmOAuthManager(private val context: Context) {
         val exception = AuthorizationException.fromIntent(intent)
         
         if (response != null) {
+            DebugLogger.logInfo(
+                service = "OSM OAuth",
+                message = "Authorization code received, exchanging for token"
+            )
+            
             // Exchange code for token
             authService.performTokenRequest(response.createTokenExchangeRequest()) { tokenResponse, ex ->
                 if (tokenResponse != null) {
                     val accessToken = tokenResponse.accessToken ?: ""
                     val refreshToken = tokenResponse.refreshToken ?: ""
+                    
+                    DebugLogger.logApiResponse(
+                        service = "OSM OAuth",
+                        statusCode = 200,
+                        responseBody = "Token exchange successful"
+                    )
                     
                     // Save tokens securely
                     saveTokensToKeystore(accessToken, refreshToken)
@@ -68,10 +92,20 @@ class OsmOAuthManager(private val context: Context) {
                         onSuccess(username)
                     }
                 } else {
+                    DebugLogger.logError(
+                        service = "OSM OAuth",
+                        error = "Token exchange failed",
+                        exception = ex
+                    )
                     onFailure(ex ?: Exception("Token exchange failed"))
                 }
             }
         } else {
+            DebugLogger.logError(
+                service = "OSM OAuth",
+                error = "Authorization failed",
+                exception = exception
+            )
             onFailure(exception ?: Exception("Authorization failed"))
         }
     }

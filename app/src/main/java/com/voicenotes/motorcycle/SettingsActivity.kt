@@ -23,7 +23,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.documentfile.provider.DocumentFile
 import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
@@ -31,11 +30,14 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var directoryPathText: TextView
     private lateinit var durationValueText: TextView
     private lateinit var durationEditText: EditText
-    private lateinit var chooseDirectoryButton: Button
     private lateinit var setDurationButton: Button
     private lateinit var requestPermissionsButton: Button
     private lateinit var permissionStatusList: TextView
     private lateinit var quitButton: Button
+    private lateinit var checkboxSaveToSdCard: CheckBox
+    private lateinit var openFolderButton: Button
+    private lateinit var buttonDebugLog: Button
+    private lateinit var appVersionText: TextView
     
     private lateinit var checkboxOnlineProcessing: CheckBox
     private lateinit var checkboxAddOsmNote: CheckBox
@@ -56,18 +58,12 @@ class SettingsActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             add(Manifest.permission.BLUETOOTH_CONNECT)
         }
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-            add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
     }.toTypedArray()
 
     private val directoryPickerLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { uri ->
-        uri?.let {
-            handleDirectorySelection(it)
-        }
+        // This is now unused but kept for compatibility
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,11 +73,14 @@ class SettingsActivity : AppCompatActivity() {
         directoryPathText = findViewById(R.id.directoryPathText)
         durationValueText = findViewById(R.id.durationValueText)
         durationEditText = findViewById(R.id.durationEditText)
-        chooseDirectoryButton = findViewById(R.id.chooseDirectoryButton)
         setDurationButton = findViewById(R.id.setDurationButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         permissionStatusList = findViewById(R.id.permissionStatusList)
         quitButton = findViewById(R.id.quitButton)
+        checkboxSaveToSdCard = findViewById(R.id.checkboxSaveToSdCard)
+        openFolderButton = findViewById(R.id.openFolderButton)
+        buttonDebugLog = findViewById(R.id.buttonDebugLog)
+        appVersionText = findViewById(R.id.appVersionText)
         
         checkboxOnlineProcessing = findViewById(R.id.checkboxOnlineProcessing)
         checkboxAddOsmNote = findViewById(R.id.checkboxAddOsmNote)
@@ -90,6 +89,14 @@ class SettingsActivity : AppCompatActivity() {
         buttonRunOnlineProcessing = findViewById(R.id.buttonRunOnlineProcessing)
         
         oauthManager = OsmOAuthManager(this)
+        
+        // Display app version
+        try {
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            appVersionText.text = "Version ${packageInfo.versionName}"
+        } catch (e: Exception) {
+            appVersionText.text = "Version unknown"
+        }
         
         // Setup OAuth launcher
         oauthLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -113,10 +120,6 @@ class SettingsActivity : AppCompatActivity() {
 
         loadCurrentSettings()
 
-        chooseDirectoryButton.setOnClickListener {
-            openDirectoryPicker()
-        }
-
         requestPermissionsButton.setOnClickListener {
             requestAllPermissions()
         }
@@ -127,6 +130,18 @@ class SettingsActivity : AppCompatActivity() {
 
         quitButton.setOnClickListener {
             finishAffinity()
+        }
+        
+        checkboxSaveToSdCard.setOnCheckedChangeListener { _, isChecked ->
+            handleStorageLocationChange(isChecked)
+        }
+        
+        openFolderButton.setOnClickListener {
+            openStorageFolder()
+        }
+        
+        buttonDebugLog.setOnClickListener {
+            showDebugLog()
         }
         
         checkboxOnlineProcessing.setOnCheckedChangeListener { _, isChecked ->
@@ -164,14 +179,136 @@ class SettingsActivity : AppCompatActivity() {
             Environment.DIRECTORY_MUSIC
         ).absolutePath + "/VoiceNotes"
     }
+    
+    private fun getDefaultSdCardPath(): String? {
+        // Try to detect SD card path
+        val externalDirs = ContextCompat.getExternalFilesDirs(this, null)
+        if (externalDirs.size > 1 && externalDirs[1] != null) {
+            // Second external storage is typically SD card
+            val sdCardPath = externalDirs[1]!!.absolutePath
+            // Get the base SD card path (before Android/data/...)
+            val sdCardRoot = sdCardPath.substringBefore("/Android")
+            return "$sdCardRoot/VoiceNotes"
+        }
+        return null
+    }
+    
+    private fun isSdCardPresent(): Boolean {
+        val externalDirs = ContextCompat.getExternalFilesDirs(this, null)
+        return externalDirs.size > 1 && externalDirs[1] != null
+    }
+    
+    private fun showDebugLog() {
+        val logContent = DebugLogger.getLogContent(this)
+        
+        val textView = TextView(this).apply {
+            text = logContent
+            setPadding(32, 32, 32, 32)
+            textSize = 12f
+            setTextIsSelectable(true)
+        }
+        
+        val scrollView = android.widget.ScrollView(this).apply {
+            addView(textView)
+        }
+        
+        AlertDialog.Builder(this)
+            .setTitle("Debug Log")
+            .setView(scrollView)
+            .setPositiveButton("Close", null)
+            .setNeutralButton("Clear Log") { _, _ ->
+                DebugLogger.clearLog(this)
+                Toast.makeText(this, "Log cleared", Toast.LENGTH_SHORT).show()
+            }
+            .show()
+    }
+    
+    private fun openStorageFolder() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val saveDir = prefs.getString("saveDirectory", null) ?: getDefaultSavePath()
+        
+        try {
+            val folder = File(saveDir)
+            if (!folder.exists()) {
+                folder.mkdirs()
+            }
+            
+            // Use file URI to open folder
+            val uri = Uri.fromFile(folder)
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(uri, "vnd.android.document/directory")
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            
+            try {
+                startActivity(intent)
+            } catch (e: Exception) {
+                // Fallback: try generic file manager
+                val fallbackIntent = Intent(Intent.ACTION_VIEW)
+                fallbackIntent.setDataAndType(uri, "*/*")
+                fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(fallbackIntent)
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Could not open folder. Please use your file manager to navigate to: $saveDir", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    private fun handleStorageLocationChange(useSdCard: Boolean) {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        
+        val newPath = if (useSdCard) {
+            getDefaultSdCardPath() ?: getDefaultSavePath()
+        } else {
+            getDefaultSavePath()
+        }
+        
+        // Save the new path and SD card preference
+        prefs.edit().apply {
+            putString("saveDirectory", newPath)
+            putBoolean("useSdCard", useSdCard)
+            apply()
+        }
+        
+        // Update UI
+        directoryPathText.text = newPath
+        
+        // Create directory
+        try {
+            val directory = File(newPath)
+            if (!directory.exists()) {
+                directory.mkdirs()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Warning: Could not create directory", Toast.LENGTH_SHORT).show()
+        }
+        
+        // Check and request storage permissions if needed
+        checkStoragePermissions()
+    }
+    
+    private fun checkStoragePermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+ - check if we need MANAGE_EXTERNAL_STORAGE
+            if (!Environment.isExternalStorageManager()) {
+                showManageStorageDialog()
+            }
+        }
+    }
 
     private fun loadCurrentSettings() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
         val recordingDuration = prefs.getInt("recordingDuration", 10)
+        val useSdCard = prefs.getBoolean("useSdCard", false)
 
         // Display current path or default path if not set
         directoryPathText.text = saveDir ?: getDefaultSavePath()
+        
+        // Set SD card checkbox state
+        checkboxSaveToSdCard.isChecked = useSdCard
+        
+        // Enable SD card checkbox only if SD card is present
+        checkboxSaveToSdCard.isEnabled = isSdCardPresent()
         
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
@@ -246,25 +383,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun openDirectoryPicker() {
-        try {
-            // For Android 11+, we need proper storage permissions
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // Check if we have MANAGE_EXTERNAL_STORAGE permission
-                if (!Environment.isExternalStorageManager()) {
-                    showManageStorageDialog()
-                    return
-                }
-            }
-
-            // Launch the directory picker directly
-            directoryPickerLauncher.launch(null)
-
-        } catch (e: Exception) {
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-    }
-
     private fun showManageStorageDialog() {
         AlertDialog.Builder(this)
             .setTitle("Storage Permission Required")
@@ -281,65 +399,6 @@ class SettingsActivity : AppCompatActivity() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun handleDirectorySelection(uri: Uri) {
-        try {
-            // Take persistable URI permission
-            contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
-
-            // Convert DocumentFile URI to a file path if possible
-            val documentFile = DocumentFile.fromTreeUri(this, uri)
-            
-            // For custom URIs, we need to store the URI itself since we can't always get a file path
-            // But for simplicity, we'll try to extract a path
-            val path = when {
-                uri.path?.contains("/tree/primary:") == true -> {
-                    // Primary storage
-                    val relativePath = uri.path!!.substringAfter("/tree/primary:")
-                    Environment.getExternalStorageDirectory().absolutePath + "/" + relativePath
-                }
-                uri.path?.contains("/document/primary:") == true -> {
-                    val relativePath = uri.path!!.substringAfter("/document/primary:")
-                    Environment.getExternalStorageDirectory().absolutePath + "/" + relativePath
-                }
-                else -> {
-                    // Fallback to default
-                    getDefaultSavePath()
-                }
-            }
-
-            saveDirectoryPath(path)
-            Toast.makeText(this, "Custom directory set", Toast.LENGTH_SHORT).show()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Error selecting directory: ${e.message}", Toast.LENGTH_LONG).show()
-            // Fallback to default
-            saveDirectoryPath(getDefaultSavePath())
-        }
-    }
-
-    private fun saveDirectoryPath(path: String) {
-        try {
-            // Create the directory if it doesn't exist
-            val directory = File(path)
-            if (!directory.exists()) {
-                val created = directory.mkdirs()
-                if (!created) {
-                    Toast.makeText(this, "Warning: Could not create directory", Toast.LENGTH_SHORT).show()
-                }
-            }
-            
-            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-            prefs.edit().putString("saveDirectory", path).apply()
-            directoryPathText.text = path
-        } catch (e: Exception) {
-            Toast.makeText(this, "Error creating directory: ${e.message}", Toast.LENGTH_LONG).show()
-        }
     }
 
     private fun saveDuration() {
@@ -378,7 +437,7 @@ class SettingsActivity : AppCompatActivity() {
         if (permissionsToRequest.isNotEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsToRequest, PERMISSIONS_REQUEST_CODE)
         } else {
-            // All runtime permissions granted, check overlay permission
+            // All runtime permissions granted, check overlay and storage permissions
             checkAndRequestOverlayPermission()
         }
     }
@@ -396,10 +455,13 @@ class SettingsActivity : AppCompatActivity() {
                     startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
                 }
                 .setNegativeButton("Cancel") { _, _ ->
+                    checkStoragePermissions()
                     updatePermissionStatusList()
                 }
                 .show()
         } else {
+            // Check storage permissions next
+            checkStoragePermissions()
             Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
             updatePermissionStatusList()
         }

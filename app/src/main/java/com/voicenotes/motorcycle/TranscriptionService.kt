@@ -24,12 +24,21 @@ class TranscriptionService(private val context: Context) {
         try {
             val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
             
+            DebugLogger.logInfo(
+                service = "Google Cloud Speech-to-Text",
+                message = "Starting transcription for file: $filePath"
+            )
+            
             // Enhanced error checking with specific messages
             if (serviceAccountJson.isBlank() || serviceAccountJson == "{}") {
                 val errorMsg = "Google Cloud service account credentials not configured. " +
                     "Please add GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON to gradle.properties (local) or " +
                     "as a GitHub Secret named 'GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON' (CI/CD)."
                 Log.e("TranscriptionService", errorMsg)
+                DebugLogger.logError(
+                    service = "Google Cloud Speech-to-Text",
+                    error = errorMsg
+                )
                 return@withContext Result.failure(Exception(errorMsg))
             }
 
@@ -41,17 +50,36 @@ class TranscriptionService(private val context: Context) {
                     "The JSON must contain 'type', 'project_id', and 'private_key' fields. " +
                     "Current value starts with: ${serviceAccountJson.take(50)}..."
                 Log.e("TranscriptionService", errorMsg)
+                DebugLogger.logError(
+                    service = "Google Cloud Speech-to-Text",
+                    error = errorMsg
+                )
                 return@withContext Result.failure(Exception(errorMsg))
             }
 
             // Read audio file
             val audioFile = File(filePath)
             if (!audioFile.exists()) {
-                return@withContext Result.failure(Exception("Audio file not found: $filePath"))
+                val errorMsg = "Audio file not found: $filePath"
+                DebugLogger.logError(
+                    service = "Google Cloud Speech-to-Text",
+                    error = errorMsg
+                )
+                return@withContext Result.failure(Exception(errorMsg))
             }
 
             val audioBytes = FileInputStream(audioFile).use { it.readBytes() }
             val audioByteString = ByteString.copyFrom(audioBytes)
+            
+            DebugLogger.logApiRequest(
+                service = "Google Cloud Speech-to-Text",
+                method = "POST",
+                url = "https://speech.googleapis.com/v1/speech:recognize",
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "Audio-Size" to "${audioBytes.size} bytes"
+                )
+            )
 
             // Configure speech client with service account credentials
             val credentials = GoogleCredentials.fromStream(
@@ -90,6 +118,12 @@ class TranscriptionService(private val context: Context) {
 
                 Log.d("TranscriptionService", "Transcription result: '$transcribedText'")
                 
+                DebugLogger.logApiResponse(
+                    service = "Google Cloud Speech-to-Text",
+                    statusCode = 200,
+                    responseBody = "Transcription successful: ${transcribedText.take(100)}${if (transcribedText.length > 100) "..." else ""}"
+                )
+                
                 Result.success(transcribedText)
                 
             } finally {
@@ -98,6 +132,11 @@ class TranscriptionService(private val context: Context) {
 
         } catch (e: Exception) {
             Log.e("TranscriptionService", "Transcription failed", e)
+            DebugLogger.logError(
+                service = "Google Cloud Speech-to-Text",
+                error = "Transcription failed",
+                exception = e
+            )
             Result.failure(e)
         }
     }
