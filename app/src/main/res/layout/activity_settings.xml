@@ -191,7 +191,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Grant microphone, location, and notification permissions"
+                    android:text="@string/permissions_description"
                     android:textSize="14sp"
                     android:textColor="#757575"
                     android:layout_marginBottom="12dp" />
@@ -204,12 +204,23 @@
                     android:textSize="14sp"
                     android:layout_marginBottom="12dp" />
 
-                <Button
-                    android:id="@+id/requestOverlayButton"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Grant Overlay Permission"
-                    android:textSize="14sp" />
+                    android:text="@string/permission_status_title"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/permissionStatusList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="13sp"
+                    android:textColor="#616161"
+                    android:lineSpacingExtra="4dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

@@ -31,7 +31,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var chooseTriggerAppButton: Button
     private lateinit var setDurationButton: Button
     private lateinit var requestPermissionsButton: Button
-    private lateinit var requestOverlayButton: Button
+    private lateinit var permissionStatusList: TextView
     private lateinit var quitButton: Button
 
     private val PERMISSIONS_REQUEST_CODE = 200
@@ -43,6 +43,9 @@ class SettingsActivity : AppCompatActivity() {
     ).apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
         }
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
             add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -70,7 +73,7 @@ class SettingsActivity : AppCompatActivity() {
         chooseTriggerAppButton = findViewById(R.id.chooseTriggerAppButton)
         setDurationButton = findViewById(R.id.setDurationButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
-        requestOverlayButton = findViewById(R.id.requestOverlayButton)
+        permissionStatusList = findViewById(R.id.permissionStatusList)
         quitButton = findViewById(R.id.quitButton)
 
         loadCurrentSettings()
@@ -88,10 +91,6 @@ class SettingsActivity : AppCompatActivity() {
 
         requestPermissionsButton.setOnClickListener {
             requestAllPermissions()
-        }
-
-        requestOverlayButton.setOnClickListener {
-            requestOverlayPermission()
         }
 
         setDurationButton.setOnClickListener {
@@ -150,49 +149,69 @@ class SettingsActivity : AppCompatActivity() {
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
         
-        // Update overlay button text based on permission status
-        updateOverlayButtonText()
+        // Update permission status list
+        updatePermissionStatusList()
     }
 
-    private fun updateOverlayButtonText() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Settings.canDrawOverlays(this)) {
-                requestOverlayButton.text = "Overlay Permission: ✓ Granted"
-                requestOverlayButton.isEnabled = false
+    private fun updatePermissionStatusList() {
+        val statusLines = mutableListOf<String>()
+        
+        // Check microphone permission
+        val hasMicrophone = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        statusLines.add(if (hasMicrophone) {
+            getString(R.string.permission_granted, getString(R.string.permission_microphone))
+        } else {
+            getString(R.string.permission_not_granted, getString(R.string.permission_microphone))
+        })
+        
+        // Check location permission
+        val hasLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        statusLines.add(if (hasLocation) {
+            getString(R.string.permission_granted, getString(R.string.permission_location))
+        } else {
+            getString(R.string.permission_not_granted, getString(R.string.permission_location))
+        })
+        
+        // Check Bluetooth permission (Android 12+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val hasBluetooth = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+            statusLines.add(if (hasBluetooth) {
+                getString(R.string.permission_granted, getString(R.string.permission_bluetooth))
             } else {
-                requestOverlayButton.text = "Grant Overlay Permission"
-                requestOverlayButton.isEnabled = true
-            }
-        } else {
-            requestOverlayButton.text = "Overlay Permission: Not Required"
-            requestOverlayButton.isEnabled = false
+                getString(R.string.permission_not_granted, getString(R.string.permission_bluetooth))
+            })
         }
-    }
-
-    private fun requestOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.overlay_permission_required)
-                .setMessage(R.string.overlay_permission_message)
-                .setPositiveButton("Grant") { _, _ ->
-                    val intent = Intent(
-                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:$packageName")
-                    )
-                    startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        } else {
-            Toast.makeText(this, "Overlay permission already granted", Toast.LENGTH_SHORT).show()
+        
+        // Check notification permission (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasNotification = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            statusLines.add(if (hasNotification) {
+                getString(R.string.permission_granted, getString(R.string.permission_notification))
+            } else {
+                getString(R.string.permission_not_granted, getString(R.string.permission_notification))
+            })
         }
+        
+        // Check overlay permission
+        val hasOverlay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(this)
+        } else {
+            true
+        }
+        statusLines.add(if (hasOverlay) {
+            getString(R.string.permission_granted, getString(R.string.permission_overlay))
+        } else {
+            getString(R.string.permission_not_granted, getString(R.string.permission_overlay))
+        })
+        
+        permissionStatusList.text = statusLines.joinToString("\n")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         
         if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
-            updateOverlayButtonText()
+            updatePermissionStatusList()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
             } else {
@@ -394,16 +413,39 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun requestAllPermissions() {
+        // First, request runtime permissions
         val permissionsToRequest = requiredPermissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }.toTypedArray()
 
-        if (permissionsToRequest.isEmpty()) {
-            Toast.makeText(this, "All permissions already granted", Toast.LENGTH_SHORT).show()
-            return
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest, PERMISSIONS_REQUEST_CODE)
+        } else {
+            // All runtime permissions granted, check overlay permission
+            checkAndRequestOverlayPermission()
         }
-
-        ActivityCompat.requestPermissions(this, permissionsToRequest, PERMISSIONS_REQUEST_CODE)
+    }
+    
+    private fun checkAndRequestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.overlay_permission_required)
+                .setMessage(R.string.overlay_permission_message)
+                .setPositiveButton("Grant") { _, _ ->
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:$packageName")
+                    )
+                    startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+                }
+                .setNegativeButton("Cancel") { _, _ ->
+                    updatePermissionStatusList()
+                }
+                .show()
+        } else {
+            Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
+            updatePermissionStatusList()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -414,9 +456,12 @@ class SettingsActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            updatePermissionStatusList()
+            
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
             if (allGranted) {
-                Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
+                // All runtime permissions granted, now check overlay permission
+                checkAndRequestOverlayPermission()
             } else {
                 Toast.makeText(this, "Some permissions were denied", Toast.LENGTH_LONG).show()
             }

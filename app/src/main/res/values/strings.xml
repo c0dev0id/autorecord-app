@@ -35,4 +35,13 @@
     <string name="recording_started">Recording started</string>
     <string name="overlay_permission_required">Overlay Permission Required</string>
     <string name="overlay_permission_message">This app needs permission to display over other apps for the bubble overlay feature</string>
+    <string name="permission_status_title">Permission Status:</string>
+    <string name="permission_granted">✓ %s (granted)</string>
+    <string name="permission_not_granted">✗ %s (not granted)</string>
+    <string name="permission_microphone">Microphone</string>
+    <string name="permission_location">Location</string>
+    <string name="permission_bluetooth">Bluetooth</string>
+    <string name="permission_notification">Notification</string>
+    <string name="permission_overlay">Overlay</string>
+    <string name="permissions_description">Grant all required permissions for the app to function</string>
 </resources>

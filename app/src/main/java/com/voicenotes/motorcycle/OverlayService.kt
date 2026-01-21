@@ -20,6 +20,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -157,9 +158,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             updateBubbleLine1(getString(R.string.location_acquired_coords, coords))
         }
         
-        // Speak "Location acquired" and then "Speak your message"
+        // Speak "Location acquired" and then "Recording started"
         speakText(getString(R.string.location_acquired)) {
-            speakText("Speak your message now") {
+            speakText(getString(R.string.recording_started)) {
                 startSpeechRecognitionBeforeRecording()
             }
         }
@@ -213,10 +214,12 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             }
 
             // Create filename with coordinates and timestamp
+            // Note: Using AAC encoding in MPEG-4 container, so extension is .m4a (not .mp3)
+            // Android's MediaRecorder doesn't support true MP3 encoding natively
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
             val lat = String.format("%.6f", location.latitude)
             val lng = String.format("%.6f", location.longitude)
-            val fileName = "${lat},${lng}_${timestamp}.mp3"
+            val fileName = "${lat},${lng}_${timestamp}.m4a"
 
             val directory = File(saveDir)
             if (!directory.exists()) {
@@ -277,14 +280,18 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
+                Log.d("OverlayService", "Bluetooth permission not granted, using device microphone")
                 return MediaRecorder.AudioSource.MIC
             }
         }
         
         return if (audioManager.isBluetoothScoAvailableOffCall) {
+            Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO")
             audioManager.startBluetoothSco()
+            // MIC will route to Bluetooth if SCO is active
             MediaRecorder.AudioSource.MIC
         } else {
+            Log.d("OverlayService", "Bluetooth SCO not available, using device microphone")
             MediaRecorder.AudioSource.MIC
         }
     }
@@ -425,7 +432,16 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 val lat = String.format("%.6f", location.latitude)
                 val lng = String.format("%.6f", location.longitude)
                 val waypointName = "VoiceNote: ${lat},${lng}"
-                val waypointDesc = transcribedText ?: fileName
+                
+                // Use transcribed text if available, otherwise fall back to filename
+                val waypointDesc = if (!transcribedText.isNullOrEmpty()) {
+                    Log.d("OverlayService", "Using transcribed text for waypoint: $transcribedText")
+                    transcribedText!!
+                } else {
+                    Log.d("OverlayService", "No transcribed text available, using filename: $fileName")
+                    fileName
+                }
+                
                 createOrUpdateGpxFile(location, waypointName, waypointDesc)
             }
         }
