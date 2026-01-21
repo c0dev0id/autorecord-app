@@ -16,8 +16,7 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <!-- Declare that we need to query launchable apps -->
     <queries>
@@ -51,6 +50,10 @@
             android:exported="false"
             android:label="@string/settings_title"
             android:parentActivityName=".MainActivity" />
+        
+        <service
+            android:name=".OverlayService"
+            android:exported="false" />
     </application>
 
 </manifest>

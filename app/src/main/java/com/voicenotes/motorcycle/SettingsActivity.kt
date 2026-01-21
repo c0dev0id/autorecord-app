@@ -39,9 +39,6 @@ class SettingsActivity : AppCompatActivity() {
         Manifest.permission.RECORD_AUDIO,
         Manifest.permission.ACCESS_FINE_LOCATION
     ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(Manifest.permission.POST_NOTIFICATIONS)
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             add(Manifest.permission.BLUETOOTH_CONNECT)
         }

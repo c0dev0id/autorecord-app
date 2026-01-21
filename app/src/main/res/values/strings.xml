@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Motorcycle Voice Notes</string>
     <string name="settings_title">Configuration</string>
-    <string name="location_acquired">Location acquired, recording</string>
-    <string name="recording_stopped">Recording complete</string>
+    <string name="location_acquired">Location acquired</string>
+    <string name="recording_stopped">Recording stopped</string>
     <string name="permission_required">Permissions Required</string>
     <string name="grant_permissions">This app requires microphone and location permissions to record voice notes with GPS coordinates</string>
     <string name="setup_required">Initial Setup Required</string>
@@ -27,4 +27,12 @@
     <string name="set_duration_button">Set Duration</string>
     <string name="initializing">Initializing...</string>
     <string name="tts_not_available">Text-to-Speech not available</string>
+    <string name="acquiring_location">Acquiring location...</string>
+    <string name="location_acquired_coords">Location acquired: %s</string>
+    <string name="recording_countdown">Recording... %d seconds</string>
+    <string name="recording_stopped_msg">Recording stopped</string>
+    <string name="file_saved">File saved.</string>
+    <string name="recording_started">Recording started</string>
+    <string name="overlay_permission_required">Overlay Permission Required</string>
+    <string name="overlay_permission_message">This app needs permission to display over other apps for the bubble overlay feature</string>
 </resources>
