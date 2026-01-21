@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var currentLocation: Location? = null
     private var recordingFilePath: String? = null
     private var transcribedText: String? = null
+    private var isTtsInitialized = false
 
     private val handler = Handler(Looper.getMainLooper())
     private val PERMISSIONS_REQUEST_CODE = 100
@@ -74,13 +75,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         textToSpeech = TextToSpeech(this, this)
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
-        // Check if setup is needed (folder missing or permissions missing)
-        if (isFirstRun()) {
-            showSetupDialog()
-        } else {
-            // Setup is complete - start recording
-            startRecordingProcess()
-        }
+        // Show "Initializing..." message while waiting for TTS
+        infoText.text = getString(R.string.initializing)
+        progressBar.visibility = View.VISIBLE
     }
 
     private fun isFirstRun(): Boolean {
@@ -200,10 +197,34 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech?.language = Locale.US
+            isTtsInitialized = true
+        } else {
+            // TTS initialization failed - proceed without speech
+            isTtsInitialized = false
+            Toast.makeText(this, getString(R.string.tts_not_available), Toast.LENGTH_SHORT).show()
+        }
+        
+        // Start the recording process after TTS initialization (success or failure)
+        runOnUiThread {
+            proceedWithStartup()
+        }
+    }
+    
+    private fun proceedWithStartup() {
+        if (isFirstRun()) {
+            showSetupDialog()
+        } else {
+            startRecordingProcess()
         }
     }
 
     private fun speakAndRecord(text: String) {
+        // If TTS is not ready, just start recording immediately
+        if (!isTtsInitialized || textToSpeech == null) {
+            startRecording()
+            return
+        }
+        
         textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
                 // Speech started
