@@ -170,9 +170,11 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             updateBubbleLine1(getString(R.string.location_acquired_coords, coords))
         }
         
-        // Speak "Location acquired" only, "Recording started" will be spoken later
+        // Speak both announcements BEFORE recording starts
         speakText(getString(R.string.location_acquired)) {
-            startSpeechRecognitionBeforeRecording()
+            speakText(getString(R.string.recording_started)) {
+                startSpeechRecognitionBeforeRecording()
+            }
         }
     }
 
@@ -394,12 +396,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             speechRecognizer?.setRecognitionListener(object : RecognitionListener {
                 override fun onReadyForSpeech(params: Bundle?) {
                     updateBubbleLine2("🎤 Listening...")
-                    // Start recording immediately when speech recognizer is ready
                     // Brief delay ensures speech recognizer is fully initialized
                     handler.postDelayed({
-                        speakText(getString(R.string.recording_started)) {
-                            startRecording()
-                        }
+                        startRecording()
                     }, RECORDING_START_DELAY_MS)
                 }
                 override fun onBeginningOfSpeech() {
@@ -449,11 +448,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             // Stop the listening countdown on error
             stopListeningCountdown()
             updateBubbleLine2("Speech recognition failed")
-            // Start recording even if speech recognition fails
+            // Start recording even if speech recognition fails, without TTS
             handler.postDelayed({
-                speakText(getString(R.string.recording_started)) {
-                    startRecording()
-                }
+                startRecording()
             }, 1000)
         }
     }
