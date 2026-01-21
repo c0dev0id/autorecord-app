@@ -14,15 +14,15 @@ This document provides a visual representation of the Settings screen with the n
 │  duration                                       │
 │                                                 │
 │  ┌───────────────────────────────────────────┐ │
-│  │ Recording Storage Location                │ │
+│  │ Storage Location                          │ │
 │  │                                           │ │
 │  │ /storage/emulated/0/Music/VoiceNotes      │ │
 │  │                                           │ │
-│  │  [ Set Recording Location ]               │ │
+│  │  [ Choose Folder ]                        │ │
 │  └───────────────────────────────────────────┘ │
 │                                                 │
 │  ┌───────────────────────────────────────────┐ │
-│  │ Recording Duration (seconds)              │ │
+│  │ Recording Duration                        │ │
 │  │                                           │ │
 │  │ 10 seconds                                │ │
 │  │                                           │ │
@@ -54,7 +54,7 @@ This document provides a visual representation of the Settings screen with the n
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ Recording Duration (seconds)                        │
+│ Recording Duration                                  │
 │ ─────────────────────────────────────────────────── │
 │                                                     │
 │ Current Setting:                                    │
@@ -78,7 +78,19 @@ This document provides a visual representation of the Settings screen with the n
 ```
 User opens Settings
        │
-       ├─→ Scrolls to "Recording Duration (seconds)" card
+       ├─→ Scrolls to "Storage Location" card
+       │
+       ├─→ Sees current path: "/storage/emulated/0/Music/VoiceNotes"
+       │
+       ├─→ Taps "Choose Folder" button
+       │
+       ├─→ Android folder picker opens directly
+       │
+       ├─→ Selects desired folder
+       │
+       ├─→ Path is saved and display updates
+       │
+       ├─→ Scrolls to "Recording Duration" card
        │
        ├─→ Sees current value: "10 seconds"
        │
