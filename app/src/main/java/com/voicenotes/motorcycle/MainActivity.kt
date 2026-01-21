@@ -311,6 +311,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             // Start live speech recognition during recording
             startLiveSpeechRecognition()
+            
+            // Launch trigger app immediately after starting recording
+            launchTriggerApp()
 
             // Stop recording after configured duration
             handler.postDelayed({
@@ -445,8 +448,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
 
-        // Speak recording stopped
-        speakRecordingStopped()
+        // Quit the app after saving the recording
+        finish()
     }
 
     private fun speakRecordingStopped() {
@@ -481,7 +484,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val intent = packageManager.getLaunchIntentForPackage(triggerApp)
                 if (intent != null) {
                     startActivity(intent)
-                    // Don't finish() here so we can continue in background
                 } else {
                     Toast.makeText(this, "Cannot launch trigger app", Toast.LENGTH_SHORT).show()
                 }
@@ -576,8 +578,15 @@ ${createWaypointXml(location, name, desc)}
 
     override fun onResume() {
         super.onResume()
-        // Restart the process if setup is now complete
-        if (!isFirstRun() && currentLocation == null) {
+        // Always restart recording process when app comes to foreground
+        // This ensures recording starts every time you switch to the app
+        if (!isFirstRun()) {
+            // Reset location to force fresh acquisition
+            currentLocation = null
+            // Reset UI
+            infoText.text = "Acquiring location..."
+            progressBar.visibility = View.VISIBLE
+            // Start fresh recording process
             startRecordingProcess()
         }
     }
