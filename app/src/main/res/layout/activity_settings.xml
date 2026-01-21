@@ -25,6 +25,15 @@
             android:text="@string/configuration_info"
             android:textSize="14sp"
             android:textColor="#757575"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_config_info"
+            android:textSize="12sp"
+            android:textColor="#9E9E9E"
+            android:textStyle="italic"
             android:layout_marginBottom="32dp" />
 
         <!-- Save Directory Card -->

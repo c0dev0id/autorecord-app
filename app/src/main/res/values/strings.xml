@@ -18,6 +18,7 @@
     <string name="open_settings">Open Configuration</string>
     <string name="grant_all_permissions">Grant Required Permissions</string>
     <string name="configuration_info">Configure where recordings are saved and which app launches after recording completes</string>
+    <string name="reset_config_info">💡 Tip: To see this configuration screen again, delete the recording folder or revoke permissions</string>
     <string name="quit_app">Quit</string>
     <string name="recording_duration">Recording Duration (seconds)</string>
     <string name="duration_hint">Enter 1-99 seconds</string>

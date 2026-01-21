@@ -82,14 +82,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             startActivity(intent)
         }
 
-        // Check if this is first run
+        // Check if setup is needed (folder missing or permissions missing)
         if (isFirstRun()) {
             showSetupDialog()
-        } else if (isFirstActualRun()) {
-            // Show explanation on first actual run after setup
-            showFirstRunExplanation()
         } else {
-            // Subsequent runs - always record again
+            // Setup is complete - start recording
             startRecordingProcess()
         }
     }
@@ -97,60 +94,21 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun isFirstRun(): Boolean {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
-        val triggerApp = prefs.getString("triggerApp", null)
         
-        // Check if save directory exists
-        if (!saveDir.isNullOrEmpty()) {
+        // Check if save directory is configured and exists
+        val folderMissing = if (!saveDir.isNullOrEmpty()) {
             val dir = File(saveDir)
-            if (!dir.exists()) {
-                // Directory doesn't exist, treat as first run
-                return true
-            }
+            !dir.exists()
+        } else {
+            true // No directory configured
         }
         
-        return saveDir.isNullOrEmpty() || triggerApp.isNullOrEmpty()
-    }
-    
-    private fun isFirstActualRun(): Boolean {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        return !prefs.getBoolean("hasRunBefore", false)
-    }
-    
-    private fun markAsRun() {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        prefs.edit().putBoolean("hasRunBefore", true).apply()
-    }
-    
-    private fun showFirstRunExplanation() {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val recordingDuration = prefs.getInt("recordingDuration", 10)
+        // Check if permissions are missing
+        val permissionsMissing = !checkPermissions()
         
-        AlertDialog.Builder(this)
-            .setTitle("How This App Works")
-            .setMessage("""
-                Welcome to Motorcycle Voice Notes!
-                
-                Here's what happens when you launch the app:
-                
-                1. 📍 GPS location is acquired
-                2. 🎤 Records $recordingDuration seconds of audio in MP3 format
-                3. 🗣️ Audio is transcribed to text in real-time
-                4. 💾 Saved with GPS coordinates in filename
-                5. 📌 Waypoint created in GPX file using transcribed text
-                6. 🚀 Your chosen app launches automatically
-                
-                The app prefers Bluetooth microphones if connected.
-                
-                Perfect for quick voice notes while riding!
-            """.trimIndent())
-            .setPositiveButton("Start Recording") { _, _ ->
-                markAsRun()
-                startRecordingProcess()
-            }
-            .setCancelable(false)
-            .show()
+        return folderMissing || permissionsMissing
     }
-
+    
     private fun showSetupDialog() {
         AlertDialog.Builder(this)
             .setTitle(R.string.setup_required)
