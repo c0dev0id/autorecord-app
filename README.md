@@ -12,15 +12,20 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
 4. **Records audio** (configurable 1-99 seconds, default 10 seconds)
 5. **Saves the recording** with GPS coordinates in the filename
 6. **Creates a GPX waypoint** with your transcribed message
-7. **Quits automatically** so you stay in your current app
+7. **Optional OSM Note creation** if enabled and authenticated
+8. **Quits automatically** so you stay in your current app
 
 ## Key Features
 
 - **GPS Tagging**: Every recording is named with precise coordinates and timestamp
 - **Speech-to-Text**: Your spoken words become waypoint descriptions in the GPX file
+- **GPX Waypoint Management**: Duplicate coordinates are replaced, not added twice
+- **OpenStreetMap Integration**: Optionally create OSM notes with your voice recordings
+- **Online Processing**: During ride transcription with Google Cloud Speech-to-Text API
+- **Batch Processing**: Process all recorded files later with manual button
 - **Bluetooth Support**: Automatically uses your Bluetooth headset/helmet system
 - **Customizable**: Set recording duration and storage location
-- **GPX Export**: All locations saved to `acquired_locations.gpx` for easy import into mapping apps
+- **GPX Export**: All locations saved to `voicenote_waypoint_collection.gpx` for easy import into mapping apps
 - **Minimal Interaction**: Launch once, everything happens automatically
 - **Overlay Bubble**: Visual feedback during recording with transcribed text display
 - **Background Operation**: Works while other apps are in the foreground
@@ -32,6 +37,7 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
 - Tagging interesting locations with voice notes
 - Building route waypoints for future reference
 - Hands-free operation with Bluetooth helmet systems
+- Contributing notes to OpenStreetMap while riding
 
 ## Quick Start
 
@@ -43,17 +49,33 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
    - Grant permissions (microphone, location, Bluetooth, overlay)
    - Choose recording storage location
    - Optionally set recording duration (default: 10 seconds)
+   - Configure Google Cloud API key for transcription (optional)
+   - Bind OSM account for note creation (optional)
 
 ### Usage
 
 Just launch the app whenever you want to record a note. A small overlay bubble will appear showing recording status, and the app will quit automatically when done, leaving you in whatever app you were using.
+
+### Online Processing Options
+
+- **During Ride**: Enable "Try Online processing during ride" in settings (default: on)
+  - Transcribes audio immediately after recording
+  - Creates GPX waypoint with transcribed text
+  - Optionally creates OSM note if authenticated
+  - Skips processing if offline
+
+- **Manual Batch Processing**: Use "Run Online Processing" button in settings
+  - Processes all m4a files in your recording directory
+  - Transcribes each file and creates/updates GPX waypoints
+  - Creates OSM notes if enabled and authenticated
+  - Perfect for processing recordings made while offline
 
 ## File Format
 
 - **Audio**: MPEG-4 files with AAC encoding (128 kbps, 44.1 kHz)
 - **Naming**: `latitude,longitude_timestamp.m4a`
 - **Example**: `34.052235,-118.243683_20260120_143022.m4a`
-- **GPX File**: `acquired_locations.gpx` with waypoints containing your transcribed voice notes
+- **GPX File**: `voicenote_waypoint_collection.gpx` with waypoints containing your transcribed voice notes
 
 ## Requirements
 
@@ -63,6 +85,19 @@ Just launch the app whenever you want to record a note. A small overlay bubble w
 - Storage access
 - Bluetooth (optional, for headset support)
 - Internet connection (optional, for transcription and OSM features)
+- Google Cloud API key (optional, for transcription)
+- OpenStreetMap OAuth 2.0 account (optional, for note creation)
+
+## OpenStreetMap Integration
+
+To use the OSM note creation feature:
+
+1. Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications
+   - Set redirect URI to: `app.voicenotes.motorcycle://oauth`
+   - Request scopes: `read_prefs write_notes`
+2. Update `CLIENT_ID` in `OsmOAuthManager.kt` with your application's client ID
+3. Bind your OSM account in the app settings
+4. Enable "Add OSM Note" checkbox
 
 ## Building from Source
 
@@ -77,6 +112,8 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build setup and 
 - **Speech Recognition**: Android SpeechRecognizer API
 - **Text-to-Speech**: Android TTS Engine
 - **Speech-to-Text**: Google Cloud Speech-to-Text API (post-processing)
+- **OAuth**: AppAuth library for OpenStreetMap OAuth 2.0
+- **HTTP**: OkHttp for OSM API calls
 
 ## License
 

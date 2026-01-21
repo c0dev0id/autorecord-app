@@ -81,4 +81,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-service:2.6.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    
+    // OAuth and OSM API
+    implementation 'net.openid:appauth:0.11.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 }

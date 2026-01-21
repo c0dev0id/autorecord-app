@@ -1,17 +1,23 @@
 package com.voicenotes.motorcycle
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +36,15 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var requestPermissionsButton: Button
     private lateinit var permissionStatusList: TextView
     private lateinit var quitButton: Button
+    
+    private lateinit var checkboxOnlineProcessing: CheckBox
+    private lateinit var checkboxAddOsmNote: CheckBox
+    private lateinit var buttonOsmAccount: Button
+    private lateinit var textOsmAccountStatus: TextView
+    private lateinit var buttonRunOnlineProcessing: Button
+    
+    private lateinit var oauthManager: OsmOAuthManager
+    private lateinit var oauthLauncher: ActivityResultLauncher<Intent>
 
     private val PERMISSIONS_REQUEST_CODE = 200
     private val OVERLAY_PERMISSION_REQUEST_CODE = 201
@@ -67,6 +82,34 @@ class SettingsActivity : AppCompatActivity() {
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         permissionStatusList = findViewById(R.id.permissionStatusList)
         quitButton = findViewById(R.id.quitButton)
+        
+        checkboxOnlineProcessing = findViewById(R.id.checkboxOnlineProcessing)
+        checkboxAddOsmNote = findViewById(R.id.checkboxAddOsmNote)
+        buttonOsmAccount = findViewById(R.id.buttonOsmAccount)
+        textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
+        buttonRunOnlineProcessing = findViewById(R.id.buttonRunOnlineProcessing)
+        
+        oauthManager = OsmOAuthManager(this)
+        
+        // Setup OAuth launcher
+        oauthLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                oauthManager.handleOAuthResponse(
+                    result.data!!,
+                    onSuccess = { username ->
+                        runOnUiThread {
+                            updateOsmAccountUI(username)
+                            Toast.makeText(this, "Account bound: $username", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    onFailure = { error ->
+                        runOnUiThread {
+                            Toast.makeText(this, "OAuth failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
+            }
+        }
 
         loadCurrentSettings()
 
@@ -85,6 +128,30 @@ class SettingsActivity : AppCompatActivity() {
         quitButton.setOnClickListener {
             finishAffinity()
         }
+        
+        checkboxOnlineProcessing.setOnCheckedChangeListener { _, isChecked ->
+            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            prefs.edit().putBoolean("tryOnlineProcessingDuringRide", isChecked).apply()
+        }
+        
+        checkboxAddOsmNote.setOnCheckedChangeListener { _, isChecked ->
+            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            prefs.edit().putBoolean("addOsmNote", isChecked).apply()
+        }
+        
+        buttonOsmAccount.setOnClickListener {
+            if (oauthManager.isAuthenticated()) {
+                // Remove account
+                removeOsmAccount()
+            } else {
+                // Bind account
+                oauthManager.startOAuthFlow(oauthLauncher)
+            }
+        }
+        
+        buttonRunOnlineProcessing.setOnClickListener {
+            runManualProcessing()
+        }
     }
 
     private fun loadCurrentSettings() {
@@ -95,6 +162,15 @@ class SettingsActivity : AppCompatActivity() {
         directoryPathText.text = saveDir ?: getString(R.string.not_set)
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
+        
+        checkboxOnlineProcessing.isChecked = prefs.getBoolean("tryOnlineProcessingDuringRide", true)
+        checkboxAddOsmNote.isChecked = prefs.getBoolean("addOsmNote", false)
+        
+        // Update OSM UI based on auth status
+        if (oauthManager.isAuthenticated()) {
+            val username = oauthManager.getUsername() ?: "Unknown"
+            updateOsmAccountUI(username)
+        }
         
         // Update permission status list
         updatePermissionStatusList()
@@ -355,9 +431,70 @@ class SettingsActivity : AppCompatActivity() {
             checkAndRequestOverlayPermission()
         }
     }
+    
+    private fun updateOsmAccountUI(username: String) {
+        textOsmAccountStatus.text = "Account bound: $username"
+        textOsmAccountStatus.visibility = View.VISIBLE
+        buttonOsmAccount.text = "Remove OSM Account"
+        checkboxAddOsmNote.isEnabled = true
+    }
+    
+    private fun removeOsmAccount() {
+        oauthManager.removeTokens()
+        textOsmAccountStatus.visibility = View.GONE
+        buttonOsmAccount.text = "Bind OSM Account"
+        checkboxAddOsmNote.isEnabled = false
+        checkboxAddOsmNote.isChecked = false
+        Toast.makeText(this, "OSM account removed", Toast.LENGTH_SHORT).show()
+    }
+    
+    private fun runManualProcessing() {
+        // Disable button
+        buttonRunOnlineProcessing.isEnabled = false
+        buttonRunOnlineProcessing.text = "Processing..."
+        
+        // Start batch processing service
+        val intent = Intent(this, BatchProcessingService::class.java)
+        startService(intent)
+    }
+    
+    private val batchReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "com.voicenotes.motorcycle.BATCH_PROGRESS" -> {
+                    val filename = intent.getStringExtra("filename")
+                    // Update UI with progress if needed
+                }
+                "com.voicenotes.motorcycle.BATCH_COMPLETE" -> {
+                    buttonRunOnlineProcessing.isEnabled = true
+                    buttonRunOnlineProcessing.text = "Run Online Processing"
+                    Toast.makeText(this@SettingsActivity, "Processing complete", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     override fun onResume() {
         super.onResume()
         loadCurrentSettings()
+        
+        // Register broadcast receiver
+        val filter = IntentFilter()
+        filter.addAction("com.voicenotes.motorcycle.BATCH_PROGRESS")
+        filter.addAction("com.voicenotes.motorcycle.BATCH_COMPLETE")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(batchReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(batchReceiver, filter)
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        try {
+            unregisterReceiver(batchReceiver)
+        } catch (e: Exception) {
+            // Receiver might not be registered
+        }
     }
 }

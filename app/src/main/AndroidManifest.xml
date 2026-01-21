@@ -55,10 +55,23 @@
             android:name=".SettingsActivity"
             android:exported="false"
             android:label="@string/settings_title"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="app.voicenotes.motorcycle"
+                    android:host="oauth" />
+            </intent-filter>
+        </activity>
         
         <service
             android:name=".OverlayService"
+            android:exported="false" />
+        
+        <service
+            android:name=".BatchProcessingService"
             android:exported="false" />
     </application>
 

@@ -76,6 +76,26 @@ The app can transcribe audio using Google Cloud Speech-to-Text API. This is opti
 
 **Note**: The app will work without an API key, but transcription features will be disabled.
 
+### OpenStreetMap OAuth Setup (Optional)
+
+The app can create OSM notes with your voice recordings. This is optional.
+
+1. Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications
+   - Application name: "Motorcycle Voice Notes" (or your choice)
+   - Redirect URI: `app.voicenotes.motorcycle://oauth`
+   - Requested scopes: `read_prefs` and `write_notes`
+   - Description: Your application description
+2. After registration, note your "Client ID"
+3. Update `OsmOAuthManager.kt`:
+   ```kotlin
+   private const val CLIENT_ID = "your_osm_client_id_here"
+   ```
+4. Rebuild the app
+5. In the app settings, use "Bind OSM Account" to authenticate
+6. Enable "Add OSM Note" checkbox to create notes during/after recording
+
+**Note**: The app will work without OSM integration, but note creation features will be disabled.
+
 ### Option 1: Using Gradle (Command Line)
 
 1. Navigate to the project directory:
@@ -192,14 +212,24 @@ When you first launch the app, you need to:
    - Fine Location permission (for GPS coordinates)
    - Overlay permission (for bubble display)
    - Storage permission (for saving recordings)
+   - Bluetooth permission (Android 12+, for headset support)
 
 2. **Configure Save Directory**:
    - Go to Settings in the app
    - Choose a directory where recordings will be saved
    - Grant "All files access" if prompted (Android 11+)
 
-3. **Optionally Configure Recording Duration**:
+3. **Configure Recording Duration** (Optional):
    - Set recording duration (1-99 seconds, default 10)
+
+4. **Configure Online Processing** (Optional):
+   - Enable/disable "Try Online processing during ride" (default: enabled)
+   - This requires a Google Cloud API key
+
+5. **Configure OSM Integration** (Optional):
+   - Click "Bind OSM Account" to authenticate with OpenStreetMap
+   - Enable "Add OSM Note" checkbox to create notes during recording
+   - This requires OSM OAuth setup (see above)
 
 ## App Usage
 
@@ -208,12 +238,34 @@ After setup, the app will:
 2. Acquire your GPS location
 3. Announce "Location acquired, recording started" via TTS
 4. Record audio for the configured duration (default 10 seconds)
-5. Display real-time transcription in the overlay bubble
-6. Announce "Recording stopped" via TTS
-7. Save the recording with filename format: `latitude,longitude_timestamp.m4a`
-8. Create a waypoint in the GPX file with your transcribed text
-9. Show "File saved." message
-10. Quit automatically after 2 seconds
+5. Save the recording with filename format: `latitude,longitude_timestamp.m4a`
+6. **If online processing is enabled and internet is available**:
+   - Display "Online: Transcribing:" in the overlay
+   - Transcribe the audio using Google Cloud Speech-to-Text
+   - Create/update GPX waypoint with transcribed text (replaces duplicates at same coordinates)
+   - If OSM note creation is enabled and authenticated:
+     - Display "Online: Creating OSM Note"
+     - Create an OSM note at the location with the transcribed text
+     - Display "Online: OSM Note created." on success
+7. **If offline or online processing disabled**:
+   - Skip transcription and post-processing
+   - Recording remains available for later batch processing
+8. Quit automatically after completion
+
+### Manual Batch Processing
+
+Use the "Run Online Processing" button in settings to:
+- Process all m4a files in your recording directory
+- Transcribe each file using Google Cloud Speech-to-Text
+- Create/update GPX waypoints (replaces duplicates)
+- Create OSM notes if enabled and authenticated
+- Display "Processing..." during operation
+- Show "Processing complete" when done
+
+This is useful for:
+- Processing recordings made while offline
+- Re-processing files with updated transcription settings
+- Creating OSM notes for previously recorded locations
 
 ## Troubleshooting
 

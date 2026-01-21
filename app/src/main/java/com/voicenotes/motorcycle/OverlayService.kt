@@ -424,10 +424,45 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Create GPX waypoint
             createGpxWaypoint(location, finalText, filePath)
             
-            // TODO: Phase 4 - OSM note creation will go here
+            // Check if OSM note creation is enabled
+            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            val addOsmNote = prefs.getBoolean(PREF_ADD_OSM_NOTE, false)
             
-            // Quit app
+            if (addOsmNote) {
+                createOsmNote(location, finalText)
+            } else {
+                // Quit app
+                handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            }
+        }
+    }
+    
+    private suspend fun createOsmNote(location: Location, text: String) {
+        updateOverlay("Online: Creating OSM Note")
+        
+        val oauthManager = OsmOAuthManager(this)
+        val accessToken = oauthManager.getAccessToken()
+        
+        if (accessToken == null) {
+            Log.e("OverlayService", "No OSM access token found")
             handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            return
+        }
+        
+        val osmService = OsmNotesService()
+        val result = osmService.createNote(location.latitude, location.longitude, text, accessToken)
+        
+        result.onSuccess {
+            withContext(Dispatchers.Main) {
+                updateOverlay("Online: OSM Note created.")
+                handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            }
+        }.onFailure { error ->
+            withContext(Dispatchers.Main) {
+                updateOverlay("Online: OSM Note creation failed :(")
+                Log.e("OverlayService", "OSM note creation failed", error)
+                handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            }
         }
     }
 
@@ -474,32 +509,56 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             
             val gpxFile = File(saveDir, "voicenote_waypoint_collection.gpx")
             
+            val lat = String.format("%.6f", location.latitude)
+            val lng = String.format("%.6f", location.longitude)
+            
             if (gpxFile.exists()) {
-                val content = gpxFile.readText()
-                val gpxEndTag = "</gpx>"
-                
-                if (content.contains(gpxEndTag)) {
-                    val waypoint = createWaypointXml(location, waypointName, waypointDesc)
-                    val updatedContent = content.replace(gpxEndTag, "$waypoint\n$gpxEndTag")
-                    gpxFile.writeText(updatedContent)
-                } else {
-                    val gpxContent = createGpxFile(location, waypointName, waypointDesc)
-                    gpxFile.writeText(gpxContent)
-                }
+                // Parse existing GPX and check for duplicates
+                val existingContent = gpxFile.readText()
+                val updatedContent = replaceOrAddWaypoint(existingContent, lat, lng, waypointName, waypointDesc)
+                gpxFile.writeText(updatedContent)
             } else {
-                val gpxContent = createGpxFile(location, waypointName, waypointDesc)
+                // Create new GPX file
+                val gpxContent = createNewGpxFile(lat, lng, waypointName, waypointDesc)
                 gpxFile.writeText(gpxContent)
             }
+            
+            Log.d("OverlayService", "GPX waypoint created/updated: $waypointName")
+            
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("OverlayService", "Failed to create/update GPX file", e)
         }
     }
     
-    private fun createGpxFile(location: Location, name: String, desc: String): String {
-        val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }.format(Date())
+    private fun replaceOrAddWaypoint(
+        gpxContent: String,
+        lat: String,
+        lng: String,
+        name: String,
+        desc: String
+    ): String {
+        // Find existing waypoint with same coordinates (6 decimal precision)
+        val waypointPattern = """<wpt lat="$lat" lon="$lng">.*?</wpt>""".toRegex(RegexOption.DOT_MATCHES_ALL)
         
+        val newWaypoint = """  <wpt lat="$lat" lon="$lng">
+    <time>${getCurrentTimestamp()}</time>
+    <name>$name</name>
+    <desc>$desc</desc>
+  </wpt>"""
+        
+        return if (waypointPattern.containsMatchIn(gpxContent)) {
+            // Replace existing waypoint
+            Log.d("OverlayService", "Replacing existing waypoint at $lat,$lng")
+            gpxContent.replace(waypointPattern, newWaypoint)
+        } else {
+            // Add new waypoint before closing </gpx>
+            Log.d("OverlayService", "Adding new waypoint at $lat,$lng")
+            gpxContent.replace("</gpx>", "$newWaypoint\n</gpx>")
+        }
+    }
+    
+    private fun createNewGpxFile(lat: String, lng: String, name: String, desc: String): String {
+        val timestamp = getCurrentTimestamp()
         return """<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Motorcycle Voice Notes"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -510,21 +569,20 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     <desc>GPS locations of voice note recordings</desc>
     <time>$timestamp</time>
   </metadata>
-${createWaypointXml(location, name, desc)}
-</gpx>"""
-    }
-    
-    private fun createWaypointXml(location: Location, name: String, desc: String): String {
-        val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }.format(Date())
-        
-        return """  <wpt lat="${String.format("%.6f", location.latitude)}" lon="${String.format("%.6f", location.longitude)}">
+  <wpt lat="$lat" lon="$lng">
     <time>$timestamp</time>
     <name>$name</name>
     <desc>$desc</desc>
-  </wpt>"""
+  </wpt>
+</gpx>"""
     }
+    
+    private fun getCurrentTimestamp(): String {
+        return SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+    }
+
 
     private fun updateOverlay(text: String) {
         handler.post {
