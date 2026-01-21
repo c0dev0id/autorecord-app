@@ -16,6 +16,7 @@ android {
         
         // Read API key from gradle.properties
         buildConfigField "String", "GOOGLE_CLOUD_API_KEY", "\"${project.findProperty('GOOGLE_CLOUD_API_KEY') ?: ''}\""
+        manifestPlaceholders = [appAuthRedirectScheme: "com.voicenotes.motorcycle"]
     }
 
     signingConfigs {
