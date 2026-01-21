@@ -75,7 +75,7 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-speech:4.0.0'
     
     // Google Auth library (required for GoogleCredentials)
-    implementation 'com.google.auth:google-auth-library-oauth2:1.19.0'
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.19.0'
     
     // Lifecycle and Coroutines
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
