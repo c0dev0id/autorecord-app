@@ -295,7 +295,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
             val lat = String.format("%.6f", location.latitude)
             val lng = String.format("%.6f", location.longitude)
-            val fileName = "${lat}_${lng}_${timestamp}.mp3"
+            val fileName = "${lat},${lng}_${timestamp}.mp3"
 
             val directory = File(saveDir)
             if (!directory.exists()) {
@@ -464,7 +464,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             currentLocation?.let { location ->
                 val lat = String.format("%.6f", location.latitude)
                 val lng = String.format("%.6f", location.longitude)
-                val waypointName = "VoiceNote: ${lat}_${lng}"
+                val waypointName = "VoiceNote: ${lat},${lng}"
                 val waypointDesc = transcribedText ?: fileName
                 createOrUpdateGpxFile(location, waypointName, waypointDesc)
             }
