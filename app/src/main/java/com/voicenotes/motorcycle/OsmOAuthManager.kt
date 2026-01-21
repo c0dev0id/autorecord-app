@@ -31,6 +31,9 @@ class OsmOAuthManager(private val context: Context) {
             Uri.parse(OSM_TOKEN_ENDPOINT)
         )
         
+        // Generate code verifier for PKCE
+        val codeVerifier = CodeVerifierUtil.generateRandomCodeVerifier()
+        
         val authRequest = AuthorizationRequest.Builder(
             serviceConfig,
             CLIENT_ID,
@@ -38,6 +41,7 @@ class OsmOAuthManager(private val context: Context) {
             Uri.parse(REDIRECT_URI)
         )
             .setScope("read_prefs write_notes")
+            .setCodeVerifier(codeVerifier)  // Enable PKCE
             .build()
         
         val authIntent = authService.getAuthorizationRequestIntent(authRequest)
