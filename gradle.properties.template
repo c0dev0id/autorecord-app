@@ -1,0 +1,11 @@
+# Project-wide Gradle settings.
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+android.enableJetifier=true
+kotlin.code.style=official
+
+# Google Cloud Speech-to-Text API Key
+# Get your API key from: https://console.cloud.google.com/apis/credentials
+# For local development: Copy this file to gradle.properties and add your key
+# For CI/CD: Add GOOGLE_CLOUD_API_KEY as a GitHub Secret
+GOOGLE_CLOUD_API_KEY=your_api_key_here

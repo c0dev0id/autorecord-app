@@ -68,13 +68,29 @@ The app can transcribe audio using Google Cloud Speech-to-Text API. This is opti
 1. Create a Google Cloud project at https://console.cloud.google.com
 2. Enable the "Speech-to-Text API"
 3. Create an API key in "Credentials"
-4. Add the API key to `gradle.properties`:
+4. Copy the template file:
+   ```bash
+   cp gradle.properties.template gradle.properties
+   ```
+5. Edit `gradle.properties` and replace `your_api_key_here` with your actual API key:
    ```
    GOOGLE_CLOUD_API_KEY=your_actual_api_key_here
    ```
-5. Keep this file private and do not commit to version control
+6. Keep this file private and do not commit to version control
 
 **Note**: The app will work without an API key, but transcription features will be disabled.
+
+### CI/CD with GitHub Actions
+
+If you're using GitHub Actions to build your app:
+
+1. Go to your repository Settings → Secrets and variables → Actions
+2. Click "New repository secret"
+3. Name: `GOOGLE_CLOUD_API_KEY`
+4. Value: Your actual API key
+5. Click "Add secret"
+
+The workflows will automatically inject this key during builds.
 
 ### OpenStreetMap OAuth Setup (Optional)
 
