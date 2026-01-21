@@ -49,7 +49,7 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
    - Grant permissions (microphone, location, Bluetooth, overlay)
    - Choose recording storage location
    - Optionally set recording duration (default: 10 seconds)
-   - Configure Google Cloud API key for transcription (optional)
+   - Configure Google Cloud service account for transcription (optional)
    - Bind OSM account for note creation (optional)
 
 ### Usage
@@ -85,7 +85,7 @@ Just launch the app whenever you want to record a note. A small overlay bubble w
 - Storage access
 - Bluetooth (optional, for headset support)
 - Internet connection (optional, for transcription and OSM features)
-- Google Cloud API key (optional, for transcription)
+- Google Cloud service account credentials (optional, for transcription)
 - OpenStreetMap OAuth 2.0 account (optional, for note creation)
 
 ## OpenStreetMap Integration

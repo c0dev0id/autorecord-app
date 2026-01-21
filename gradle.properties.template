@@ -4,8 +4,11 @@ android.useAndroidX=true
 android.enableJetifier=true
 kotlin.code.style=official
 
-# Google Cloud Speech-to-Text API Key
-# Get your API key from: https://console.cloud.google.com/apis/credentials
-# For local development: Copy this file to gradle.properties and add your key
-# For CI/CD: Add GOOGLE_CLOUD_API_KEY as a GitHub Secret
-GOOGLE_CLOUD_API_KEY=your_api_key_here
+# Google Cloud Speech-to-Text Service Account JSON
+# Get your service account key from: https://console.cloud.google.com/iam-admin/serviceaccounts
+# 1. Create a service account with "Cloud Speech-to-Text" role
+# 2. Create a JSON key for the service account
+# 3. Copy the entire JSON content (as a single line) and paste it below
+# For local development: Copy this file to gradle.properties and add your service account JSON
+# For CI/CD: Add GOOGLE_CLOUD_API_JSON as a GitHub Secret with the full JSON content
+GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON={}

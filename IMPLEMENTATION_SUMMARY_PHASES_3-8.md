@@ -246,8 +246,8 @@ UI re-enabled
 ## Configuration Required
 
 ### For Users
-1. **Google Cloud API Key** (optional):
-   - Add to `gradle.properties`: `GOOGLE_CLOUD_API_KEY=your_key`
+1. **Google Cloud Service Account** (optional):
+   - Add to `gradle.properties`: `GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON={"type":"service_account",...}`
    - Required for transcription features
 
 2. **OSM OAuth Application** (optional):

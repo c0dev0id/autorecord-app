@@ -14,8 +14,8 @@ android {
         versionCode 1
         versionName "1.0.0"
         
-        // Read API key from gradle.properties
-        buildConfigField "String", "GOOGLE_CLOUD_API_KEY", "\"${project.findProperty('GOOGLE_CLOUD_API_KEY') ?: ''}\""
+        // Read service account JSON from gradle.properties
+        buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON", "\"${project.findProperty('GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON') ?: '{}'}\""
         manifestPlaceholders = [appAuthRedirectScheme: "com.voicenotes.motorcycle"]
     }
 

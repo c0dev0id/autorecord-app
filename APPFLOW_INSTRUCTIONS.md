@@ -248,7 +248,7 @@ This document describes the complete application flow for the Motorcycle Voice N
 ## Security Considerations
 
 ### API Keys
-- Google Cloud API key stored in BuildConfig
+- Google Cloud service account credentials stored in BuildConfig
 - Not hardcoded in source (uses gradle.properties)
 - Required for transcription features
 

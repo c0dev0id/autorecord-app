@@ -61,24 +61,36 @@ For example:
 
 ## Building the APK
 
-### Google Cloud API Key Setup (Optional)
+### Google Cloud Service Account Setup (Optional)
 
 The app can transcribe audio using Google Cloud Speech-to-Text API. This is optional - the app works without it, but transcription features will be disabled.
 
 1. Create a Google Cloud project at https://console.cloud.google.com
 2. Enable the "Speech-to-Text API"
-3. Create an API key in "Credentials"
-4. Copy the template file:
+3. Create a service account:
+   - Go to "IAM & Admin" > "Service Accounts"
+   - Click "Create Service Account"
+   - Give it a name (e.g., "motorcycle-voice-notes")
+   - Grant it the "Cloud Speech-to-Text API User" role
+   - Click "Done"
+4. Create a JSON key for the service account:
+   - Click on the service account you just created
+   - Go to "Keys" tab
+   - Click "Add Key" > "Create new key"
+   - Choose "JSON" format
+   - Save the downloaded JSON file
+5. Copy the template file:
    ```bash
    cp gradle.properties.template gradle.properties
    ```
-5. Edit `gradle.properties` and replace `your_api_key_here` with your actual API key:
+6. Edit `gradle.properties` and replace `{}` with the entire content of the JSON file (as a single line):
    ```
-   GOOGLE_CLOUD_API_KEY=your_actual_api_key_here
+   GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"your-project",...}
    ```
-6. Keep this file private and do not commit to version control
+   **Note**: The JSON should be on a single line. If your JSON spans multiple lines, you can remove newlines to make it a single line. No additional escaping is needed for the JSON content in gradle.properties.
+7. Keep this file private and do not commit to version control
 
-**Note**: The app will work without an API key, but transcription features will be disabled.
+**Note**: The app will work without service account credentials, but transcription features will be disabled.
 
 ### CI/CD with GitHub Actions
 
@@ -86,11 +98,11 @@ If you're using GitHub Actions to build your app:
 
 1. Go to your repository Settings → Secrets and variables → Actions
 2. Click "New repository secret"
-3. Name: `GOOGLE_CLOUD_API_KEY`
-4. Value: Your actual API key
+3. Name: `GOOGLE_CLOUD_API_JSON`
+4. Value: The entire content of your service account JSON file
 5. Click "Add secret"
 
-The workflows will automatically inject this key during builds.
+The workflows will automatically inject this service account JSON during builds.
 
 ### OpenStreetMap OAuth Setup (Optional)
 
@@ -240,7 +252,7 @@ When you first launch the app, you need to:
 
 4. **Configure Online Processing** (Optional):
    - Enable/disable "Try Online processing during ride" (default: enabled)
-   - This requires a Google Cloud API key
+   - This requires Google Cloud service account credentials
 
 5. **Configure OSM Integration** (Optional):
    - Click "Bind OSM Account" to authenticate with OpenStreetMap

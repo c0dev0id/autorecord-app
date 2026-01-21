@@ -8,6 +8,7 @@ import com.google.cloud.speech.v1.*
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 
@@ -21,10 +22,17 @@ class TranscriptionService(private val context: Context) {
      */
     suspend fun transcribeAudioFile(filePath: String): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val apiKey = BuildConfig.GOOGLE_CLOUD_API_KEY
+            val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
             
-            if (apiKey.isBlank() || apiKey == "your_api_key_here") {
-                return@withContext Result.failure(Exception("Google Cloud API key not configured"))
+            if (serviceAccountJson.isBlank() || serviceAccountJson == "{}") {
+                return@withContext Result.failure(Exception("Google Cloud service account credentials not configured"))
+            }
+
+            // Validate service account JSON format
+            if (!serviceAccountJson.contains("\"type\"") || 
+                !serviceAccountJson.contains("\"project_id\"") || 
+                !serviceAccountJson.contains("\"private_key\"")) {
+                return@withContext Result.failure(Exception("Invalid service account JSON format. Must contain type, project_id, and private_key fields."))
             }
 
             // Read audio file
@@ -36,13 +44,13 @@ class TranscriptionService(private val context: Context) {
             val audioBytes = FileInputStream(audioFile).use { it.readBytes() }
             val audioByteString = ByteString.copyFrom(audioBytes)
 
-            // Configure speech client
+            // Configure speech client with service account credentials
+            val credentials = GoogleCredentials.fromStream(
+                ByteArrayInputStream(serviceAccountJson.toByteArray(Charsets.UTF_8))
+            )
+            
             val speechSettings = SpeechSettings.newBuilder()
-                .setCredentialsProvider(
-                    FixedCredentialsProvider.create(
-                        GoogleCredentials.create(null) // Using API key instead of service account
-                    )
-                )
+                .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
                 .build()
 
             val speechClient = SpeechClient.create(speechSettings)
