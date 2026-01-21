@@ -19,15 +19,4 @@
         android:maxLines="1"
         android:ellipsize="end" />
 
-    <TextView
-        android:id="@+id/bubbleLine2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="12sp"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="4dp"
-        android:maxLines="1"
-        android:ellipsize="end" />
-
 </LinearLayout>

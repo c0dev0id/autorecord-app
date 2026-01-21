@@ -15,9 +15,6 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
@@ -41,15 +38,12 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var bubbleLine1: TextView? = null
-    private var bubbleLine2: TextView? = null
     
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var textToSpeech: TextToSpeech? = null
     private var mediaRecorder: MediaRecorder? = null
-    private var speechRecognizer: SpeechRecognizer? = null
     private var currentLocation: Location? = null
     private var recordingFilePath: String? = null
-    private var transcribedText: String? = null
     private var isTtsInitialized = false
     
     private val handler = Handler(Looper.getMainLooper())
@@ -68,7 +62,6 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         textToSpeech = TextToSpeech(this, this)
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         
         createOverlay()
     }
@@ -96,11 +89,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         
         overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_bubble, null)
         bubbleLine1 = overlayView?.findViewById(R.id.bubbleLine1)
-        bubbleLine2 = overlayView?.findViewById(R.id.bubbleLine2)
         
         windowManager?.addView(overlayView, params)
         
-        updateBubbleLine1(getString(R.string.acquiring_location))
+        updateOverlay(getString(R.string.acquiring_location))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -137,7 +129,7 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private fun acquireLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
-            updateBubbleLine1("Location permission not granted")
+            updateOverlay("Location permission not granted")
             handler.postDelayed({ stopSelfAndFinish() }, 2000)
             return
         }
@@ -162,20 +154,20 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private fun onLocationAcquired() {
         currentLocation?.let { location ->
             val coords = "${String.format("%.6f", location.latitude)}, ${String.format("%.6f", location.longitude)}"
-            updateBubbleLine1(getString(R.string.location_acquired_coords, coords))
+            updateOverlay(getString(R.string.location_acquired_coords, coords))
         }
         
         // Speak both announcements BEFORE recording starts
         speakText(getString(R.string.location_acquired)) {
             speakText(getString(R.string.recording_started)) {
-                startRecordingAndTranscription()
+                startRecording()
             }
         }
     }
 
     private fun onLocationFailed() {
-        updateBubbleLine1(getString(R.string.location_failed))
-        handler.postDelayed({ stopSelfAndFinish() }, 2000)
+        updateOverlay(getString(R.string.location_failed))
+        handler.postDelayed({ stopSelfAndFinish() }, 1000)
     }
 
     private fun speakText(text: String, onComplete: () -> Unit) {
@@ -217,14 +209,14 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             }
 
             if (saveDir.isNullOrEmpty()) {
-                updateBubbleLine1("Save directory not configured")
-                handler.postDelayed({ stopSelfAndFinish() }, 2000)
+                updateOverlay("Save directory not configured")
+                handler.postDelayed({ stopSelfAndFinish() }, 1000)
                 return
             }
 
             val location = currentLocation ?: run {
-                updateBubbleLine1("Location not available")
-                handler.postDelayed({ stopSelfAndFinish() }, 2000)
+                updateOverlay("Location not available")
+                handler.postDelayed({ stopSelfAndFinish() }, 1000)
                 return
             }
 
@@ -271,20 +263,13 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 }
             }
             
-            // Keep showing the transcribed text on line 2 during recording
-            if (!transcribedText.isNullOrEmpty()) {
-                updateBubbleLine2("\"${transcribedText}\"")
-            } else {
-                updateBubbleLine2("🎤 Recording...")
-            }
-            
             // Start countdown immediately
             startCountdown()
 
         } catch (e: Exception) {
-            updateBubbleLine1("Recording failed")
+            updateOverlay("Recording failed")
             e.printStackTrace()
-            handler.postDelayed({ stopSelfAndFinish() }, 2000)
+            handler.postDelayed({ stopSelfAndFinish() }, 1000)
         }
     }
     
@@ -296,7 +281,6 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
                 Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
-                // Use VOICE_RECOGNITION to work alongside speech recognizer
                 return MediaRecorder.AudioSource.VOICE_RECOGNITION
             }
         }
@@ -304,11 +288,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         return if (audioManager.isBluetoothScoAvailableOffCall) {
             Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO with VOICE_RECOGNITION")
             audioManager.startBluetoothSco()
-            // Use VOICE_RECOGNITION to work alongside speech recognizer
             MediaRecorder.AudioSource.VOICE_RECOGNITION
         } else {
             Log.d("OverlayService", "Bluetooth SCO not available, using VOICE_RECOGNITION source")
-            // Use VOICE_RECOGNITION to work alongside speech recognizer
             MediaRecorder.AudioSource.VOICE_RECOGNITION
         }
     }
@@ -319,7 +301,7 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         countdownRunnable = object : Runnable {
             override fun run() {
                 if (remainingSeconds > 0) {
-                    updateBubbleLine1(getString(R.string.recording_countdown, remainingSeconds))
+                    updateOverlay(getString(R.string.recording_countdown, remainingSeconds))
                     remainingSeconds--
                     handler.postDelayed(this, 1000)
                 } else {
@@ -341,80 +323,7 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         startCountdown()
         
         // Update bubble to show extension
-        updateBubbleLine1("Recording extended! ${remainingSeconds}s remaining")
-    }
-
-    private fun startRecordingAndTranscription() {
-        // Start both recording and transcription immediately
-        startRecording()
-        startSpeechRecognition()
-    }
-
-    private fun startSpeechRecognition() {
-        try {
-            // Load recording duration from preferences
-            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            recordingDuration = prefs.getInt("recordingDuration", 10)
-            
-            transcribedText = null
-            updateBubbleLine1("Listening...")
-            updateBubbleLine2("🎤 Speak now...")
-            
-            val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, recordingDuration * 1000L)
-                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2000L)
-            }
-            
-            speechRecognizer?.setRecognitionListener(object : RecognitionListener {
-                override fun onReadyForSpeech(params: Bundle?) {
-                    updateBubbleLine2("🎤 Listening...")
-                }
-                override fun onBeginningOfSpeech() {
-                    updateBubbleLine2("🎤 Recognizing...")
-                }
-                override fun onRmsChanged(rmsdB: Float) {}
-                override fun onBufferReceived(buffer: ByteArray?) {}
-                override fun onEndOfSpeech() {
-                    // Speech ended, but recording continues
-                }
-                override fun onError(error: Int) {
-                    // If transcription fails, still keep the recording that's in progress
-                    updateBubbleLine2("Transcription error")
-                    Log.d("OverlayService", "Speech recognition error: $error")
-                }
-                
-                override fun onResults(results: Bundle?) {
-                    val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    if (!matches.isNullOrEmpty()) {
-                        transcribedText = matches[0]
-                        updateBubbleLine2("\"${transcribedText}\"")
-                        Log.d("OverlayService", "Transcribed: $transcribedText")
-                    } else {
-                        updateBubbleLine2("")
-                    }
-                    // Recording continues after transcription completes
-                }
-                
-                override fun onPartialResults(partialResults: Bundle?) {
-                    val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    if (!matches.isNullOrEmpty()) {
-                        val partialText = matches[0]
-                        updateBubbleLine2("\"${partialText}...\"")
-                    }
-                }
-                
-                override fun onEvent(eventType: Int, params: Bundle?) {}
-            })
-            
-            speechRecognizer?.startListening(recognizerIntent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            updateBubbleLine2("Speech recognition failed")
-        }
+        updateOverlay("Recording extended! ${remainingSeconds}s remaining")
     }
 
     private fun stopRecording() {
@@ -422,22 +331,13 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             // Stop countdown
             countdownRunnable?.let { handler.removeCallbacks(it) }
             
-            // Stop speech recognizer
-            speechRecognizer?.stopListening()
-            
             mediaRecorder?.apply {
                 stop()
                 release()
             }
             mediaRecorder = null
 
-            updateBubbleLine1(getString(R.string.recording_stopped_msg))
-            // Keep the transcribed text visible on line 2
-            if (!transcribedText.isNullOrEmpty()) {
-                updateBubbleLine2("\"${transcribedText}\"")
-            } else {
-                updateBubbleLine2("")
-            }
+            updateOverlay(getString(R.string.recording_stopped_msg))
 
             // Speak "Recording stopped"
             speakText(getString(R.string.recording_stopped)) {
@@ -446,34 +346,29 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
 
         } catch (e: Exception) {
             e.printStackTrace()
-            finishRecordingProcess()
+            updateOverlay("Recording failed")
+            handler.postDelayed({ stopSelfAndFinish() }, 1000)
         }
     }
     
     private fun finishRecordingProcess() {
+        // TODO: GPX waypoint creation will happen in post-processing after transcription
         // Create or update GPX file
-        recordingFilePath?.let { filePath ->
-            val fileName = File(filePath).name
-            currentLocation?.let { location ->
-                val lat = String.format("%.6f", location.latitude)
-                val lng = String.format("%.6f", location.longitude)
-                val waypointName = "VoiceNote: ${lat},${lng}"
-                
-                // Use transcribed text if available, otherwise fall back to filename
-                val waypointDesc = if (!transcribedText.isNullOrEmpty()) {
-                    Log.d("OverlayService", "Using transcribed text for waypoint: $transcribedText")
-                    transcribedText!!
-                } else {
-                    Log.d("OverlayService", "No transcribed text available, using filename: $fileName")
-                    fileName
-                }
-                
-                createOrUpdateGpxFile(location, waypointName, waypointDesc)
-            }
-        }
+        // recordingFilePath?.let { filePath ->
+        //     val fileName = File(filePath).name
+        //     currentLocation?.let { location ->
+        //         val lat = String.format("%.6f", location.latitude)
+        //         val lng = String.format("%.6f", location.longitude)
+        //         val waypointName = "VoiceNote: ${lat},${lng}"
+        //         
+        //         // Use transcribed text if available, otherwise fall back to filename
+        //         val waypointDesc = fileName
+        //         
+        //         createOrUpdateGpxFile(location, waypointName, waypointDesc)
+        //     }
+        // }
 
-        updateBubbleLine1(getString(R.string.file_saved))
-        updateBubbleLine2("")
+        updateOverlay(getString(R.string.file_saved))
 
         // Wait 2 seconds and quit
         handler.postDelayed({
@@ -490,7 +385,7 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
             val saveDir = prefs.getString("saveDirectory", null) ?: return
             
-            val gpxFile = File(saveDir, "acquired_locations.gpx")
+            val gpxFile = File(saveDir, "voicenote_waypoint_collection.gpx")
             
             if (gpxFile.exists()) {
                 val content = gpxFile.readText()
@@ -544,15 +439,9 @@ ${createWaypointXml(location, name, desc)}
   </wpt>"""
     }
 
-    private fun updateBubbleLine1(text: String) {
+    private fun updateOverlay(text: String) {
         handler.post {
             bubbleLine1?.text = text
-        }
-    }
-
-    private fun updateBubbleLine2(text: String) {
-        handler.post {
-            bubbleLine2?.text = text
         }
     }
 
@@ -590,7 +479,6 @@ ${createWaypointXml(location, name, desc)}
         
         textToSpeech?.shutdown()
         mediaRecorder?.release()
-        speechRecognizer?.destroy()
         
         overlayView?.let {
             windowManager?.removeView(it)
