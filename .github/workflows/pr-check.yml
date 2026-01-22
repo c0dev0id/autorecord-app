@@ -70,7 +70,7 @@ jobs:
 
       - name: Create gradle.properties with service account JSON
         run: |
-          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON }}" >> gradle.properties
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
           echo "android.useAndroidX=true" >> gradle.properties
