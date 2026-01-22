@@ -32,6 +32,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.*
+import kotlin.coroutines.coroutineContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -549,7 +550,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private suspend fun handleTranscriptionSuccess(transcribedText: String, location: Location, filePath: String) {
         withContext(Dispatchers.Main) {
             // Check if coroutine is still active
-            if (!isActive) return@withContext
+            if (!coroutineContext.isActive) return@withContext
             
             // Use fallback text if transcription is empty
             val finalText = if (transcribedText.isBlank()) {
@@ -566,7 +567,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             delay(1000)
             
             // Check if still active before continuing
-            if (!isActive) return@withContext
+            if (!coroutineContext.isActive) return@withContext
             
             // Create GPX waypoint
             createGpxWaypoint(location, finalText, filePath)
@@ -584,7 +585,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     
     private suspend fun createOsmNote(location: Location, text: String) {
         // Check if coroutine is still active
-        if (!isActive) return
+        if (!coroutineContext.isActive) return
         
         updateOverlay("Online: Creating OSM Note")
         
@@ -600,13 +601,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val result = osmService.createNote(location.latitude, location.longitude, text, accessToken)
         
         result.onSuccess {
-            if (isActive) {
+            if (coroutineContext.isActive) {
                 withContext(Dispatchers.Main) {
                     updateOverlay("Online: OSM Note created.")
                 }
             }
         }.onFailure { error ->
-            if (isActive) {
+            if (coroutineContext.isActive) {
                 withContext(Dispatchers.Main) {
                     updateOverlay("Online: OSM Note creation failed :(")
                     Log.e("OverlayService", "OSM note creation failed", error)
@@ -619,7 +620,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private suspend fun handleTranscriptionFailure(error: Throwable) {
         withContext(Dispatchers.Main) {
             // Check if coroutine is still active
-            if (!isActive) return@withContext
+            if (!coroutineContext.isActive) return@withContext
             
             updateOverlay("Online: Transcribing: failed :-(")
             Log.e("OverlayService", "Transcription failed", error)
