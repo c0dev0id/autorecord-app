@@ -519,12 +519,12 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 
                 result.onSuccess { transcribedText ->
                     // Check if coroutine is still active
-                    if (!isActive) return@launch
+                    if (!coroutineContext.isActive) return@launch
                     
                     handleTranscriptionSuccess(transcribedText, location, filePath)
                 }.onFailure { error ->
                     // Check if coroutine is still active
-                    if (!isActive) return@launch
+                    if (!coroutineContext.isActive) return@launch
                     
                     handleTranscriptionFailure(error)
                 }
@@ -537,7 +537,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 )
             } finally {
                 // Always stop service after all work is done
-                if (isActive) {
+                if (coroutineContext.isActive) {
                     withContext(Dispatchers.Main) {
                         handler.postDelayed({ stopSelfAndFinish() }, 1000)
                     }
@@ -549,7 +549,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private suspend fun handleTranscriptionSuccess(transcribedText: String, location: Location, filePath: String) {
         withContext(Dispatchers.Main) {
             // Check if coroutine is still active
-            if (!isActive) return@withContext
+            if (!coroutineContext.isActive) return@withContext
             
             // Use fallback text if transcription is empty
             val finalText = if (transcribedText.isBlank()) {
@@ -566,7 +566,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             delay(1000)
             
             // Check if still active before continuing
-            if (!isActive) return@withContext
+            if (!coroutineContext.isActive) return@withContext
             
             // Create GPX waypoint
             createGpxWaypoint(location, finalText, filePath)
@@ -584,7 +584,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     
     private suspend fun createOsmNote(location: Location, text: String) {
         // Check if coroutine is still active
-        if (!isActive) return
+        if (!coroutineContext.isActive) return
         
         updateOverlay("Online: Creating OSM Note")
         
@@ -600,13 +600,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val result = osmService.createNote(location.latitude, location.longitude, text, accessToken)
         
         result.onSuccess {
-            if (isActive) {
+            if (coroutineContext.isActive) {
                 withContext(Dispatchers.Main) {
                     updateOverlay("Online: OSM Note created.")
                 }
             }
         }.onFailure { error ->
-            if (isActive) {
+            if (coroutineContext.isActive) {
                 withContext(Dispatchers.Main) {
                     updateOverlay("Online: OSM Note creation failed :(")
                     Log.e("OverlayService", "OSM note creation failed", error)
@@ -619,7 +619,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private suspend fun handleTranscriptionFailure(error: Throwable) {
         withContext(Dispatchers.Main) {
             // Check if coroutine is still active
-            if (!isActive) return@withContext
+            if (!coroutineContext.isActive) return@withContext
             
             updateOverlay("Online: Transcribing: failed :-(")
             Log.e("OverlayService", "Transcription failed", error)
