@@ -145,7 +145,7 @@ class TranscriptionService(private val context: Context) {
             try {
                 // Configure recognition
                 val recognitionConfig = RecognitionConfig.newBuilder()
-                    .setEncoding(RecognitionConfig.AudioEncoding.ENCODING_UNSPECIFIED) // Let API auto-detect
+                    .setEncoding(RecognitionConfig.AudioEncoding.FLAC)  // FLAC works for M4A/AAC
                     .setSampleRateHertz(44100)
                     .setLanguageCode("en-US")
                     .setEnableAutomaticPunctuation(true)
