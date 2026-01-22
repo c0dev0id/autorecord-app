@@ -60,6 +60,20 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private var countdownRunnable: Runnable? = null
     private var ttsTimeoutRunnable: Runnable? = null
     private var bluetoothScoTimeoutRunnable: Runnable? = null
+    
+    // Flags to prevent double cleanup
+    private var isOverlayRemoved = false
+    private var isServiceStopping = false
+    
+    // Exception handler for coroutines
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e("OverlayService", "Coroutine exception caught", throwable)
+        DebugLogger.logError(
+            service = "OverlayService",
+            error = "Coroutine exception: ${throwable.message}",
+            exception = throwable
+        )
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -441,7 +455,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             countdownRunnable?.let { handler.removeCallbacks(it) }
             
             mediaRecorder?.apply {
-                stop()
+                try {
+                    stop()
+                } catch (e: IllegalStateException) {
+                    Log.w("OverlayService", "MediaRecorder already stopped", e)
+                }
                 release()
             }
             mediaRecorder = null
@@ -493,21 +511,46 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         updateOverlay("Online: Transcribing:")
         
-        // Launch coroutine for transcription
-        lifecycleScope.launch {
-            val transcriptionService = TranscriptionService(this@OverlayService)
-            val result = transcriptionService.transcribeAudioFile(filePath)
-            
-            result.onSuccess { transcribedText ->
-                handleTranscriptionSuccess(transcribedText, location, filePath)
-            }.onFailure { error ->
-                handleTranscriptionFailure(error)
+        // Launch coroutine with exception handler
+        lifecycleScope.launch(coroutineExceptionHandler) {
+            try {
+                val transcriptionService = TranscriptionService(this@OverlayService)
+                val result = transcriptionService.transcribeAudioFile(filePath)
+                
+                result.onSuccess { transcribedText ->
+                    // Check if coroutine is still active
+                    if (!isActive) return@launch
+                    
+                    handleTranscriptionSuccess(transcribedText, location, filePath)
+                }.onFailure { error ->
+                    // Check if coroutine is still active
+                    if (!isActive) return@launch
+                    
+                    handleTranscriptionFailure(error)
+                }
+            } catch (e: Exception) {
+                Log.e("OverlayService", "Post-processing error", e)
+                DebugLogger.logError(
+                    service = "OverlayService",
+                    error = "Post-processing error: ${e.message}",
+                    exception = e
+                )
+            } finally {
+                // Always stop service after all work is done
+                if (isActive) {
+                    withContext(Dispatchers.Main) {
+                        handler.postDelayed({ stopSelfAndFinish() }, 1000)
+                    }
+                }
             }
         }
     }
 
     private suspend fun handleTranscriptionSuccess(transcribedText: String, location: Location, filePath: String) {
         withContext(Dispatchers.Main) {
+            // Check if coroutine is still active
+            if (!isActive) return@withContext
+            
             // Use fallback text if transcription is empty
             val finalText = if (transcribedText.isBlank()) {
                 val coords = extractCoordinatesFromFilename(filePath)
@@ -522,6 +565,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Wait 1 second
             delay(1000)
             
+            // Check if still active before continuing
+            if (!isActive) return@withContext
+            
             // Create GPX waypoint
             createGpxWaypoint(location, finalText, filePath)
             
@@ -531,14 +577,15 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             
             if (addOsmNote) {
                 createOsmNote(location, finalText)
-            } else {
-                // Quit app
-                handler.postDelayed({ stopSelfAndFinish() }, 1000)
             }
+            // Note: Service will be stopped by finally block in startPostProcessing
         }
     }
     
     private suspend fun createOsmNote(location: Location, text: String) {
+        // Check if coroutine is still active
+        if (!isActive) return
+        
         updateOverlay("Online: Creating OSM Note")
         
         val oauthManager = OsmOAuthManager(this)
@@ -546,7 +593,6 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         if (accessToken == null) {
             Log.e("OverlayService", "No OSM access token found")
-            handler.postDelayed({ stopSelfAndFinish() }, 1000)
             return
         }
         
@@ -554,30 +600,34 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val result = osmService.createNote(location.latitude, location.longitude, text, accessToken)
         
         result.onSuccess {
-            withContext(Dispatchers.Main) {
-                updateOverlay("Online: OSM Note created.")
-                handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            if (isActive) {
+                withContext(Dispatchers.Main) {
+                    updateOverlay("Online: OSM Note created.")
+                }
             }
         }.onFailure { error ->
-            withContext(Dispatchers.Main) {
-                updateOverlay("Online: OSM Note creation failed :(")
-                Log.e("OverlayService", "OSM note creation failed", error)
-                handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            if (isActive) {
+                withContext(Dispatchers.Main) {
+                    updateOverlay("Online: OSM Note creation failed :(")
+                    Log.e("OverlayService", "OSM note creation failed", error)
+                }
             }
         }
+        // Note: Service will be stopped by finally block in startPostProcessing
     }
 
     private suspend fun handleTranscriptionFailure(error: Throwable) {
         withContext(Dispatchers.Main) {
+            // Check if coroutine is still active
+            if (!isActive) return@withContext
+            
             updateOverlay("Online: Transcribing: failed :-(")
             Log.e("OverlayService", "Transcription failed", error)
             
             // Wait 1 second
             delay(1000)
             
-            // Skip GPX and OSM creation
-            // Quit app
-            handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            // Note: Service will be stopped by finally block in startPostProcessing
         }
     }
 
@@ -855,6 +905,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     private fun stopSelfAndFinish() {
+        // Prevent multiple calls
+        if (isServiceStopping) {
+            Log.d("OverlayService", "Service already stopping, ignoring duplicate call")
+            return
+        }
+        isServiceStopping = true
+        
         // Cancel Bluetooth SCO timeout
         bluetoothScoTimeoutRunnable?.let { handler.removeCallbacks(it) }
         
@@ -873,9 +930,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             apply()
         }
         
-        // Remove overlay
-        overlayView?.let {
-            windowManager?.removeView(it)
+        // Remove overlay with protection
+        if (!isOverlayRemoved) {
+            overlayView?.let {
+                try {
+                    windowManager?.removeView(it)
+                    isOverlayRemoved = true
+                } catch (e: IllegalArgumentException) {
+                    Log.w("OverlayService", "Overlay already removed", e)
+                }
+            }
         }
         
         // Stop Bluetooth SCO if it was started
@@ -892,6 +956,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onDestroy() {
+        // Clean up handler first to prevent any callbacks from running
+        handler.removeCallbacksAndMessages(null)
+        
         // Clean up all timeouts
         ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
         bluetoothScoTimeoutRunnable?.let { handler.removeCallbacks(it) }
@@ -900,8 +967,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         textToSpeech?.shutdown()
         mediaRecorder?.release()
         
-        overlayView?.let {
-            windowManager?.removeView(it)
+        // Remove overlay with protection
+        if (!isOverlayRemoved) {
+            overlayView?.let {
+                try {
+                    windowManager?.removeView(it)
+                    isOverlayRemoved = true
+                } catch (e: IllegalArgumentException) {
+                    Log.w("OverlayService", "Overlay already removed in onDestroy", e)
+                }
+            }
         }
         
         super.onDestroy()
