@@ -51,4 +51,5 @@
     <string name="online_osm_note_created">Online: OSM Note created.</string>
     <string name="online_osm_note_failed">Online: OSM Note creation failed :(</string>
     <string name="processing_complete">Processing complete</string>
+    <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
 </resources>

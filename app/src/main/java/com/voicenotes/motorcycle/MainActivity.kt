@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        const val EXTRA_SHOW_UI = "show_ui"
     }
 
     private lateinit var infoText: TextView
@@ -40,6 +41,8 @@ class MainActivity : AppCompatActivity() {
     
     private lateinit var finishReceiver: FinishActivityReceiver
     private var isReceiverRegistered = false
+    
+    private var shouldShowUI = false
     
     private val timeoutHandler = Handler(Looper.getMainLooper())
     private val initializationTimeout = Runnable {
@@ -70,11 +73,26 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate() called")
-        setContentView(R.layout.activity_main)
         
         // Initialize AppContextHolder for DebugLogger
         AppContextHolder.context = applicationContext
 
+        // Check if we should show UI (explicit request from user)
+        shouldShowUI = intent?.getBooleanExtra(EXTRA_SHOW_UI, false) ?: false
+        
+        // Check if user is coming from settings or explicitly opening the app UI
+        val fromSettings = intent?.getBooleanExtra("fromSettings", false) ?: false
+        
+        // If launched from launcher without explicit UI request, try background launch
+        if (!shouldShowUI && !fromSettings && !isFirstRun() && checkPermissions() && Settings.canDrawOverlays(this)) {
+            Log.d(TAG, "Background launch mode - starting OverlayService directly")
+            startBackgroundRecording()
+            return
+        }
+        
+        // Otherwise, show UI for setup/permissions
+        setContentView(R.layout.activity_main)
+        
         infoText = findViewById(R.id.infoText)
         progressBar = findViewById(R.id.progressBar)
 
@@ -277,6 +295,32 @@ class MainActivity : AppCompatActivity() {
         // Minimize this activity to background
         Log.d(TAG, "Moving task to back")
         moveTaskToBack(true)
+    }
+    
+    private fun startBackgroundRecording() {
+        Log.d(TAG, "startBackgroundRecording() called - launching service without UI")
+        
+        // Check if already recording - if so, extend instead
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        if (prefs.getBoolean("isCurrentlyRecording", false)) {
+            Log.d(TAG, "Already recording, extending")
+            // Start service with extension request
+            val serviceIntent = Intent(this, OverlayService::class.java)
+            val configuredDuration = prefs.getInt("recordingDuration", 10)
+            serviceIntent.putExtra("additionalDuration", configuredDuration)
+            startService(serviceIntent)
+            finish()
+            return
+        }
+        
+        // Start overlay service with initialization flag
+        Log.d(TAG, "Starting OverlayService in background mode")
+        val serviceIntent = Intent(this, OverlayService::class.java)
+        serviceIntent.putExtra("backgroundLaunch", true)
+        startService(serviceIntent)
+        
+        // Immediately finish the activity - no UI flicker
+        finish()
     }
     
     private fun cancelInitializationTimeout() {
