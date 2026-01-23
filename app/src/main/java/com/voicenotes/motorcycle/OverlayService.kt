@@ -85,7 +85,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // Check if overlay permission is granted
         if (!Settings.canDrawOverlays(this)) {
-            Log.e("OverlayService", "Overlay permission not granted - stopping service")
+            Log.e("OverlayService", "Overlay permission not granted - cannot start overlay service")
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = getString(R.string.overlay_permission_missing)
+            )
             stopSelf()
             return
         }

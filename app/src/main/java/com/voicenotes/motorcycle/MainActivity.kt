@@ -313,10 +313,9 @@ class MainActivity : AppCompatActivity() {
             return
         }
         
-        // Start overlay service with initialization flag
+        // Start overlay service
         Log.d(TAG, "Starting OverlayService in background mode")
         val serviceIntent = Intent(this, OverlayService::class.java)
-        serviceIntent.putExtra("backgroundLaunch", true)
         startService(serviceIntent)
         
         // Immediately finish the activity - no UI flicker
