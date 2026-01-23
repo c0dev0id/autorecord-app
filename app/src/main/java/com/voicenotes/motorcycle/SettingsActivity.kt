@@ -301,8 +301,10 @@ class SettingsActivity : AppCompatActivity() {
     
     private fun checkStoragePermissions() {
         // Check if we need MANAGE_EXTERNAL_STORAGE
-        if (!Environment.isExternalStorageManager()) {
-            showManageStorageDialog()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                showManageStorageDialog()
+            }
         }
     }
 
@@ -400,7 +402,12 @@ class SettingsActivity : AppCompatActivity() {
         })
         
         // Check storage permission
-        val hasStorage = Environment.isExternalStorageManager()
+        val hasStorage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
+        } else {
+            // For API < 30, consider storage permission granted
+            true
+        }
         statusLines.add(if (hasStorage) {
             getString(R.string.permission_granted, getString(R.string.permission_storage))
         } else {
