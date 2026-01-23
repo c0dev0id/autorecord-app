@@ -129,6 +129,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         val additionalDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (additionalDuration > 0) {
@@ -337,7 +338,14 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Set audio source
             val audioSource = getPreferredAudioSource()
 
-            mediaRecorder = MediaRecorder(this).apply {
+            // MediaRecorder constructor requires different signatures based on API level:
+            // API 31+ (Android S): MediaRecorder(Context) - required to associate with app context
+            // API 26-30: MediaRecorder() - deprecated but required for backward compatibility
+            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(this)
+            } else {
+                MediaRecorder()
+            }.apply {
                 setAudioSource(audioSource)
                 
                 // Use OGG_OPUS for API 29+ (Android 10+) for better compression and quality
