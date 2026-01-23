@@ -68,6 +68,36 @@ The goal is to minimize manual steps:
 - All code must pass Android lint checks
 - Build must succeed with no errors
 - APK must be generated successfully in `app/build/outputs/apk/debug/`
+- Keep the code clean and follow best practices
+- Remove unused functions and variables during code reviews
+- Keep documentation updated and consistent with code changes
+
+### Code Maintenance and Cleanup
+
+When working on code changes:
+
+#### 1. Documentation Maintenance
+- **Always keep documentation updated and consistent** with code changes
+- Update relevant documentation files when modifying features or APIs
+- Ensure README, configuration guides, and other docs reflect current functionality
+- Keep inline code comments synchronized with the actual implementation
+
+#### 2. Code Cleanup
+- **Check for and remove unused code:**
+  - Identify unused functions, methods, and classes
+  - Remove unused variables and imports
+  - Delete commented-out code blocks (use version control instead)
+  - Clean up dead code paths and unreachable code
+- Use IDE or linting tools to help identify unused code
+- Perform cleanup during code reviews before finalizing PRs
+
+#### 3. Best Practices
+- Follow established coding conventions and patterns in the codebase
+- Keep functions focused and single-purpose
+- Maintain consistent naming conventions
+- Ensure proper error handling throughout the code
+- Write self-documenting code with clear variable and function names
+- Add comments only when necessary to explain complex logic
 
 ### Testable Code Guidelines
 
@@ -221,6 +251,35 @@ When creating or updating PRs:
 - If GitHub automatically adds such sections, remove them when updating the PR description
 - Keep PR descriptions focused on the actual changes made
 - Include only relevant information about the code changes, testing, and impact
+
+## Release Management
+
+When creating releases and writing release notes:
+
+### Release Notes Content
+- **Only include user-facing changes and features** in release notes
+- Focus on what matters to end users:
+  - New features and capabilities
+  - Bug fixes that affect user experience
+  - Performance improvements users will notice
+  - Breaking changes or important updates
+  - UI/UX improvements
+
+### What NOT to Include in Release Notes
+- **Do NOT include** test changes or additions
+- **Do NOT include** documentation updates (unless it's user-facing documentation like a user guide)
+- **Do NOT include** internal code refactoring or cleanup
+- **Do NOT include** dependency updates (unless they directly affect users)
+- **Do NOT include** developer tooling changes
+- **Do NOT include** CI/CD pipeline modifications
+- **Do NOT include** internal architecture changes
+
+### Release Notes Format
+- Use clear, user-friendly language
+- Group changes by category (Features, Bug Fixes, Improvements)
+- Be concise but informative
+- Highlight the most important changes first
+- Include any necessary migration steps for users
 
 ## Notes
 
