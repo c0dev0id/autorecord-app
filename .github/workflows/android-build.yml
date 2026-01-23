@@ -3,8 +3,22 @@ name: Android CI Build
 on:
   push:
     branches: [ main, develop, claude/** ]
+    # Only run when code that affects the build is changed
+    paths-ignore:
+      - '**.md'                    # Documentation files
+      - 'docs/**'                  # Documentation directory
+      - '.github/workflows/**'     # Workflow changes don't affect app builds
+      - '.gitignore'               # Git config changes
+      - 'LICENSE'                  # License changes
   pull_request:
     branches: [ main, develop ]
+    # Only run when code that affects the build is changed
+    paths-ignore:
+      - '**.md'                    # Documentation files
+      - 'docs/**'                  # Documentation directory
+      - '.github/workflows/**'     # Workflow changes don't affect app builds
+      - '.gitignore'               # Git config changes
+      - 'LICENSE'                  # License changes
   workflow_dispatch:
 
 jobs:
@@ -21,23 +35,27 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          # Built-in Gradle cache is sufficient - handles dependencies, wrappers, and build-cache
+          # No need for redundant explicit actions/cache for Gradle
           cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Cache Gradle packages
+      # Cache Android SDK components to avoid re-downloading (~1-2 GB)
+      # This significantly speeds up workflow runs by caching SDK packages
+      - name: Cache Android SDK
         uses: actions/cache@v4
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+            ~/.android/build-cache
+            ~/.android/cache
+          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-android-sdk-
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Create gradle.properties
         run: |
@@ -48,8 +66,11 @@ jobs:
           echo "android.enableJetifier=true" >> gradle.properties
           echo "kotlin.code.style=official" >> gradle.properties
 
+      # Enable Gradle build cache and parallel execution for faster incremental builds
+      # --build-cache: Enables Gradle's build cache for reusing outputs
+      # --parallel: Executes tasks in parallel when possible
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace --build-cache --parallel
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
