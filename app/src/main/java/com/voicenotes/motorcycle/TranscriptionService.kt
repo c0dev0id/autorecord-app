@@ -43,9 +43,10 @@ class TranscriptionService(private val context: Context) {
     }
 
     /**
-     * Transcribes an m4a audio file using Google Cloud Speech-to-Text API
+     * Transcribes an audio file using Google Cloud Speech-to-Text API
+     * Supports both OGG_OPUS (.ogg) and M4A/AAC (.m4a) formats
      * 
-     * @param filePath Absolute path to the m4a file
+     * @param filePath Absolute path to the audio file
      * @return Result containing transcribed text or error
      */
     suspend fun transcribeAudioFile(filePath: String): Result<String> {
@@ -143,10 +144,20 @@ class TranscriptionService(private val context: Context) {
             val speechClient = SpeechClient.create(speechSettings)
 
             try {
-                // Configure recognition
+                // Detect audio format from file extension
+                val isOggOpus = filePath.endsWith(".ogg", ignoreCase = true)
+                
+                // Configure recognition based on file format
+                val encoding = if (isOggOpus) {
+                    RecognitionConfig.AudioEncoding.OGG_OPUS
+                } else {
+                    RecognitionConfig.AudioEncoding.FLAC  // FLAC works for M4A/AAC
+                }
+                val sampleRate = if (isOggOpus) 48000 else 44100
+                
                 val recognitionConfig = RecognitionConfig.newBuilder()
-                    .setEncoding(RecognitionConfig.AudioEncoding.FLAC)  // FLAC works for M4A/AAC
-                    .setSampleRateHertz(44100)
+                    .setEncoding(encoding)
+                    .setSampleRateHertz(sampleRate)
                     .setLanguageCode("en-US")
                     .setEnableAutomaticPunctuation(true)
                     .setModel("default")

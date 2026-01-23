@@ -72,9 +72,9 @@ Just launch the app whenever you want to record a note. A small overlay bubble w
 
 ## File Format
 
-- **Audio**: MPEG-4 files with AAC encoding (128 kbps, 44.1 kHz)
-- **Naming**: `latitude,longitude_timestamp.m4a`
-- **Example**: `34.052235,-118.243683_20260120_143022.m4a`
+- **Audio**: OGG files with Opus encoding (32 kbps, 48 kHz) on Android 10+, or MPEG-4 files with AAC encoding (128 kbps, 44.1 kHz) on older devices
+- **Naming**: `latitude,longitude_timestamp.ogg` (or `.m4a` on Android 8-9)
+- **Example**: `34.052235,-118.243683_20260120_143022.ogg`
 - **GPX File**: `voicenote_waypoint_collection.gpx` with waypoints containing your transcribed voice notes
 
 ## Requirements
@@ -119,7 +119,7 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build setup and 
 - **Language**: Kotlin
 - **Build System**: Gradle
 - **Location**: Google Play Services Location API
-- **Audio**: MediaRecorder with AAC encoding (MPEG-4 container, .m4a files)
+- **Audio**: MediaRecorder with Opus encoding (OGG container, .ogg files) on Android 10+, or AAC encoding (MPEG-4 container, .m4a files) on older devices
 - **Text-to-Speech**: Android TTS Engine (for status announcements)
 - **Speech-to-Text**: Google Cloud Speech-to-Text API (for transcription)
 - **OAuth**: AppAuth library for OpenStreetMap OAuth 2.0

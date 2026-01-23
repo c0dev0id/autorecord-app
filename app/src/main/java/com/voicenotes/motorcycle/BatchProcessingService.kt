@@ -50,12 +50,15 @@ class BatchProcessingService : LifecycleService() {
         }
         
         val directory = File(saveDir)
-        val m4aFiles = directory.listFiles { file -> file.extension == "m4a" } ?: emptyArray()
+        // Process both .ogg (Opus) and .m4a (AAC) audio files
+        val audioFiles = directory.listFiles { file -> 
+            file.extension == "ogg" || file.extension == "m4a" 
+        } ?: emptyArray()
         
-        Log.d("BatchProcessing", "Found ${m4aFiles.size} files to process")
+        Log.d("BatchProcessing", "Found ${audioFiles.size} files to process")
         DebugLogger.logInfo(
             service = "BatchProcessingService",
-            message = "Found ${m4aFiles.size} files to process in $saveDir"
+            message = "Found ${audioFiles.size} audio files (.ogg, .m4a) to process in $saveDir"
         )
         
         val transcriptionService = TranscriptionService(this)
@@ -63,9 +66,9 @@ class BatchProcessingService : LifecycleService() {
         val oauthManager = OsmOAuthManager(this)
         val addOsmNote = prefs.getBoolean("addOsmNote", false)
         
-        val totalFiles = m4aFiles.size
+        val totalFiles = audioFiles.size
         
-        for ((index, file) in m4aFiles.withIndex()) {
+        for ((index, file) in audioFiles.withIndex()) {
             val currentFile = index + 1
             Log.d("BatchProcessing", "Processing file $currentFile/$totalFiles: ${file.name}")
             DebugLogger.logInfo(

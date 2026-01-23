@@ -6,19 +6,21 @@ This document summarizes all changes made to implement the requested features fo
 
 ## Requirements Implemented
 
-### 1. ✅ Record in MP3 Format (not AAC)
+### 1. ✅ High-Quality Audio Recording with Ogg Opus
 
-**Status**: Implemented with Android limitations documented
+**Status**: Implemented with modern Opus codec for speech
 
 **Changes Made**:
-- Maintained AAC encoding (Android MediaRecorder's highest quality option)
-- Uses MPEG-4 container with .mp3 file extension
-- Documented that Android doesn't support true MP3 encoding natively
-- Quality settings: 128 kbps bitrate, 44.1 kHz sample rate
+- Uses Ogg Opus encoding on Android 10+ (API 29+)
+- Falls back to AAC encoding in MPEG-4 container on Android 8-9 (API 26-28)
+- Quality settings: 32 kbps bitrate, 48 kHz sample rate for Opus (optimal for speech)
+- Quality settings: 128 kbps bitrate, 44.1 kHz sample rate for AAC (legacy devices)
 
-**Technical Note**: Android's MediaRecorder API doesn't have native MP3 encoder. Using AAC in MP4 container provides:
-- Better quality than MP3 at same bitrate
-- Universal compatibility
+**Technical Note**: Ogg Opus provides:
+- Much smaller file sizes (32 kbps vs 128 kbps = ~4x reduction)
+- Better speech quality at lower bitrates
+- Native support in Google Cloud Speech-to-Text API
+- Modern codec optimized for voice applications
 - Standard practice for Android audio recording
 
 **Files Modified**:
@@ -323,13 +325,13 @@ This document summarizes all changes made to implement the requested features fo
 
 **Future**: Will be implemented with real-time or cloud-based transcription
 
-### MP3 Encoding
+### Audio Encoding
 
-**Impact**: Uses AAC in MP4 container, not true MP3
+**Impact**: Uses Ogg Opus on Android 10+ for optimal file size and quality
 
-**Workaround**: File extension is .mp3 for compatibility, but encoding is AAC
+**Fallback**: AAC in MPEG-4 container for Android 8-9
 
-**Rationale**: Android doesn't support native MP3 encoding; AAC provides better quality
+**Rationale**: Opus is the modern standard for speech encoding with excellent quality at low bitrates
 
 ### Bluetooth Limitations
 
@@ -436,7 +438,7 @@ This document summarizes all changes made to implement the requested features fo
 
 All requested features have been successfully implemented except for speech-to-text transcription, which is documented as a planned future feature due to Android API limitations. The app now provides:
 
-- ✅ MP3 format recording (AAC in MP4 container)
+- ✅ Ogg Opus format recording (or AAC fallback for older devices)
 - ✅ Bluetooth microphone support
 - ✅ Always recording on launch
 - ✅ First-run tutorial

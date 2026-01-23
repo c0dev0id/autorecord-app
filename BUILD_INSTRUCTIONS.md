@@ -278,7 +278,7 @@ After setup, the app will:
 2. Acquire your GPS location
 3. Announce "Location acquired, recording started" via TTS
 4. Record audio for the configured duration (default 10 seconds)
-5. Save the recording with filename format: `latitude,longitude_timestamp.m4a`
+5. Save the recording with filename format: `latitude,longitude_timestamp.ogg` (or `.m4a` on Android 8-9)
 6. **If online processing is enabled and internet is available**:
    - Display "Online: Transcribing:" in the overlay
    - Transcribe the audio using Google Cloud Speech-to-Text
@@ -295,7 +295,7 @@ After setup, the app will:
 ### Manual Batch Processing
 
 Use the "Run Online Processing" button in settings to:
-- Process all m4a files in your recording directory
+- Process all audio files (.ogg and .m4a) in your recording directory
 - Transcribe each file using Google Cloud Speech-to-Text
 - Create/update GPX waypoints (replaces duplicates)
 - Create OSM notes if enabled and authenticated
@@ -361,7 +361,7 @@ autorecord-app/
 - **Language**: Kotlin
 - **Minimum SDK**: 26 (Android 8.0)
 - **Target SDK**: 34 (Android 14)
-- **Recording Format**: 3GP (AMR-NB codec)
+- **Recording Format**: OGG with Opus codec (Android 10+) or MPEG-4 with AAC codec (Android 8-9)
 - **Recording Duration**: 10 seconds (configurable in code)
 - **Location**: High-accuracy GPS
 - **Text-to-Speech**: Android built-in TTS engine
