@@ -440,14 +440,14 @@ class TestSuite(private val context: Context) {
                         testFile.delete()
                         TestResult("MediaRecorder Initialization Test", true, "MediaRecorder can be initialized with OGG_OPUS")
                     } else {
-                        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                        val testFile = File(context.cacheDir, "test_audio_${System.currentTimeMillis()}.m4a")
+                        recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_WB)
+                        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB)
+                        val testFile = File(context.cacheDir, "test_audio_${System.currentTimeMillis()}.amr")
                         recorder.setOutputFile(testFile.absolutePath)
                         recorder.prepare()
                         recorder.release()
                         testFile.delete()
-                        TestResult("MediaRecorder Initialization Test", true, "MediaRecorder can be initialized with AAC")
+                        TestResult("MediaRecorder Initialization Test", true, "MediaRecorder can be initialized with AMR_WB")
                     }
                 } catch (e: Exception) {
                     TestResult("MediaRecorder Initialization Test", false, "MediaRecorder error: ${e.message}")

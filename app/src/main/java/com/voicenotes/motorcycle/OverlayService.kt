@@ -321,11 +321,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
             // Create filename with coordinates and timestamp
             // Use OGG_OPUS encoding for API 29+ (smaller, better quality for speech)
-            // Fall back to AAC in MPEG-4 container (.m4a) for older devices
+            // Fall back to AMR_WB for older devices (API 26-28) - compatible with Speech-to-Text API
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
             val lat = String.format("%.6f", location.latitude)
             val lng = String.format("%.6f", location.longitude)
-            val fileExtension = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) "ogg" else "m4a"
+            val fileExtension = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) "ogg" else "amr"
             val fileName = "${lat},${lng}_${timestamp}.${fileExtension}"
 
             val directory = File(saveDir)
@@ -355,11 +355,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                     setAudioEncodingBitRate(32000)  // 32kbps is optimal for speech with Opus
                     setAudioSamplingRate(48000)     // Opus native sample rate
                 } else {
-                    // Fall back to AAC for older devices (API 26-28)
-                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                    setAudioEncodingBitRate(128000)
-                    setAudioSamplingRate(44100)
+                    // Fall back to AMR_WB for older devices (API 26-28)
+                    // AMR_WB is compatible with Google Cloud Speech-to-Text API
+                    // Uses fixed 16kHz sample rate (optimal for speech recognition)
+                    setOutputFormat(MediaRecorder.OutputFormat.AMR_WB)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB)
                 }
                 
                 setOutputFile(recordingFilePath)
@@ -411,11 +411,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun getPreferredAudioSource(): Int {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         
-        // Check Bluetooth permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-            != PackageManager.PERMISSION_GRANTED) {
-            Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
-            return MediaRecorder.AudioSource.VOICE_RECOGNITION
+        // Check Bluetooth permission (only needed on API 31+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+                Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
+                return MediaRecorder.AudioSource.VOICE_RECOGNITION
+            }
         }
         
         return if (audioManager.isBluetoothScoAvailableOffCall) {

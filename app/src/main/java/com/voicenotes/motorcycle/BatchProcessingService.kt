@@ -50,9 +50,9 @@ class BatchProcessingService : LifecycleService() {
         }
         
         val directory = File(saveDir)
-        // Process both .ogg (Opus) and .m4a (AAC) audio files
+        // Process .ogg (Opus) and .amr (AMR_WB) audio files
         val audioFiles = directory.listFiles { file -> 
-            file.extension == "ogg" || file.extension == "m4a" 
+            file.extension == "ogg" || file.extension == "amr" 
         } ?: emptyArray()
         
         Log.d("BatchProcessing", "Found ${audioFiles.size} files to process")
