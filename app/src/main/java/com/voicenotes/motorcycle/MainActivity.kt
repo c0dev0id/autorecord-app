@@ -21,6 +21,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.voicenotes.motorcycle.database.RecordingMigration
+import kotlinx.coroutines.launch
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -160,6 +163,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
         
+        Log.d(TAG, "Checking permissions")
+        
         val permissionsMissing = !checkPermissions()
         Log.d(TAG, "Permissions missing: $permissionsMissing")
         
@@ -180,6 +185,33 @@ class MainActivity : AppCompatActivity() {
     
     private fun checkOverlayPermission() {
         Log.d(TAG, "checkOverlayPermission() called")
+        
+        // Check and run migration if needed (best-effort, doesn't block user)
+        val migration = RecordingMigration(this)
+        if (!migration.isMigrationComplete()) {
+            lifecycleScope.launch {
+                try {
+                    val count = migration.migrateExistingRecordings()
+                    if (count > 0) {
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Migrated $count existing recording${if (count > 1) "s" else ""}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Migration failed", e)
+                    DebugLogger.logError(
+                        service = "MainActivity",
+                        error = "Migration failed: ${e.message}",
+                        exception = e
+                    )
+                }
+            }
+        }
+        
         if (!Settings.canDrawOverlays(this)) {
             Log.d(TAG, "Overlay permission NOT granted, showing dialog")
             AlertDialog.Builder(this)

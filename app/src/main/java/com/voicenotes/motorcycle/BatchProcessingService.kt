@@ -7,7 +7,13 @@ import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import com.voicenotes.motorcycle.database.RecordingDatabase
+import com.voicenotes.motorcycle.database.Recording
+import com.voicenotes.motorcycle.database.V2SStatus
+import com.voicenotes.motorcycle.database.OsmStatus
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.TimeoutCancellationException
 import java.io.File
@@ -22,208 +28,330 @@ class BatchProcessingService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         
+        val recordingId = intent?.getLongExtra("recordingId", -1L) ?: -1L
+        
         lifecycleScope.launch {
-            processAllFiles()
+            if (recordingId > 0) {
+                // Process single recording
+                processSingleRecording(recordingId)
+            } else {
+                // Process all pending recordings
+                processAllFiles()
+            }
         }
         
         return START_NOT_STICKY
     }
     
-    private suspend fun processAllFiles() {
-        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        val saveDir = prefs.getString("saveDirectory", null)
+    private suspend fun processSingleRecording(recordingId: Long) {
+        val db = RecordingDatabase.getDatabase(this@BatchProcessingService)
+        val recording = withContext(Dispatchers.IO) {
+            db.recordingDao().getRecordingById(recordingId)
+        }
         
-        DebugLogger.logInfo(
-            service = "BatchProcessingService",
-            message = "Starting batch processing"
-        )
-        
-        if (saveDir.isNullOrEmpty()) {
-            Log.e("BatchProcessing", "Save directory not configured")
-            DebugLogger.logError(
-                service = "BatchProcessingService",
-                error = "Save directory not configured"
-            )
-            sendBroadcast(Intent("com.voicenotes.motorcycle.BATCH_COMPLETE"))
+        if (recording == null) {
+            Log.e("BatchProcessing", "Recording not found: $recordingId")
             stopSelf()
             return
         }
         
-        val directory = File(saveDir)
-        // Process .ogg (Opus) and .amr (AMR_WB) audio files
-        val audioFiles = directory.listFiles { file -> 
-            file.extension == "ogg" || file.extension == "amr" 
-        } ?: emptyArray()
-        
-        Log.d("BatchProcessing", "Found ${audioFiles.size} files to process")
         DebugLogger.logInfo(
             service = "BatchProcessingService",
-            message = "Found ${audioFiles.size} audio files (.ogg, .m4a) to process in $saveDir"
+            message = "Processing single recording: ${recording.filename}"
         )
         
-        val transcriptionService = TranscriptionService(this)
-        val osmService = OsmNotesService()
-        val oauthManager = OsmOAuthManager(this)
-        val addOsmNote = prefs.getBoolean("addOsmNote", false)
+        processRecording(recording, 1, 1)
+        stopSelf()
+    }
+    
+    private suspend fun processAllFiles() {
+        DebugLogger.logInfo(
+            service = "BatchProcessingService",
+            message = "Starting batch processing from database"
+        )
         
-        val totalFiles = audioFiles.size
+        // Get all recordings that need processing from database
+        val db = RecordingDatabase.getDatabase(this@BatchProcessingService)
+        val recordings = withContext(Dispatchers.IO) {
+            // Get recordings that haven't been transcribed yet
+            db.recordingDao().getRecordingsByV2SStatus(V2SStatus.NOT_STARTED)
+        }
         
-        for ((index, file) in audioFiles.withIndex()) {
+        Log.d("BatchProcessing", "Found ${recordings.size} recordings to process")
+        DebugLogger.logInfo(
+            service = "BatchProcessingService",
+            message = "Found ${recordings.size} recordings to process from database"
+        )
+        
+        val totalFiles = recordings.size
+        
+        for ((index, recording) in recordings.withIndex()) {
             val currentFile = index + 1
-            Log.d("BatchProcessing", "Processing file $currentFile/$totalFiles: ${file.name}")
+            Log.d("BatchProcessing", "Processing recording $currentFile/$totalFiles: ${recording.filename}")
             DebugLogger.logInfo(
                 service = "BatchProcessingService",
-                message = "Processing file $currentFile/$totalFiles: ${file.name}"
+                message = "Processing recording $currentFile/$totalFiles: ${recording.filename}"
             )
             
             try {
                 withTimeout(120000) { // 2 minute timeout per file
-                    processFile(file, currentFile, totalFiles, saveDir, transcriptionService, oauthManager, addOsmNote)
+                    processRecording(recording, currentFile, totalFiles)
                 }
             } catch (e: TimeoutCancellationException) {
-                Log.e("BatchProcessingService", "Timeout processing file: ${file.name}")
+                Log.e("BatchProcessingService", "Timeout processing recording: ${recording.filename}")
                 DebugLogger.logError(
                     service = "BatchProcessingService",
-                    error = "File processing timeout: ${file.name}",
+                    error = "Recording processing timeout: ${recording.filename}",
                     exception = e
                 )
                 
+                // Update recording status to ERROR
+                withContext(Dispatchers.IO) {
+                    val updated = recording.copy(
+                        v2sStatus = V2SStatus.ERROR,
+                        errorMsg = "Processing timeout",
+                        updatedAt = System.currentTimeMillis()
+                    )
+                    db.recordingDao().updateRecording(updated)
+                }
+                
                 // Send error status
                 val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                errorProgressIntent.putExtra("filename", file.name)
+                errorProgressIntent.putExtra("filename", recording.filename)
                 errorProgressIntent.putExtra("status", "timeout")
                 errorProgressIntent.putExtra("current", currentFile)
                 errorProgressIntent.putExtra("total", totalFiles)
                 sendBroadcast(errorProgressIntent)
                 
-                // Continue to next file
             } catch (e: Exception) {
-                Log.e("BatchProcessingService", "Error processing file: ${file.name}", e)
+                Log.e("BatchProcessingService", "Error processing recording: ${recording.filename}", e)
                 DebugLogger.logError(
                     service = "BatchProcessingService",
-                    error = "Error processing file: ${file.name}",
+                    error = "Error processing recording: ${recording.filename}",
                     exception = e
                 )
                 
+                // Update recording status to ERROR
+                withContext(Dispatchers.IO) {
+                    val updated = recording.copy(
+                        v2sStatus = V2SStatus.ERROR,
+                        errorMsg = e.message ?: "Unknown error",
+                        updatedAt = System.currentTimeMillis()
+                    )
+                    db.recordingDao().updateRecording(updated)
+                }
+                
                 // Send error status
                 val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                errorProgressIntent.putExtra("filename", file.name)
+                errorProgressIntent.putExtra("filename", recording.filename)
                 errorProgressIntent.putExtra("status", "error")
                 errorProgressIntent.putExtra("current", currentFile)
                 errorProgressIntent.putExtra("total", totalFiles)
                 sendBroadcast(errorProgressIntent)
-                
-                // Continue to next file
             }
         }
         
         // Broadcast completion
         DebugLogger.logInfo(
             service = "BatchProcessingService",
-            message = "Batch processing complete. Processed $totalFiles files."
+            message = "Batch processing complete. Processed $totalFiles recordings."
         )
         sendBroadcast(Intent("com.voicenotes.motorcycle.BATCH_COMPLETE"))
         stopSelf()
     }
     
-    private suspend fun processFile(
-        file: File,
+    private suspend fun processRecording(
+        recording: Recording,
         currentFile: Int,
-        totalFiles: Int,
-        saveDir: String,
-        transcriptionService: TranscriptionService,
-        oauthManager: OsmOAuthManager,
-        addOsmNote: Boolean
+        totalFiles: Int
     ) {
+            val db = RecordingDatabase.getDatabase(this@BatchProcessingService)
+            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            val addOsmNote = prefs.getBoolean("addOsmNote", false)
+            
+            // Update status to PROCESSING
+            withContext(Dispatchers.IO) {
+                val updated = recording.copy(
+                    v2sStatus = V2SStatus.PROCESSING,
+                    updatedAt = System.currentTimeMillis()
+                )
+                db.recordingDao().updateRecording(updated)
+            }
+            
             // Broadcast progress with detailed status
             val progressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-            progressIntent.putExtra("filename", file.name)
+            progressIntent.putExtra("filename", recording.filename)
             progressIntent.putExtra("status", "transcribing")
             progressIntent.putExtra("current", currentFile)
             progressIntent.putExtra("total", totalFiles)
             sendBroadcast(progressIntent)
             
             // Transcribe file
-            val result = transcriptionService.transcribeAudioFile(file.absolutePath)
+            val transcriptionService = TranscriptionService(this)
+            val result = transcriptionService.transcribeAudioFile(recording.filepath)
             
             result.onSuccess { transcribedText ->
                 DebugLogger.logInfo(
                     service = "BatchProcessingService",
-                    message = "Transcription successful for ${file.name}: $transcribedText"
+                    message = "Transcription successful for ${recording.filename}: $transcribedText"
                 )
                 
-                val coords = extractCoordinatesFromFilename(file.name)
-                val finalText = if (transcribedText.isBlank()) "$coords (no text)" else transcribedText
+                val finalText = if (transcribedText.isBlank()) 
+                    "${recording.latitude},${recording.longitude} (no text)" 
+                else 
+                    transcribedText
                 
-                // Update progress status
-                val gpxProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                gpxProgressIntent.putExtra("filename", file.name)
-                gpxProgressIntent.putExtra("status", "creating GPX")
-                gpxProgressIntent.putExtra("current", currentFile)
-                gpxProgressIntent.putExtra("total", totalFiles)
-                sendBroadcast(gpxProgressIntent)
+                // Update recording with transcription result
+                withContext(Dispatchers.IO) {
+                    val updated = recording.copy(
+                        v2sStatus = V2SStatus.COMPLETED,
+                        v2sResult = transcribedText,
+                        v2sFallback = transcribedText.isBlank(),
+                        updatedAt = System.currentTimeMillis()
+                    )
+                    db.recordingDao().updateRecording(updated)
+                }
                 
-                // Create/update GPX waypoint
-                DebugLogger.logInfo(
-                    service = "BatchProcessingService",
-                    message = "Creating GPX waypoint for ${file.name} at $coords"
-                )
-                createGpxWaypointFromFile(file, finalText, coords)
-                
-                // Create/update CSV file
-                DebugLogger.logInfo(
-                    service = "BatchProcessingService",
-                    message = "Creating CSV entry for ${file.name} at $coords"
-                )
-                createCsvEntryFromFile(file, finalText, coords)
-                
-                // Create OSM note if enabled
-                if (addOsmNote && oauthManager.isAuthenticated()) {
-                    val osmProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                    osmProgressIntent.putExtra("filename", file.name)
-                    osmProgressIntent.putExtra("status", "creating OSM note")
-                    osmProgressIntent.putExtra("current", currentFile)
-                    osmProgressIntent.putExtra("total", totalFiles)
-                    sendBroadcast(osmProgressIntent)
+                // Create/update GPX and CSV (legacy support)
+                try {
+                    val coords = "${String.format("%.6f", recording.latitude)},${String.format("%.6f", recording.longitude)}"
                     
-                    val (lat, lng) = parseCoordinates(coords)
-                    val accessToken = oauthManager.getAccessToken()!!
+                    val gpxProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                    gpxProgressIntent.putExtra("filename", recording.filename)
+                    gpxProgressIntent.putExtra("status", "creating GPX")
+                    gpxProgressIntent.putExtra("current", currentFile)
+                    gpxProgressIntent.putExtra("total", totalFiles)
+                    sendBroadcast(gpxProgressIntent)
+                    
                     DebugLogger.logInfo(
                         service = "BatchProcessingService",
-                        message = "Creating OSM note for ${file.name} at $lat,$lng"
+                        message = "Creating GPX waypoint for ${recording.filename} at $coords"
                     )
-                    val osmService = OsmNotesService()
-                    osmService.createNote(lat, lng, finalText, accessToken)
+                    createGpxWaypointFromRecording(recording, finalText, coords)
+                    
+                    DebugLogger.logInfo(
+                        service = "BatchProcessingService",
+                        message = "Creating CSV entry for ${recording.filename} at $coords"
+                    )
+                    createCsvEntryFromRecording(recording, finalText, coords)
+                } catch (e: Exception) {
+                    Log.e("BatchProcessing", "Failed to create GPX/CSV", e)
+                    DebugLogger.logError(
+                        service = "BatchProcessingService",
+                        error = "Failed to create GPX/CSV for ${recording.filename}",
+                        exception = e
+                    )
+                }
+                
+                // Create OSM note if enabled
+                if (addOsmNote) {
+                    val oauthManager = OsmOAuthManager(this)
+                    if (oauthManager.isAuthenticated()) {
+                        val osmProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                        osmProgressIntent.putExtra("filename", recording.filename)
+                        osmProgressIntent.putExtra("status", "creating OSM note")
+                        osmProgressIntent.putExtra("current", currentFile)
+                        osmProgressIntent.putExtra("total", totalFiles)
+                        sendBroadcast(osmProgressIntent)
+                        
+                        try {
+                            // Update OSM status to PROCESSING
+                            withContext(Dispatchers.IO) {
+                                val updated = recording.copy(
+                                    osmStatus = OsmStatus.PROCESSING,
+                                    updatedAt = System.currentTimeMillis()
+                                )
+                                db.recordingDao().updateRecording(updated)
+                            }
+                            
+                            val accessToken = oauthManager.getAccessToken()!!
+                            
+                            DebugLogger.logInfo(
+                                service = "BatchProcessingService",
+                                message = "Creating OSM note for ${recording.filename} at ${recording.latitude},${recording.longitude}"
+                            )
+                            
+                            val osmService = OsmNotesService()
+                            val osmResult = osmService.createNote(recording.latitude, recording.longitude, finalText, accessToken)
+                            
+                            osmResult.onSuccess {
+                                // Update OSM status to COMPLETED
+                                withContext(Dispatchers.IO) {
+                                    val updated = recording.copy(
+                                        osmStatus = OsmStatus.COMPLETED,
+                                        osmResult = "Note created at ${recording.latitude},${recording.longitude}",
+                                        updatedAt = System.currentTimeMillis()
+                                    )
+                                    db.recordingDao().updateRecording(updated)
+                                }
+                            }.onFailure { osmError ->
+                                // Update OSM status to ERROR
+                                withContext(Dispatchers.IO) {
+                                    val updated = recording.copy(
+                                        osmStatus = OsmStatus.ERROR,
+                                        errorMsg = "OSM: ${osmError.message}",
+                                        updatedAt = System.currentTimeMillis()
+                                    )
+                                    db.recordingDao().updateRecording(updated)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e("BatchProcessing", "Failed to create OSM note", e)
+                            withContext(Dispatchers.IO) {
+                                val updated = recording.copy(
+                                    osmStatus = OsmStatus.ERROR,
+                                    errorMsg = "OSM: ${e.message}",
+                                    updatedAt = System.currentTimeMillis()
+                                )
+                                db.recordingDao().updateRecording(updated)
+                            }
+                        }
+                    } else {
+                        // Update OSM status to DISABLED (not authenticated)
+                        withContext(Dispatchers.IO) {
+                            val updated = recording.copy(
+                                osmStatus = OsmStatus.DISABLED,
+                                updatedAt = System.currentTimeMillis()
+                            )
+                            db.recordingDao().updateRecording(updated)
+                        }
+                    }
                 }
                 
                 // Send completion status for this file
                 val doneProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                doneProgressIntent.putExtra("filename", file.name)
+                doneProgressIntent.putExtra("filename", recording.filename)
                 doneProgressIntent.putExtra("status", "complete")
                 doneProgressIntent.putExtra("current", currentFile)
                 doneProgressIntent.putExtra("total", totalFiles)
                 sendBroadcast(doneProgressIntent)
                 
             }.onFailure { error ->
-                Log.e("BatchProcessing", "Failed to process ${file.name}", error)
+                Log.e("BatchProcessing", "Failed to transcribe ${recording.filename}", error)
                 DebugLogger.logError(
                     service = "BatchProcessingService",
-                    error = "Failed to process ${file.name}",
+                    error = "Failed to transcribe ${recording.filename}",
                     exception = error
                 )
                 
+                // Update recording status to ERROR
+                withContext(Dispatchers.IO) {
+                    val updated = recording.copy(
+                        v2sStatus = V2SStatus.ERROR,
+                        errorMsg = error.message ?: "Transcription failed",
+                        updatedAt = System.currentTimeMillis()
+                    )
+                    db.recordingDao().updateRecording(updated)
+                }
+                
                 // Send error status
                 val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                errorProgressIntent.putExtra("filename", file.name)
+                errorProgressIntent.putExtra("filename", recording.filename)
                 errorProgressIntent.putExtra("status", "error")
                 errorProgressIntent.putExtra("current", currentFile)
                 errorProgressIntent.putExtra("total", totalFiles)
                 sendBroadcast(errorProgressIntent)
             }
-    }
-    
-    private fun extractCoordinatesFromFilename(filename: String): String {
-        return filename.substringBefore("_")
     }
     
     private fun parseCoordinates(coords: String): Pair<Double, Double> {
@@ -231,7 +359,7 @@ class BatchProcessingService : LifecycleService() {
         return Pair(parts[0].toDouble(), parts[1].toDouble())
     }
     
-    private fun createGpxWaypointFromFile(file: File, text: String, coords: String) {
+    private fun createGpxWaypointFromRecording(recording: Recording, text: String, coords: String) {
         try {
             val (lat, lng) = parseCoordinates(coords)
             
@@ -316,7 +444,7 @@ class BatchProcessingService : LifecycleService() {
         }.format(java.util.Date())
     }
     
-    private fun createCsvEntryFromFile(file: File, text: String, coords: String) {
+    private fun createCsvEntryFromRecording(recording: Recording, text: String, coords: String) {
         try {
             val (lat, lng) = parseCoordinates(coords)
             

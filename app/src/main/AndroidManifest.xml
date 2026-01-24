@@ -72,6 +72,12 @@
             android:label="Debug Log"
             android:parentActivityName=".SettingsActivity" />
         
+        <activity
+            android:name=".RecordingManagerActivity"
+            android:exported="false"
+            android:label="Recording Manager"
+            android:parentActivityName=".SettingsActivity" />
+        
         <service
             android:name=".OverlayService"
             android:exported="false" />

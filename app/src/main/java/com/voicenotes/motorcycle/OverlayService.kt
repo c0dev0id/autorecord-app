@@ -31,6 +31,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.voicenotes.motorcycle.database.Recording
+import com.voicenotes.motorcycle.database.RecordingDatabase
+import com.voicenotes.motorcycle.database.V2SStatus
+import com.voicenotes.motorcycle.database.OsmStatus
 import kotlinx.coroutines.*
 import kotlin.coroutines.coroutineContext
 import java.io.File
@@ -296,7 +300,6 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun startRecording() {
         try {
             val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val saveDir = prefs.getString("saveDirectory", null)
             recordingDuration = prefs.getInt("recordingDuration", 10)
             
             // Save recording state to SharedPreferences
@@ -305,12 +308,6 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 putLong("recordingStartTime", System.currentTimeMillis())
                 putInt("initialRecordingDuration", recordingDuration)
                 apply()
-            }
-
-            if (saveDir.isNullOrEmpty()) {
-                updateOverlay("Save directory not configured")
-                handler.postDelayed({ stopSelfAndFinish() }, 1000)
-                return
             }
 
             val location = currentLocation ?: run {
@@ -328,7 +325,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             val fileExtension = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) "ogg" else "amr"
             val fileName = "${lat},${lng}_${timestamp}.${fileExtension}"
 
-            val directory = File(saveDir)
+            // Use internal app storage instead of external storage
+            val directory = File(filesDir, "recordings")
             if (!directory.exists()) {
                 directory.mkdirs()
             }
@@ -488,6 +486,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             mediaRecorder = null
 
             updateOverlay(getString(R.string.recording_stopped_msg))
+            
+            // Save recording to database
+            saveRecordingToDatabase()
 
             // Speak "Recording stopped"
             speakText(getString(R.string.recording_stopped)) {
@@ -498,6 +499,36 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             e.printStackTrace()
             updateOverlay("Recording failed")
             handler.postDelayed({ stopSelfAndFinish() }, 1000)
+        }
+    }
+    
+    private fun saveRecordingToDatabase() {
+        val filePath = recordingFilePath ?: return
+        val location = currentLocation ?: return
+        val fileName = File(filePath).name
+        
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val db = RecordingDatabase.getDatabase(this@OverlayService)
+                val recording = Recording(
+                    filename = fileName,
+                    filepath = filePath,
+                    timestamp = System.currentTimeMillis(),
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED
+                )
+                db.recordingDao().insertRecording(recording)
+                Log.d("OverlayService", "Recording saved to database: $fileName")
+            } catch (e: Exception) {
+                Log.e("OverlayService", "Failed to save recording to database", e)
+                DebugLogger.logError(
+                    service = "OverlayService",
+                    error = "Failed to save recording to database: ${e.message}",
+                    exception = e
+                )
+            }
         }
     }
     

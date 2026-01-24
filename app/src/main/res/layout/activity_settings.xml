@@ -162,7 +162,7 @@
                     android:id="@+id/directoryPathText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/not_set"
+                    android:text="Internal app storage"
                     android:textSize="14sp"
                     android:textColor="#757575"
                     android:layout_marginBottom="12dp" />
@@ -171,7 +171,7 @@
                     android:id="@+id/openFolderButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Open Storage Folder"
+                    android:text="Open Recording Manager"
                     android:textSize="14sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

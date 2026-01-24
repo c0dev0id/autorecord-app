@@ -138,7 +138,8 @@ class SettingsActivity : AppCompatActivity() {
         }
         
         openFolderButton.setOnClickListener {
-            openStorageFolder()
+            val intent = Intent(this, RecordingManagerActivity::class.java)
+            startActivity(intent)
         }
         
         buttonDebugLog.setOnClickListener {
