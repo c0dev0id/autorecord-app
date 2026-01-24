@@ -333,7 +333,7 @@ class BatchProcessingService : LifecycleService() {
     
     private fun parseCoordinates(coords: String): Pair<Double, Double> {
         val parts = coords.split(",")
-        if (parts.size < 2) {
+        if (parts.size != 2) {
             throw IllegalArgumentException("Invalid coordinate format: expected 'latitude,longitude', got '$coords'")
         }
         try {

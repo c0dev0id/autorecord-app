@@ -73,6 +73,15 @@ class OsmNotesService {
                 )
                 Result.failure(Exception(error))
             }
+        } catch (e: IllegalArgumentException) {
+            // Input validation failure
+            Log.e("OsmNotesService", "Invalid input: ${e.message}", e)
+            DebugLogger.logError(
+                service = "OSM Notes API",
+                error = "Invalid input: ${e.message}",
+                exception = e
+            )
+            Result.failure(e)
         } catch (e: IOException) {
             Log.e("OsmNotesService", "Network error creating note", e)
             DebugLogger.logError(
@@ -82,6 +91,7 @@ class OsmNotesService {
             )
             Result.failure(e)
         } catch (e: Exception) {
+            // Unexpected error (e.g., URL encoding issues, malformed response)
             Log.e("OsmNotesService", "Unexpected error creating note", e)
             DebugLogger.logError(
                 service = "OSM Notes API",
