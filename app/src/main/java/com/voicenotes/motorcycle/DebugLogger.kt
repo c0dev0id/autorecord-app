@@ -180,7 +180,12 @@ object DebugLogger {
 }
 
 /**
- * Holder for application context to allow DebugLogger to access it
+ * Holder for application context to allow DebugLogger to access it.
+ * 
+ * Thread Safety: This object is designed to be set once during app initialization
+ * (in MainActivity.onCreate) and only read afterwards. While the var is technically
+ * mutable, it should be treated as write-once-read-many. The context itself is
+ * immutable after being set, making this pattern safe for this specific use case.
  */
 object AppContextHolder {
     var context: Context? = null
