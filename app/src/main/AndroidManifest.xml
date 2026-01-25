@@ -72,8 +72,8 @@
             android:targetActivity=".SettingsActivity"
             android:exported="true"
             android:label="@string/settings_launcher_name"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round">
+            android:icon="@mipmap/ic_launcher_settings"
+            android:roundIcon="@mipmap/ic_launcher_settings_round">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
