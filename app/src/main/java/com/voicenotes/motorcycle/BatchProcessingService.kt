@@ -305,9 +305,9 @@ class BatchProcessingService : LifecycleService() {
 
             val osmService = OsmNotesService()
             val noteText = recording.v2sResult!!
-            val osmResult = osmService.createNote(recording.latitude, recording.longitude, noteText, accessToken)
+            val createNoteResult = osmService.createNote(recording.latitude, recording.longitude, noteText, accessToken)
 
-            osmResult.onSuccess { noteUrl ->
+            createNoteResult.onSuccess { noteUrl ->
                 // Update OSM status to COMPLETED
                 withContext(Dispatchers.IO) {
                     val updated = recording.copy(

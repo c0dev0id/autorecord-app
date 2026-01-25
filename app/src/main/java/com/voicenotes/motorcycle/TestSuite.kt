@@ -141,7 +141,7 @@ class TestSuite(private val context: Context) {
         runTest("Database Initialization") {
             try {
                 // Verify database and DAO are accessible
-                val count = runBlocking { dao.getAllRecordings().size }
+                val count = runBlocking { dao.getAllRecordingsList().size }
                 TestResult("Database Initialization", true, "Test database initialized (count: $count)")
             } catch (e: Exception) {
                 TestResult("Database Initialization", false, "Failed: ${e.message}")
@@ -253,7 +253,7 @@ class TestSuite(private val context: Context) {
 
         runTest("Query All Recordings") {
             try {
-                val allRecordings = runBlocking { dao.getAllRecordings() }
+                val allRecordings = runBlocking { dao.getAllRecordingsList() }
 
                 // We should have at least 3 recordings from previous tests
                 if (allRecordings.size >= 3) {
@@ -382,7 +382,7 @@ class TestSuite(private val context: Context) {
                 val id = runBlocking { dao.insertRecording(recording) }
                 val retrieved = runBlocking { dao.getRecordingById(id) }
 
-                if (retrieved?.v2sResult == null && retrieved.osmNoteId == null) {
+                if (retrieved?.v2sResult == null && retrieved?.osmNoteId == null) {
                     TestResult("Null Value Handling", true, "Null values handled correctly")
                 } else {
                     TestResult("Null Value Handling", false, "Null values not preserved")
@@ -517,7 +517,7 @@ class TestSuite(private val context: Context) {
             try {
                 // This test verifies we're using in-memory test database
                 // Production database would have different data
-                val testRecordings = runBlocking { dao.getAllRecordings() }
+                val testRecordings = runBlocking { dao.getAllRecordingsList() }
 
                 // All recordings should be from our tests (audioFilePath starts with "/test/path/")
                 val allTestData = testRecordings.all { it.filepath.startsWith("/test/path/") }
@@ -1880,7 +1880,7 @@ class TestSuite(private val context: Context) {
                 val endTime = System.currentTimeMillis()
                 val duration = endTime - startTime
 
-                val count = runBlocking { dao.getAllRecordings().size }
+                val count = runBlocking { dao.getAllRecordingsList().size }
 
                 if (count >= insertCount) {
                     TestResult("Database Size Limit (Large Dataset)", true,
