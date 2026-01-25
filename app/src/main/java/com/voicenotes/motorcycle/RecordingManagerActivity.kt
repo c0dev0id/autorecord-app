@@ -538,11 +538,11 @@ class RecordingAdapter(
             if (recording.v2sResult != null && recording.v2sResult.isNotBlank()) {
                 transcriptionText.text = recording.v2sResult
                 transcriptionText.setTextColor(itemView.context.getColor(android.R.color.black))
-                transcriptionText.fontStyle = android.graphics.Typeface.NORMAL
+                transcriptionText.setTypeface(null, android.graphics.Typeface.NORMAL)
             } else {
                 transcriptionText.text = "No transcription yet"
                 transcriptionText.setTextColor(itemView.context.getColor(android.R.color.darker_gray))
-                transcriptionText.fontStyle = android.graphics.Typeface.ITALIC
+                transcriptionText.setTypeface(null, android.graphics.Typeface.ITALIC)
             }
 
             // Update status and button based on V2S status

@@ -14,8 +14,6 @@ import com.voicenotes.motorcycle.database.OsmStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.TimeoutCancellationException
 import java.io.File
 
 class BatchProcessingService : LifecycleService() {

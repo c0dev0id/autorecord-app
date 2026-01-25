@@ -43,11 +43,6 @@ import java.util.*
 
 class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
-    companion object {
-        private const val PREF_TRY_ONLINE_PROCESSING = "tryOnlineProcessingDuringRide"
-        private const val PREF_ADD_OSM_NOTE = "addOsmNote"
-    }
-
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var bubbleLine1: TextView? = null
@@ -542,159 +537,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Show file saved message
         val fileName = recordingFilePath?.let { File(it).name } ?: "unknown"
         updateOverlay("File saved: $fileName")
-        
-        // Check if online processing is enabled
-        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        val tryOnlineProcessing = prefs.getBoolean(PREF_TRY_ONLINE_PROCESSING, true) // default: true
-        
-        if (tryOnlineProcessing) {
-            // Check internet connectivity
-            if (!NetworkUtils.isOnline(this)) {
-                // Offline - skip post-processing
-                Log.d("OverlayService", "Offline - skipping post-processing")
-                handler.postDelayed({ stopSelfAndFinish() }, 2000)
-                return
-            }
-            
-            // Online - start post-processing
-            startPostProcessing()
-        } else {
-            // Online processing disabled - quit
-            Log.d("OverlayService", "Online processing disabled - quitting")
-            handler.postDelayed({ stopSelfAndFinish() }, 2000)
-        }
-    }
 
-    private fun startPostProcessing() {
-        val filePath = recordingFilePath ?: return
-        val location = currentLocation ?: return
-        
-        updateOverlay("Online: Transcribing:")
-        
-        // Launch coroutine with exception handler
-        lifecycleScope.launch(coroutineExceptionHandler) {
-            try {
-                val transcriptionService = TranscriptionService(this@OverlayService)
-                val result = transcriptionService.transcribeAudioFile(filePath)
-                
-                result.onSuccess { transcribedText ->
-                    // Check if coroutine is still active
-                    if (!isActive) return@launch
-                    
-                    handleTranscriptionSuccess(transcribedText, location, filePath)
-                }.onFailure { error ->
-                    // Check if coroutine is still active
-                    if (!isActive) return@launch
-                    
-                    handleTranscriptionFailure(error)
-                }
-            } catch (e: Exception) {
-                Log.e("OverlayService", "Post-processing error", e)
-                DebugLogger.logError(
-                    service = "OverlayService",
-                    error = "Post-processing error: ${e.message}",
-                    exception = e
-                )
-            } finally {
-                // Always stop service after all work is done
-                if (isActive) {
-                    withContext(Dispatchers.Main) {
-                        handler.postDelayed({ stopSelfAndFinish() }, 1000)
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun handleTranscriptionSuccess(transcribedText: String, location: Location, filePath: String) {
-        withContext(Dispatchers.Main) {
-            // Check if coroutine is still active
-            if (!coroutineContext.isActive) return@withContext
-            
-            // Use fallback text if transcription is empty
-            val finalText = if (transcribedText.isBlank()) {
-                val coords = extractCoordinatesFromFilename(filePath)
-                "$coords (no text)"
-            } else {
-                transcribedText
-            }
-            
-            updateOverlay("Online: Transcribing: $finalText")
-            Log.d("OverlayService", "Transcription successful: $finalText")
-            
-            // Wait 1 second
-            delay(1000)
-            
-            // Check if still active before continuing
-            if (!coroutineContext.isActive) return@withContext
-            
-            // Create GPX waypoint
-            createGpxWaypoint(location, finalText, filePath)
-            
-            // Check if OSM note creation is enabled
-            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val addOsmNote = prefs.getBoolean(PREF_ADD_OSM_NOTE, false)
-            
-            if (addOsmNote) {
-                createOsmNote(location, finalText)
-            }
-            // Note: Service will be stopped by finally block in startPostProcessing
-        }
-    }
-    
-    private suspend fun createOsmNote(location: Location, text: String) {
-        // Check if coroutine is still active
-        if (!coroutineContext.isActive) return
-        
-        updateOverlay("Online: Creating OSM Note")
-        
-        val oauthManager = OsmOAuthManager(this)
-        val accessToken = oauthManager.getAccessToken()
-        
-        if (accessToken == null) {
-            Log.e("OverlayService", "No OSM access token found")
-            return
-        }
-        
-        val osmService = OsmNotesService()
-        val result = osmService.createNote(location.latitude, location.longitude, text, accessToken)
-        
-        result.onSuccess {
-            if (coroutineContext.isActive) {
-                withContext(Dispatchers.Main) {
-                    updateOverlay("Online: OSM Note created.")
-                }
-            }
-        }.onFailure { error ->
-            if (coroutineContext.isActive) {
-                withContext(Dispatchers.Main) {
-                    updateOverlay("Online: OSM Note creation failed :(")
-                    Log.e("OverlayService", "OSM note creation failed", error)
-                }
-            }
-        }
-        // Note: Service will be stopped by finally block in startPostProcessing
-    }
-
-    private suspend fun handleTranscriptionFailure(error: Throwable) {
-        withContext(Dispatchers.Main) {
-            // Check if coroutine is still active
-            if (!coroutineContext.isActive) return@withContext
-            
-            updateOverlay("Online: Transcribing: failed :-(")
-            Log.e("OverlayService", "Transcription failed", error)
-            
-            // Wait 1 second
-            delay(1000)
-            
-            // Note: Service will be stopped by finally block in startPostProcessing
-        }
-    }
-
-    private fun extractCoordinatesFromFilename(filePath: String): String {
-        val fileName = File(filePath).nameWithoutExtension
-        // Format: "latitude,longitude_timestamp"
-        return fileName.substringBefore("_")
+        // Recording complete - all processing handled in Recording Manager
+        Log.d("OverlayService", "Recording complete - quitting")
+        handler.postDelayed({ stopSelfAndFinish() }, 2000)
     }
 
     private fun createGpxWaypoint(location: Location, transcribedText: String, filePath: String) {

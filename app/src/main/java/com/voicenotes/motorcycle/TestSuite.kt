@@ -101,7 +101,7 @@ class TestSuite(private val context: Context) {
         runTest("Recording Duration Setting") {
             val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
             val duration = prefs.getInt("recordingDuration", -1)
-            
+
             if (duration > 0 && duration <= 99) {
                 TestResult("Recording Duration Setting", true, "Duration configured: $duration seconds")
             } else if (duration == -1) {
@@ -110,13 +110,7 @@ class TestSuite(private val context: Context) {
                 TestResult("Recording Duration Setting", false, "Invalid duration: $duration")
             }
         }
-        
-        runTest("Online Processing Toggle") {
-            val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val enabled = prefs.getBoolean("tryOnlineProcessingDuringRide", true)
-            TestResult("Online Processing Toggle", true, "Online processing: ${if (enabled) "enabled" else "disabled"}")
-        }
-        
+
         runTest("OSM Note Creation Toggle") {
             val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
             val enabled = prefs.getBoolean("addOsmNote", false)

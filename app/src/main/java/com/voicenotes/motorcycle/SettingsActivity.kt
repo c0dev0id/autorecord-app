@@ -4,11 +4,9 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.DocumentsContract
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
@@ -194,81 +192,7 @@ class SettingsActivity : AppCompatActivity() {
         val intent = Intent(this, DebugLogActivity::class.java)
         startActivity(intent)
     }
-    
-    private fun openStorageFolder() {
-        // Always use the fixed internal storage path
-        val saveDir = getDefaultSavePath()
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        prefs.edit().putString("saveDirectory", saveDir).apply()
-        
-        try {
-            val folder = File(saveDir)
-            if (!folder.exists()) {
-                folder.mkdirs()
-            }
-            
-            // Use DocumentsContract for modern Android file manager integration
-            try {
-                // Build a DocumentsProvider URI for the Music directory
-                // Format: content://com.android.externalstorage.documents/document/primary:Music/VoiceNotes
-                val musicPath = "Music/VoiceNotes"
-                val documentId = "primary:$musicPath"
-                val uri = DocumentsContract.buildDocumentUri(
-                    "com.android.externalstorage.documents",
-                    documentId
-                )
-                
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(uri, DocumentsContract.Document.MIME_TYPE_DIR)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                
-                // Check if any app can handle this intent
-                if (intent.resolveActivity(packageManager) != null) {
-                    startActivity(intent)
-                    return
-                }
-            } catch (e: Exception) {
-                android.util.Log.w("SettingsActivity", "DocumentsContract approach failed", e)
-            }
-            
-            // Fallback 1: Try to open the Files app at Music folder
-            try {
-                val intent = Intent(Intent.ACTION_VIEW)
-                val uri = Uri.parse("content://com.android.externalstorage.documents/document/primary:Music")
-                intent.setDataAndType(uri, DocumentsContract.Document.MIME_TYPE_DIR)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                
-                if (intent.resolveActivity(packageManager) != null) {
-                    startActivity(intent)
-                    Toast.makeText(this, "Navigate to Music/VoiceNotes folder", Toast.LENGTH_LONG).show()
-                    return
-                }
-            } catch (e: Exception) {
-                android.util.Log.w("SettingsActivity", "Fallback to Music folder failed", e)
-            }
-            
-            // Fallback 2: Try generic file manager intent
-            try {
-                val intent = Intent(Intent.ACTION_GET_CONTENT)
-                intent.type = "*/*"
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                
-                if (intent.resolveActivity(packageManager) != null) {
-                    Toast.makeText(this, "Opening file manager. Navigate to: $saveDir", Toast.LENGTH_LONG).show()
-                    startActivity(intent)
-                    return
-                }
-            } catch (e: Exception) {
-                android.util.Log.w("SettingsActivity", "Generic file manager intent failed", e)
-            }
-            
-            // Final fallback: show message with path
-            Toast.makeText(this, "Could not open folder. Please use your file manager to navigate to: $saveDir", Toast.LENGTH_LONG).show()
-        } catch (e: Exception) {
-            Toast.makeText(this, "Could not open folder. Please use your file manager to navigate to: $saveDir", Toast.LENGTH_LONG).show()
-        }
-    }
-    
+
     private fun checkStoragePermissions() {
         // Check if we need MANAGE_EXTERNAL_STORAGE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
