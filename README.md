@@ -74,7 +74,7 @@ cd autorecord-app
 
 - **Language:** Kotlin
 - **Location:** Google Play Services
-- **Audio:** MediaRecorder (Opus/OGG on Android 10+, AAC/M4A on Android 8-9)
+- **Audio:** MediaRecorder (Opus/OGG on Android 10+, AMR-WB on Android 8-9)
 - **Database:** Room (SQLite)
 - **Speech-to-Text:** Google Cloud Speech-to-Text API (optional)
 - **OAuth:** AppAuth for OpenStreetMap (optional)

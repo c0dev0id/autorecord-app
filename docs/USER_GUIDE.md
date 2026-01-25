@@ -72,13 +72,13 @@ After installation, you'll see **two icons** on your home screen:
    - Small overlay bubble appears at the top of the screen
    - "Fetching location..." message appears
    - Text-to-speech announces when location is acquired
-   - Recording starts automatically (you'll hear a beep if using Bluetooth)
+   - Recording starts automatically
    - Countdown shows remaining seconds
    - Recording stops automatically
    - File saved with GPS coordinates
    - App quits, returning you to your previous app
 
-**Total time:** ~5-15 seconds depending on GPS acquisition
+**Total time:** ~15-45 seconds depending on GPS acquisition
 
 ### The Overlay Bubble
 
@@ -264,10 +264,12 @@ Default: 10 seconds
 
 ### Save Directory
 
-Recordings are automatically saved to:
-```
-/storage/emulated/0/Music/VoiceNotes/
-```
+Recordings are automatically saved to internal app storage (not directly accessible via file manager for security).
+
+Use the **Recording Manager** to:
+- View all your recordings
+- Play audio
+- Export recordings to Downloads folder
 
 Tap **"Open Recording Manager"** to view and manage your recordings.
 
@@ -374,10 +376,11 @@ Voice Notes works perfectly **offline** - it will always record audio and captur
 - Optimized for voice
 
 **Android 8-9:**
-- Format: MPEG-4 with AAC encoding
-- Extension: `.m4a`
-- Bitrate: 128 kbps
-- Sample rate: 44.1 kHz
+- Format: AMR-WB (Adaptive Multi-Rate Wideband)
+- Extension: `.amr`
+- Bitrate: Variable (6.6-23.85 kbps)
+- Sample rate: 16 kHz
+- Optimized for voice
 
 ### Filename Format
 
@@ -434,7 +437,7 @@ Compatible with Excel, Google Sheets, LibreOffice Calc, etc.
 
 ### "Location not acquired" or Timeout
 
-**Problem:** GPS can't get a fix within 10 seconds
+**Problem:** GPS can't get a fix within 30 seconds
 
 **Solutions:**
 1. Make sure Location/GPS is enabled in phone settings
@@ -446,6 +449,8 @@ Compatible with Excel, Google Sheets, LibreOffice Calc, etc.
 - GPS needs clear view of sky
 - Tunnels, parking garages, dense urban areas can block signal
 - Cold start (first GPS fix after phone reboot) takes longer
+
+**Note:** If GPS times out, the app uses your last known location automatically
 
 ### Recording Doesn't Start
 
@@ -566,12 +571,16 @@ Voice Notes only stores data **locally on your device**:
 
 ### Storage Location
 
-All recordings stored in:
+Recordings are stored in internal app storage for security:
 ```
-/storage/emulated/0/Music/VoiceNotes/
+/data/data/com.voicenotes.motorcycle/files/recordings/
 ```
 
-You can access this folder with any file manager app.
+**Note:** This location is not directly accessible via file manager (Android security restriction).
+
+**To access your recordings:**
+- Use the Recording Manager within the app
+- Export recordings to Downloads folder (accessible via file manager)
 
 ---
 
