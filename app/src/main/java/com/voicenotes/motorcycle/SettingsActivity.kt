@@ -37,7 +37,6 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var buttonDebugLog: Button
     private lateinit var appVersionText: TextView
     
-    private lateinit var checkboxOnlineProcessing: CheckBox
     private lateinit var checkboxAddOsmNote: CheckBox
     private lateinit var buttonOsmAccount: Button
     private lateinit var textOsmAccountStatus: TextView
@@ -71,7 +70,6 @@ class SettingsActivity : AppCompatActivity() {
         buttonDebugLog = findViewById(R.id.buttonDebugLog)
         appVersionText = findViewById(R.id.appVersionText)
         
-        checkboxOnlineProcessing = findViewById(R.id.checkboxOnlineProcessing)
         checkboxAddOsmNote = findViewById(R.id.checkboxAddOsmNote)
         buttonOsmAccount = findViewById(R.id.buttonOsmAccount)
         textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
@@ -124,11 +122,6 @@ class SettingsActivity : AppCompatActivity() {
         
         buttonDebugLog.setOnClickListener {
             showDebugLog()
-        }
-        
-        checkboxOnlineProcessing.setOnCheckedChangeListener { _, isChecked ->
-            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-            prefs.edit().putBoolean("tryOnlineProcessingDuringRide", isChecked).apply()
         }
         
         checkboxAddOsmNote.setOnCheckedChangeListener { _, isChecked ->
@@ -303,8 +296,7 @@ class SettingsActivity : AppCompatActivity() {
         
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
-        
-        checkboxOnlineProcessing.isChecked = prefs.getBoolean("tryOnlineProcessingDuringRide", true)
+
         checkboxAddOsmNote.isChecked = prefs.getBoolean("addOsmNote", false)
         
         // Update OSM UI based on auth status
