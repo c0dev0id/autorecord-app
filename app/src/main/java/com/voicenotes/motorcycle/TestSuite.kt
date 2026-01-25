@@ -152,7 +152,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/recording.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/recording.ogg",
                     latitude = 40.7128,
                     longitude = -74.0060,
                     timestamp = System.currentTimeMillis(),
@@ -181,7 +182,8 @@ class TestSuite(private val context: Context) {
                 // First insert a recording
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/recording2.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/recording2.ogg",
                     latitude = 37.7749,
                     longitude = -122.4194,
                     timestamp = System.currentTimeMillis(),
@@ -196,7 +198,7 @@ class TestSuite(private val context: Context) {
                 val id = runBlocking { dao.insertRecording(recording) }
                 val retrieved = runBlocking { dao.getRecordingById(id) }
 
-                if (retrieved != null && retrieved.audioFilePath == recording.audioFilePath) {
+                if (retrieved != null && retrieved.filepath == recording.filepath) {
                     TestResult("Query Recording by ID", true, "Recording retrieved successfully")
                 } else {
                     TestResult("Query Recording by ID", false, "Retrieved recording doesn't match")
@@ -211,7 +213,8 @@ class TestSuite(private val context: Context) {
                 // Insert recording
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/recording3.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/recording3.ogg",
                     latitude = 51.5074,
                     longitude = -0.1278,
                     timestamp = System.currentTimeMillis(),
@@ -268,7 +271,8 @@ class TestSuite(private val context: Context) {
                 // Insert recording
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/to_delete.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/to_delete.ogg",
                     latitude = 48.8566,
                     longitude = 2.3522,
                     timestamp = System.currentTimeMillis(),
@@ -301,7 +305,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/status_test.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/status_test.ogg",
                     latitude = 35.6762,
                     longitude = 139.6503,
                     timestamp = System.currentTimeMillis(),
@@ -330,14 +335,15 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/osm_status_test.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/osm_status_test.ogg",
                     latitude = -33.8688,
                     longitude = 151.2093,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.COMPLETED,
                     osmStatus = OsmStatus.COMPLETED,
                     v2sResult = "Test transcription",
-                    osmNoteId = "12345",
+                    osmNoteId = 12345L,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -346,7 +352,7 @@ class TestSuite(private val context: Context) {
                 val retrieved = runBlocking { dao.getRecordingById(id) }
 
                 if (retrieved?.osmStatus == OsmStatus.COMPLETED &&
-                    retrieved.osmNoteId == "12345") {
+                    retrieved.osmNoteId == 12345L) {
                     TestResult("OSM Status Enum Handling", true, "OSM status and note ID persisted correctly")
                 } else {
                     TestResult("OSM Status Enum Handling", false, "OSM status mismatch")
@@ -360,7 +366,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/null_test.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/null_test.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -392,7 +399,8 @@ class TestSuite(private val context: Context) {
 
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/precision_test.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/precision_test.ogg",
                     latitude = lat,
                     longitude = lon,
                     timestamp = System.currentTimeMillis(),
@@ -423,7 +431,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/empty_string_test.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/empty_string_test.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -452,7 +461,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/multi_update_test.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/multi_update_test.ogg",
                     latitude = 52.5200,
                     longitude = 13.4050,
                     timestamp = System.currentTimeMillis(),
@@ -484,7 +494,7 @@ class TestSuite(private val context: Context) {
                 // Update 4: OSM completed
                 updated = updated.copy(
                     osmStatus = OsmStatus.COMPLETED,
-                    osmNoteId = "98765"
+                    osmNoteId = 98765L
                 )
                 runBlocking { dao.updateRecording(updated) }
 
@@ -493,7 +503,7 @@ class TestSuite(private val context: Context) {
                 if (final?.v2sStatus == V2SStatus.COMPLETED &&
                     final.osmStatus == OsmStatus.COMPLETED &&
                     final.v2sResult == "Final transcription" &&
-                    final.osmNoteId == "98765") {
+                    final.osmNoteId == 98765L) {
                     TestResult("Multiple Status Updates", true, "Multiple updates handled correctly")
                 } else {
                     TestResult("Multiple Status Updates", false, "Update sequence failed")
@@ -510,7 +520,7 @@ class TestSuite(private val context: Context) {
                 val testRecordings = runBlocking { dao.getAllRecordings() }
 
                 // All recordings should be from our tests (audioFilePath starts with "/test/path/")
-                val allTestData = testRecordings.all { it.audioFilePath.startsWith("/test/path/") }
+                val allTestData = testRecordings.all { it.filepath.startsWith("/test/path/") }
 
                 if (allTestData) {
                     TestResult("Database Isolation from Production", true,
@@ -1508,7 +1518,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/invalid_lat.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/invalid_lat.ogg",
                     latitude = 95.0,  // Invalid: > 90
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -1539,7 +1550,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/invalid_lon.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/invalid_lon.ogg",
                     latitude = 0.0,
                     longitude = 185.0,  // Invalid: > 180
                     timestamp = System.currentTimeMillis(),
@@ -1569,7 +1581,8 @@ class TestSuite(private val context: Context) {
             try {
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "",  // Empty path
+                    filename = "test_recording.ogg",
+                    filepath = "",  // Empty path
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -1599,7 +1612,8 @@ class TestSuite(private val context: Context) {
 
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/long_transcription.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/long_transcription.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -1631,7 +1645,8 @@ class TestSuite(private val context: Context) {
 
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/special_chars.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/special_chars.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -1662,7 +1677,8 @@ class TestSuite(private val context: Context) {
 
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/newlines.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/newlines.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -1691,7 +1707,8 @@ class TestSuite(private val context: Context) {
             try {
                 val nonExistent = Recording(
                     id = 999999L,
-                    audioFilePath = "/test/path/nonexistent.ogg",
+                    filename = "test_nonexistent.ogg",
+                    filepath = "/test/path/nonexistent.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -1717,7 +1734,8 @@ class TestSuite(private val context: Context) {
             try {
                 val nonExistent = Recording(
                     id = 999998L,
-                    audioFilePath = "/test/path/nonexistent2.ogg",
+                    filename = "test_nonexistent2.ogg",
+                    filepath = "/test/path/nonexistent2.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
@@ -1744,7 +1762,8 @@ class TestSuite(private val context: Context) {
                 // Insert multiple recordings concurrently (simulated)
                 val recording1 = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/concurrent1.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/concurrent1.ogg",
                     latitude = 40.0,
                     longitude = -74.0,
                     timestamp = System.currentTimeMillis(),
@@ -1756,8 +1775,8 @@ class TestSuite(private val context: Context) {
                     updatedAt = System.currentTimeMillis()
                 )
 
-                val recording2 = recording1.copy(audioFilePath = "/test/path/concurrent2.ogg", latitude = 41.0)
-                val recording3 = recording1.copy(audioFilePath = "/test/path/concurrent3.ogg", latitude = 42.0)
+                val recording2 = recording1.copy(filepath = "/test/path/concurrent2.ogg", latitude = 41.0)
+                val recording3 = recording1.copy(filepath = "/test/path/concurrent3.ogg", latitude = 42.0)
 
                 val id1 = runBlocking { dao.insertRecording(recording1) }
                 val id2 = runBlocking { dao.insertRecording(recording2) }
@@ -1807,7 +1826,8 @@ class TestSuite(private val context: Context) {
 
                 val recording = Recording(
                     id = 0,
-                    audioFilePath = "/test/path/year2038.ogg",
+                    filename = "test_recording.ogg",
+                    filepath = "/test/path/year2038.ogg",
                     latitude = 0.0,
                     longitude = 0.0,
                     timestamp = year2038Timestamp,
@@ -1841,7 +1861,8 @@ class TestSuite(private val context: Context) {
                 repeat(insertCount) { i ->
                     val recording = Recording(
                         id = 0,
-                        audioFilePath = "/test/path/large_dataset_$i.ogg",
+                    filename = "test_recording.ogg",
+                        filepath = "/test/path/large_dataset_$i.ogg",
                         latitude = 40.0 + (i * 0.001),
                         longitude = -74.0 + (i * 0.001),
                         timestamp = System.currentTimeMillis(),
