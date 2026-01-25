@@ -149,24 +149,6 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/save_directory"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#212121"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/directoryPathText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Internal app storage"
-                    android:textSize="14sp"
-                    android:textColor="#757575"
-                    android:layout_marginBottom="12dp" />
-
                 <Button
                     android:id="@+id/openFolderButton"
                     android:layout_width="wrap_content"
@@ -199,14 +181,6 @@
                     android:layout_marginBottom="8dp" />
 
                 <TextView
-                    android:id="@+id/textOsmConfigStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Checking configuration..."
-                    android:textSize="13sp"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
                     android:id="@+id/textOsmAccountStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -230,37 +204,6 @@
                     android:layout_height="wrap_content"
                     android:text="Add OSM Note"
                     android:enabled="false" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Online Processing Card -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:elevation="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Online Processing"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#212121"
-                    android:layout_marginBottom="12dp" />
-
-                <TextView
-                    android:id="@+id/textGoogleCloudStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Checking configuration..."
-                    android:textSize="13sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

@@ -25,7 +25,6 @@ import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var directoryPathText: TextView
     private lateinit var durationValueText: TextView
     private lateinit var durationEditText: EditText
     private lateinit var setDurationButton: Button
@@ -39,8 +38,6 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var checkboxAddOsmNote: CheckBox
     private lateinit var buttonOsmAccount: Button
     private lateinit var textOsmAccountStatus: TextView
-    private lateinit var textGoogleCloudStatus: TextView
-    private lateinit var textOsmConfigStatus: TextView
 
     private lateinit var oauthManager: OsmOAuthManager
     private lateinit var oauthLauncher: ActivityResultLauncher<Intent>
@@ -58,7 +55,6 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        directoryPathText = findViewById(R.id.directoryPathText)
         durationValueText = findViewById(R.id.durationValueText)
         durationEditText = findViewById(R.id.durationEditText)
         setDurationButton = findViewById(R.id.setDurationButton)
@@ -72,8 +68,6 @@ class SettingsActivity : AppCompatActivity() {
         checkboxAddOsmNote = findViewById(R.id.checkboxAddOsmNote)
         buttonOsmAccount = findViewById(R.id.buttonOsmAccount)
         textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
-        textGoogleCloudStatus = findViewById(R.id.textGoogleCloudStatus)
-        textOsmConfigStatus = findViewById(R.id.textOsmConfigStatus)
         
         oauthManager = OsmOAuthManager(this)
         
@@ -216,9 +210,6 @@ class SettingsActivity : AppCompatActivity() {
             prefs.edit().putString("saveDirectory", defaultPath).apply()
         }
         
-        // Display the fixed path
-        directoryPathText.text = defaultPath
-        
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
 
@@ -230,37 +221,8 @@ class SettingsActivity : AppCompatActivity() {
             updateOsmAccountUI(username)
         }
         
-        // Update service configuration status
-        updateServiceConfigurationStatus()
-        
         // Update permission status list
         updatePermissionStatusList()
-    }
-    
-    private fun updateServiceConfigurationStatus() {
-        // Check Google Cloud configuration
-        val googleCloudConfigured = isGoogleCloudConfigured()
-        if (googleCloudConfigured) {
-            textGoogleCloudStatus.text = "✓ Google Cloud Speech-to-Text: Configured"
-            textGoogleCloudStatus.setTextColor(getColor(android.R.color.holo_green_dark))
-        } else {
-            textGoogleCloudStatus.text = "⚠ Google Cloud Speech-to-Text: Not configured (transcription disabled)"
-            textGoogleCloudStatus.setTextColor(getColor(android.R.color.holo_orange_dark))
-        }
-        
-        // Check OSM client ID configuration
-        val osmConfigured = isOsmClientIdConfigured()
-        if (osmConfigured) {
-            textOsmConfigStatus.text = "✓ OSM OAuth Client ID: Configured"
-            textOsmConfigStatus.setTextColor(getColor(android.R.color.holo_green_dark))
-        } else {
-            textOsmConfigStatus.text = "⚠ OSM OAuth Client ID: Not configured (using placeholder)"
-            textOsmConfigStatus.setTextColor(getColor(android.R.color.holo_orange_dark))
-        }
-    }
-    
-    private fun isGoogleCloudConfigured(): Boolean {
-        return TranscriptionService.isConfigured()
     }
     
     private fun isOsmClientIdConfigured(): Boolean {
