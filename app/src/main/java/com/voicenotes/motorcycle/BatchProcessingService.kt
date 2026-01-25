@@ -27,19 +27,19 @@ class BatchProcessingService : LifecycleService() {
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        
+
         val recordingId = intent?.getLongExtra("recordingId", -1L) ?: -1L
-        
-        lifecycleScope.launch {
-            if (recordingId > 0) {
-                // Process single recording
-                processSingleRecording(recordingId)
-            } else {
-                // Process all pending recordings
-                processAllFiles()
-            }
+
+        if (recordingId <= 0) {
+            Log.e("BatchProcessing", "Invalid recordingId: $recordingId")
+            stopSelf()
+            return START_NOT_STICKY
         }
-        
+
+        lifecycleScope.launch {
+            processSingleRecording(recordingId)
+        }
+
         return START_NOT_STICKY
     }
     
@@ -48,105 +48,19 @@ class BatchProcessingService : LifecycleService() {
         val recording = withContext(Dispatchers.IO) {
             db.recordingDao().getRecordingById(recordingId)
         }
-        
+
         if (recording == null) {
             Log.e("BatchProcessing", "Recording not found: $recordingId")
             stopSelf()
             return
         }
-        
+
         DebugLogger.logInfo(
             service = "BatchProcessingService",
             message = "Processing single recording: ${recording.filename}"
         )
-        
+
         processRecording(recording, 1, 1)
-        stopSelf()
-    }
-    
-    private suspend fun processAllFiles() {
-        DebugLogger.logInfo(
-            service = "BatchProcessingService",
-            message = "Starting batch processing from database"
-        )
-        
-        // Get all recordings that need processing from database
-        val db = RecordingDatabase.getDatabase(this@BatchProcessingService)
-        val recordings = withContext(Dispatchers.IO) {
-            // Get recordings that haven't been transcribed yet
-            db.recordingDao().getRecordingsByV2SStatus(V2SStatus.NOT_STARTED)
-        }
-        
-        Log.d("BatchProcessing", "Found ${recordings.size} recordings to process")
-        DebugLogger.logInfo(
-            service = "BatchProcessingService",
-            message = "Found ${recordings.size} recordings to process from database"
-        )
-        
-        val totalFiles = recordings.size
-        
-        for ((index, recording) in recordings.withIndex()) {
-            val currentFile = index + 1
-            Log.d("BatchProcessing", "Processing recording $currentFile/$totalFiles: ${recording.filename}")
-            DebugLogger.logInfo(
-                service = "BatchProcessingService",
-                message = "Processing recording $currentFile/$totalFiles: ${recording.filename}"
-            )
-            
-            try {
-                withTimeout(120000) { // 2 minute timeout per file
-                    processRecording(recording, currentFile, totalFiles)
-                }
-            } catch (e: TimeoutCancellationException) {
-                Log.e("BatchProcessingService", "Timeout processing recording: ${recording.filename}")
-                DebugLogger.logError(
-                    service = "BatchProcessingService",
-                    error = "Recording processing timeout: ${recording.filename}",
-                    exception = e
-                )
-                
-                // Update recording status to ERROR
-                withContext(Dispatchers.IO) {
-                    val updated = recording.copy(
-                        v2sStatus = V2SStatus.ERROR,
-                        errorMsg = "Processing timeout",
-                        updatedAt = System.currentTimeMillis()
-                    )
-                    db.recordingDao().updateRecording(updated)
-                }
-                
-                // Send error status
-                broadcastProgress(recording.filename, "timeout", currentFile, totalFiles)
-                
-            } catch (e: Exception) {
-                Log.e("BatchProcessingService", "Error processing recording: ${recording.filename}", e)
-                DebugLogger.logError(
-                    service = "BatchProcessingService",
-                    error = "Error processing recording: ${recording.filename}",
-                    exception = e
-                )
-                
-                // Update recording status to ERROR
-                withContext(Dispatchers.IO) {
-                    val updated = recording.copy(
-                        v2sStatus = V2SStatus.ERROR,
-                        errorMsg = e.message ?: "Unknown error",
-                        updatedAt = System.currentTimeMillis()
-                    )
-                    db.recordingDao().updateRecording(updated)
-                }
-                
-                // Send error status
-                broadcastProgress(recording.filename, "error", currentFile, totalFiles)
-            }
-        }
-        
-        // Broadcast completion
-        DebugLogger.logInfo(
-            service = "BatchProcessingService",
-            message = "Batch processing complete. Processed $totalFiles recordings."
-        )
-        sendBroadcast(Intent("com.voicenotes.motorcycle.BATCH_COMPLETE"))
         stopSelf()
     }
     

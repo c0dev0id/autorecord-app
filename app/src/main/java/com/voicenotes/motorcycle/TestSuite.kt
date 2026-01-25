@@ -54,7 +54,6 @@ class TestSuite(private val context: Context) {
         testOSMIntegration()
         testGPXFile()
         testCSVFile()
-        testBatchProcessing()
         testServiceLifecycle()
         
         // Print summary
@@ -824,52 +823,6 @@ class TestSuite(private val context: Context) {
                 }
             } catch (e: Exception) {
                 TestResult("CSV Escaping", false, "Error: ${e.message}")
-            }
-        }
-        
-        log("")
-    }
-    
-    /**
-     * Batch Processing Tests
-     */
-    private fun testBatchProcessing() {
-        log("[TEST] === Batch Processing Tests ===")
-        
-        runTest("Audio File Discovery") {
-            try {
-                val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-                val saveDirPath = prefs.getString("saveDirectory", null) ?: 
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).absolutePath + "/VoiceNotes"
-                
-                val saveDir = File(saveDirPath)
-                if (saveDir.exists()) {
-                    val audioFiles = saveDir.listFiles { file -> 
-                        file.extension == "ogg" || file.extension == "m4a" 
-                    }
-                    val count = audioFiles?.size ?: 0
-                    val oggCount = audioFiles?.count { it.extension == "ogg" } ?: 0
-                    val m4aCount = audioFiles?.count { it.extension == "m4a" } ?: 0
-                    TestResult("Audio File Discovery", true, "Found $count audio files ($oggCount .ogg, $m4aCount .m4a) in save directory")
-                } else {
-                    TestResult("Audio File Discovery", true, "Save directory does not exist yet")
-                }
-            } catch (e: Exception) {
-                TestResult("Audio File Discovery", false, "Error: ${e.message}")
-            }
-        }
-        
-        runTest("Coordinate Extraction from Filename Pattern") {
-            val testFilenameOgg = "VN_2024-01-15_12-30-45_40.7128_-74.0060.ogg"
-            val testFilenameM4a = "VN_2024-01-15_12-30-45_40.7128_-74.0060.m4a"
-            val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|m4a)$""".toRegex()
-            val matchOgg = pattern.find(testFilenameOgg)
-            val matchM4a = pattern.find(testFilenameM4a)
-            
-            if (matchOgg != null && matchM4a != null) {
-                TestResult("Coordinate Extraction from Filename Pattern", true, "Pattern matched both .ogg and .m4a files successfully")
-            } else {
-                TestResult("Coordinate Extraction from Filename Pattern", false, "Pattern match failed")
             }
         }
         

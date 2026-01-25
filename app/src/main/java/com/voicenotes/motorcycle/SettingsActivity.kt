@@ -1,25 +1,19 @@
 package com.voicenotes.motorcycle
 
 import android.Manifest
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.Settings
-import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -47,20 +41,9 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var checkboxAddOsmNote: CheckBox
     private lateinit var buttonOsmAccount: Button
     private lateinit var textOsmAccountStatus: TextView
-    private lateinit var buttonRunOnlineProcessing: Button
-    private lateinit var scrollViewProcessingProgress: ScrollView
-    private lateinit var linearLayoutProcessingList: LinearLayout
     private lateinit var textGoogleCloudStatus: TextView
     private lateinit var textOsmConfigStatus: TextView
-    
-    // Map to track processing status of each file
-    private val processingStatusMap = mutableMapOf<String, String>()
-    
-    // Color constants for status display
-    private val COLOR_COMPLETE = Color.parseColor("#4CAF50") // Green
-    private val COLOR_ERROR = Color.parseColor("#F44336") // Red
-    private val COLOR_IN_PROGRESS = Color.parseColor("#2196F3") // Blue
-    
+
     private lateinit var oauthManager: OsmOAuthManager
     private lateinit var oauthLauncher: ActivityResultLauncher<Intent>
 
@@ -92,9 +75,6 @@ class SettingsActivity : AppCompatActivity() {
         checkboxAddOsmNote = findViewById(R.id.checkboxAddOsmNote)
         buttonOsmAccount = findViewById(R.id.buttonOsmAccount)
         textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
-        buttonRunOnlineProcessing = findViewById(R.id.buttonRunOnlineProcessing)
-        scrollViewProcessingProgress = findViewById(R.id.scrollViewProcessingProgress)
-        linearLayoutProcessingList = findViewById(R.id.linearLayoutProcessingList)
         textGoogleCloudStatus = findViewById(R.id.textGoogleCloudStatus)
         textOsmConfigStatus = findViewById(R.id.textOsmConfigStatus)
         
@@ -185,10 +165,6 @@ class SettingsActivity : AppCompatActivity() {
                     android.util.Log.e("SettingsActivity", "OSM Client ID not configured", e)
                 }
             }
-        }
-        
-        buttonRunOnlineProcessing.setOnClickListener {
-            runManualProcessing()
         }
     }
 
@@ -559,99 +535,9 @@ class SettingsActivity : AppCompatActivity() {
         checkboxAddOsmNote.isChecked = false
         Toast.makeText(this, "OSM account removed", Toast.LENGTH_SHORT).show()
     }
-    
-    private fun runManualProcessing() {
-        // Clear the processing status map for new batch
-        processingStatusMap.clear()
-        linearLayoutProcessingList.removeAllViews()
-        scrollViewProcessingProgress.visibility = View.GONE
-        
-        // Disable button
-        buttonRunOnlineProcessing.isEnabled = false
-        buttonRunOnlineProcessing.text = "Processing..."
-        
-        // Start batch processing service
-        val intent = Intent(this, BatchProcessingService::class.java)
-        startService(intent)
-    }
-    
-    private fun updateProcessingList() {
-        // Show the scroll view
-        scrollViewProcessingProgress.visibility = View.VISIBLE
-        
-        // Clear existing views
-        linearLayoutProcessingList.removeAllViews()
-        
-        // Add each file status to the list
-        for ((filename, status) in processingStatusMap) {
-            val statusView = TextView(this).apply {
-                val (icon, color) = when (status) {
-                    "complete" -> "✓" to COLOR_COMPLETE
-                    "error", "timeout" -> "✗" to COLOR_ERROR
-                    else -> "→" to COLOR_IN_PROGRESS // For transcribing, creating GPX, creating OSM note
-                }
-                
-                text = "$icon $filename - $status"
-                textSize = 12f
-                setTextColor(color)
-                setPadding(8, 4, 8, 4)
-                gravity = Gravity.START
-            }
-            linearLayoutProcessingList.addView(statusView)
-        }
-        
-        // Auto-scroll to bottom
-        scrollViewProcessingProgress.post {
-            scrollViewProcessingProgress.fullScroll(View.FOCUS_DOWN)
-        }
-    }
-    
-    private val batchReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            when (intent?.action) {
-                "com.voicenotes.motorcycle.BATCH_PROGRESS" -> {
-                    val filename = intent.getStringExtra("filename")
-                    if (filename == null) {
-                        android.util.Log.w("SettingsActivity", "Received BATCH_PROGRESS with null filename")
-                        return
-                    }
-                    val status = intent.getStringExtra("status") ?: "processing"
-                    val current = intent.getIntExtra("current", 0)
-                    val total = intent.getIntExtra("total", 0)
-                    
-                    // Update button text to show current file being processed
-                    buttonRunOnlineProcessing.text = "Processing ($current/$total)"
-                    
-                    // Update status map and refresh the list
-                    processingStatusMap[filename] = status
-                    updateProcessingList()
-                }
-                "com.voicenotes.motorcycle.BATCH_COMPLETE" -> {
-                    buttonRunOnlineProcessing.isEnabled = true
-                    buttonRunOnlineProcessing.text = "Run Online Processing"
-                    Toast.makeText(this@SettingsActivity, "Processing complete", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
 
     override fun onResume() {
         super.onResume()
         loadCurrentSettings()
-        
-        // Register broadcast receiver
-        val filter = IntentFilter()
-        filter.addAction("com.voicenotes.motorcycle.BATCH_PROGRESS")
-        filter.addAction("com.voicenotes.motorcycle.BATCH_COMPLETE")
-        registerReceiver(batchReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        try {
-            unregisterReceiver(batchReceiver)
-        } catch (e: Exception) {
-            // Receiver might not be registered
-        }
     }
 }
