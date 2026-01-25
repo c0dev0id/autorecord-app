@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -22,7 +23,7 @@ class OsmNotesService {
         lon: Double,
         text: String,
         accessToken: String
-    ): Result<Unit> = withContext(Dispatchers.IO) {
+    ): Result<String> = withContext(Dispatchers.IO) {
         try {
             // Validate coordinates
             if (lat < -90.0 || lat > 90.0) {
@@ -61,7 +62,15 @@ class OsmNotesService {
                     statusCode = response.code,
                     responseBody = responseBody
                 )
-                Result.success(Unit)
+
+                // Parse the response to extract the note ID
+                val json = JSONObject(responseBody)
+                val properties = json.getJSONObject("properties")
+                val noteId = properties.getLong("id")
+                val noteUrl = "https://www.openstreetmap.org/note/$noteId"
+
+                Log.d("OsmNotesService", "Created note with ID: $noteId, URL: $noteUrl")
+                Result.success(noteUrl)
             } else {
                 val error = "Failed to create note: ${response.code} ${response.message}"
                 Log.e("OsmNotesService", error)
