@@ -667,15 +667,7 @@ class RecordingAdapter(
         }
 
         private fun updateOsmUI(recording: Recording) {
-            // Check if OSM integration is enabled
-            val prefs = itemView.context.getSharedPreferences("AppPrefs", android.content.Context.MODE_PRIVATE)
-            val osmEnabled = prefs.getBoolean("addOsmNote", false)
-
-            if (!osmEnabled) {
-                osmSection.visibility = View.GONE
-                return
-            }
-
+            // OSM section is always visible (removed global toggle)
             osmSection.visibility = View.VISIBLE
 
             // Update status and button based on OSM status
