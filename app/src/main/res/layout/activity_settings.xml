@@ -109,6 +109,14 @@
                     android:layout_marginBottom="8dp" />
 
                 <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/recording_duration_description"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
                     android:id="@+id/durationValueText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -123,13 +131,6 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="12dp" />
-
-                <Button
-                    android:id="@+id/setDurationButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/set_duration_button"
-                    android:textSize="14sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

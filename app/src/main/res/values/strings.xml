@@ -18,6 +18,7 @@
     <string name="configuration_info">Configure recording storage location and duration</string>
     <string name="quit_app">Quit</string>
     <string name="recording_duration">Recording Duration</string>
+    <string name="recording_duration_description">Set the recording length (1-99 seconds). Tip: Start the app again while recording to reset the timer.</string>
     <string name="duration_hint">Enter 1-99 seconds</string>
     <string name="invalid_duration">Duration must be between 1 and 99 seconds</string>
     <string name="duration_saved">Recording duration set to %d seconds</string>

@@ -26,7 +26,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var durationValueText: TextView
     private lateinit var durationNumberPicker: NumberPicker
-    private lateinit var setDurationButton: Button
     private lateinit var requestPermissionsButton: Button
     private lateinit var permissionStatusList: TextView
     private lateinit var quitButton: Button
@@ -55,7 +54,6 @@ class SettingsActivity : AppCompatActivity() {
 
         durationValueText = findViewById(R.id.durationValueText)
         durationNumberPicker = findViewById(R.id.durationNumberPicker)
-        setDurationButton = findViewById(R.id.setDurationButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         permissionStatusList = findViewById(R.id.permissionStatusList)
         quitButton = findViewById(R.id.quitButton)
@@ -70,6 +68,11 @@ class SettingsActivity : AppCompatActivity() {
         durationNumberPicker.minValue = 1
         durationNumberPicker.maxValue = 99
         durationNumberPicker.wrapSelectorWheel = false
+        
+        // Auto-save when value changes
+        durationNumberPicker.setOnValueChangedListener { _, _, newVal ->
+            saveDuration()
+        }
         
         oauthManager = OsmOAuthManager(this)
         
@@ -100,10 +103,6 @@ class SettingsActivity : AppCompatActivity() {
 
         requestPermissionsButton.setOnClickListener {
             requestAllPermissions()
-        }
-
-        setDurationButton.setOnClickListener {
-            saveDuration()
         }
 
         quitButton.setOnClickListener {
