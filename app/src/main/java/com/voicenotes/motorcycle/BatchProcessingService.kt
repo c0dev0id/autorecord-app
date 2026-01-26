@@ -177,12 +177,13 @@ class BatchProcessingService : LifecycleService() {
                             val osmService = OsmNotesService()
                             val osmResult = osmService.createNote(recording.latitude, recording.longitude, finalText, accessToken)
                             
-                            osmResult.onSuccess {
+                            osmResult.onSuccess { result ->
                                 // Update OSM status to COMPLETED
                                 withContext(Dispatchers.IO) {
                                     val updated = recording.copy(
                                         osmStatus = OsmStatus.COMPLETED,
-                                        osmResult = "Note created at ${recording.latitude},${recording.longitude}",
+                                        osmResult = result.noteUrl,
+                                        osmNoteId = result.noteId,
                                         updatedAt = System.currentTimeMillis()
                                     )
                                     db.recordingDao().updateRecording(updated)
@@ -307,19 +308,20 @@ class BatchProcessingService : LifecycleService() {
             val noteText = recording.v2sResult!!
             val createNoteResult = osmService.createNote(recording.latitude, recording.longitude, noteText, accessToken)
 
-            createNoteResult.onSuccess { noteUrl ->
+            createNoteResult.onSuccess { result ->
                 // Update OSM status to COMPLETED
                 withContext(Dispatchers.IO) {
                     val updated = recording.copy(
                         osmStatus = OsmStatus.COMPLETED,
-                        osmResult = noteUrl,
+                        osmResult = result.noteUrl,
+                        osmNoteId = result.noteId,
                         updatedAt = System.currentTimeMillis()
                     )
                     db.recordingDao().updateRecording(updated)
                 }
                 DebugLogger.logInfo(
                     service = "BatchProcessingService",
-                    message = "OSM note created successfully: $noteUrl"
+                    message = "OSM note created successfully: ${result.noteUrl}"
                 )
                 broadcastProgress(recording.filename, "complete", currentFile, totalFiles)
             }.onFailure { osmError ->

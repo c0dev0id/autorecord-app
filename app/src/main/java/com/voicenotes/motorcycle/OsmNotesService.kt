@@ -10,6 +10,14 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+/**
+ * Result of creating an OSM note
+ */
+data class OsmNoteResult(
+    val noteUrl: String,
+    val noteId: Long
+)
+
 class OsmNotesService {
     
     private val client = OkHttpClient.Builder()
@@ -23,7 +31,7 @@ class OsmNotesService {
         lon: Double,
         text: String,
         accessToken: String
-    ): Result<String> = withContext(Dispatchers.IO) {
+    ): Result<OsmNoteResult> = withContext(Dispatchers.IO) {
         try {
             // Validate coordinates
             if (lat < -90.0 || lat > 90.0) {
@@ -70,7 +78,7 @@ class OsmNotesService {
                 val noteUrl = "https://www.openstreetmap.org/note/$noteId"
 
                 Log.d("OsmNotesService", "Created note with ID: $noteId, URL: $noteUrl")
-                Result.success(noteUrl)
+                Result.success(OsmNoteResult(noteUrl, noteId))
             } else {
                 val error = "Failed to create note: ${response.code} ${response.message}"
                 Log.e("OsmNotesService", error)

@@ -711,7 +711,15 @@ class RecordingAdapter(
                     createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
                 }
                 OsmStatus.COMPLETED -> {
-                    createOsmButton.text = "View Note"
+                    osmStatusIcon.setImageResource(R.drawable.ic_status_completed)
+                    osmStatusIcon.clearColorFilter()
+                    osmStatusIcon.visibility = View.VISIBLE
+                    osmProgressBar.visibility = View.GONE
+                    createOsmButton.text = if (recording.osmNoteId != null) {
+                        "Open Note ${recording.osmNoteId}"
+                    } else {
+                        "View Note"
+                    }
                     createOsmButton.isEnabled = true
                     createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
