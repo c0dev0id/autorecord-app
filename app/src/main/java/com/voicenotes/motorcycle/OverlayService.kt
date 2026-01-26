@@ -414,8 +414,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
-                Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
-                return MediaRecorder.AudioSource.VOICE_RECOGNITION
+                Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_COMMUNICATION source")
+                return MediaRecorder.AudioSource.VOICE_COMMUNICATION
             }
         }
         
@@ -431,9 +431,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             }
             handler.postDelayed(bluetoothScoTimeoutRunnable!!, 5000)
             
-            MediaRecorder.AudioSource.VOICE_RECOGNITION
+            MediaRecorder.AudioSource.VOICE_COMMUNICATION
         } else {
-            MediaRecorder.AudioSource.VOICE_RECOGNITION
+            MediaRecorder.AudioSource.VOICE_COMMUNICATION
         }
     }
 
