@@ -13,6 +13,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var infoText: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var openManagerButton: Button
 
     private val PERMISSIONS_REQUEST_CODE = 100
     private val OVERLAY_PERMISSION_REQUEST_CODE = 101
@@ -154,15 +156,26 @@ class MainActivity : AppCompatActivity() {
 
         infoText = findViewById(R.id.infoText)
         progressBar = findViewById(R.id.progressBar)
+        openManagerButton = findViewById(R.id.openManagerButton)
 
         // Hide progress bar
         progressBar.visibility = View.GONE
+
+        // Show the "Open Manager" button
+        openManagerButton.visibility = View.VISIBLE
+
+        // Set click listener for the button
+        openManagerButton.setOnClickListener {
+            val intent = Intent(this, RecordingManagerActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         // Show unconfigured message
         infoText.text = getString(R.string.app_unconfigured_message)
 
         // Start countdown
-        var secondsRemaining = 3
+        var secondsRemaining = 10
         val countdownHandler = Handler(Looper.getMainLooper())
         val countdownRunnable = object : Runnable {
             override fun run() {

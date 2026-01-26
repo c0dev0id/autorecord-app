@@ -13,6 +13,7 @@
     <string name="save_directory">Storage Location</string>
     <string name="not_set">Not Configured</string>
     <string name="open_settings">Open Voice Notes Manager</string>
+    <string name="open_manager">Open Manager</string>
     <string name="grant_all_permissions">Grant Required Permissions</string>
     <string name="configuration_info">Configure recording storage location and duration</string>
     <string name="quit_app">Quit</string>
