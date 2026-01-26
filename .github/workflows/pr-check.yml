@@ -62,10 +62,144 @@ jobs:
           path: app/build/reports/lint-results*.html
           retention-days: 7
 
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/build-cache
+            ~/.android/cache
+          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-android-sdk-
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Create gradle.properties
+        run: |
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
+          echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "kotlin.code.style=official" >> gradle.properties
+      
+      - name: Run Unit Tests
+        run: ./gradlew test --stacktrace --build-cache --parallel
+      
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            app/build/reports/tests/**
+            app/build/test-results/**
+          retention-days: 7
+      
+      - name: Generate Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          if [ -d "app/build/test-results/testDebugUnitTest" ]; then
+            TOTAL=$(find app/build/test-results/testDebugUnitTest -name "*.xml" -exec grep -oh 'tests="[0-9]*"' {} \; | grep -oh '[0-9]*' | awk '{s+=$1} END {print s}')
+            FAILURES=$(find app/build/test-results/testDebugUnitTest -name "*.xml" -exec grep -oh 'failures="[0-9]*"' {} \; | grep -oh '[0-9]*' | awk '{s+=$1} END {print s}')
+            ERRORS=$(find app/build/test-results/testDebugUnitTest -name "*.xml" -exec grep -oh 'errors="[0-9]*"' {} \; | grep -oh '[0-9]*' | awk '{s+=$1} END {print s}')
+            PASSED=$((TOTAL - FAILURES - ERRORS))
+            echo "- Total tests: $TOTAL" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
+            echo "- ❌ Failed: $FAILURES" >> $GITHUB_STEP_SUMMARY
+            echo "- 💥 Errors: $ERRORS" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No test results found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  coverage:
+    name: Test Coverage
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/build-cache
+            ~/.android/cache
+          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-android-sdk-
+      
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      
+      - name: Create gradle.properties
+        run: |
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
+          echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "kotlin.code.style=official" >> gradle.properties
+      
+      - name: Generate Coverage Report
+        run: ./gradlew testDebugUnitTest jacocoTestReport --stacktrace --build-cache
+      
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: app/build/reports/jacoco/
+          retention-days: 7
+      
+      - name: Extract Coverage Percentage
+        id: coverage
+        run: |
+          if [ -f "app/build/reports/jacoco/jacocoTestReport/html/index.html" ]; then
+            COVERAGE=$(grep -oP 'Total.*?(\d+)%' app/build/reports/jacoco/jacocoTestReport/html/index.html | grep -oP '\d+' | head -1 || echo "0")
+            echo "percentage=$COVERAGE" >> $GITHUB_OUTPUT
+            echo "## 📊 Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "percentage=0" >> $GITHUB_OUTPUT
+            echo "⚠️ Coverage report not generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
   build:
     name: Build Check
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, test, coverage]
     permissions:
       contents: read
       pull-requests: write

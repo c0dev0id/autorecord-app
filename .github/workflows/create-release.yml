@@ -225,21 +225,37 @@ jobs:
           echo "android.enableJetifier=true" >> gradle.properties
           echo "kotlin.code.style=official" >> gradle.properties
 
+      - name: Run Unit Tests
+        run: ./gradlew test --stacktrace --build-cache --parallel
+      
+      - name: Verify Tests Passed
+        run: |
+          if [ ! -d "app/build/test-results/testDebugUnitTest" ]; then
+            echo "❌ Tests did not run"
+            exit 1
+          fi
+          echo "✅ All tests passed"
+
       # Enable Gradle build cache and parallel execution for faster incremental builds
       # --build-cache: Enables Gradle's build cache for reusing outputs
       # --parallel: Executes tasks in parallel when possible
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace --build-cache --parallel
 
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace --build-cache --parallel
+        continue-on-error: true
+
       - name: Rename APKs
         run: |
           VERSION="${{ env.VERSION }}"
-          VERSION_NUMBER="${VERSION#v}"  # Remove 'v' prefix for filename
+          VERSION_NUMBER="${VERSION#v}"
 
           echo "Version: $VERSION"
           echo "Version number: $VERSION_NUMBER"
           echo "Listing APK files:"
           ls -la app/build/outputs/apk/debug/ || echo "Debug directory not found"
+          ls -la app/build/outputs/apk/release/ || echo "Release directory not found"
 
           # Rename debug APK
           if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
@@ -250,10 +266,21 @@ jobs:
             echo "Error: No debug APK found!"
             exit 1
           fi
+          
+          # Rename release APK (if it exists)
+          if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
+            cp app/build/outputs/apk/release/app-release.apk motorcycle-voice-notes-${VERSION_NUMBER}.apk
+            echo "RELEASE_APK_FILE=motorcycle-voice-notes-${VERSION_NUMBER}.apk" >> $GITHUB_ENV
+            echo "HAS_RELEASE=true" >> $GITHUB_ENV
+            echo "Release APK found and renamed"
+          else
+            echo "Warning: No release APK (ProGuard may not be configured)"
+            echo "HAS_RELEASE=false" >> $GITHUB_ENV
+          fi
 
           # Show APK sizes
           echo "APK sizes:"
-          ls -lh $DEBUG_APK_FILE
+          ls -lh motorcycle-voice-notes-*.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -263,6 +290,7 @@ jobs:
           body_path: changelog.md
           files: |
             ${{ env.DEBUG_APK_FILE }}
+            ${{ env.HAS_RELEASE == 'true' && env.RELEASE_APK_FILE || '' }}
           draft: false
           prerelease: false
         env:
@@ -274,13 +302,20 @@ jobs:
           echo "## 🎉 Release Created Successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version**: $VERSION" >> $GITHUB_STEP_SUMMARY
-          echo "**Release APK Type**: ${{ env.APK_TYPE }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**APK Files**:" >> $GITHUB_STEP_SUMMARY
           echo "- Debug APK: ${{ env.DEBUG_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ env.HAS_RELEASE }}" == "true" ]; then
+            echo "- Release APK: ${{ env.RELEASE_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ Release APK not available (signing not configured)" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**APK Sizes**:" >> $GITHUB_STEP_SUMMARY
           ls -lh ${{ env.DEBUG_APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          if [ "${{ env.HAS_RELEASE }}" == "true" ]; then
+            ls -lh ${{ env.RELEASE_APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Changelog" >> $GITHUB_STEP_SUMMARY
           cat changelog.md >> $GITHUB_STEP_SUMMARY
