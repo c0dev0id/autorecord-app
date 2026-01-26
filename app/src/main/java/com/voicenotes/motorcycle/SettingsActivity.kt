@@ -11,8 +11,7 @@ import android.os.Environment
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
+import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -26,7 +25,7 @@ import java.io.File
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var durationValueText: TextView
-    private lateinit var durationEditText: EditText
+    private lateinit var durationNumberPicker: NumberPicker
     private lateinit var setDurationButton: Button
     private lateinit var requestPermissionsButton: Button
     private lateinit var permissionStatusList: TextView
@@ -34,8 +33,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var openFolderButton: Button
     private lateinit var buttonDebugLog: Button
     private lateinit var appVersionText: TextView
-    
-    private lateinit var checkboxAddOsmNote: CheckBox
+
     private lateinit var buttonOsmAccount: Button
     private lateinit var textOsmAccountStatus: TextView
 
@@ -56,7 +54,7 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         durationValueText = findViewById(R.id.durationValueText)
-        durationEditText = findViewById(R.id.durationEditText)
+        durationNumberPicker = findViewById(R.id.durationNumberPicker)
         setDurationButton = findViewById(R.id.setDurationButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         permissionStatusList = findViewById(R.id.permissionStatusList)
@@ -64,10 +62,14 @@ class SettingsActivity : AppCompatActivity() {
         openFolderButton = findViewById(R.id.openFolderButton)
         buttonDebugLog = findViewById(R.id.buttonDebugLog)
         appVersionText = findViewById(R.id.appVersionText)
-        
-        checkboxAddOsmNote = findViewById(R.id.checkboxAddOsmNote)
+
         buttonOsmAccount = findViewById(R.id.buttonOsmAccount)
         textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
+
+        // Configure NumberPicker
+        durationNumberPicker.minValue = 1
+        durationNumberPicker.maxValue = 99
+        durationNumberPicker.wrapSelectorWheel = false
         
         oauthManager = OsmOAuthManager(this)
         
@@ -116,12 +118,7 @@ class SettingsActivity : AppCompatActivity() {
         buttonDebugLog.setOnClickListener {
             showDebugLog()
         }
-        
-        checkboxAddOsmNote.setOnCheckedChangeListener { _, isChecked ->
-            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-            prefs.edit().putBoolean("addOsmNote", isChecked).apply()
-        }
-        
+
         buttonOsmAccount.setOnClickListener {
             if (oauthManager.isAuthenticated()) {
                 // Remove account
@@ -211,9 +208,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         
         durationValueText.text = "$recordingDuration seconds"
-        durationEditText.setText(recordingDuration.toString())
-
-        checkboxAddOsmNote.isChecked = prefs.getBoolean("addOsmNote", false)
+        durationNumberPicker.value = recordingDuration
         
         // Update OSM UI based on auth status
         if (oauthManager.isAuthenticated()) {
@@ -315,30 +310,13 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun saveDuration() {
-        val durationStr = durationEditText.text.toString()
-        
-        if (durationStr.isEmpty()) {
-            Toast.makeText(this, R.string.invalid_duration, Toast.LENGTH_SHORT).show()
-            return
-        }
-        
-        try {
-            val duration = durationStr.toInt()
-            
-            if (duration < 1 || duration > 99) {
-                Toast.makeText(this, R.string.invalid_duration, Toast.LENGTH_SHORT).show()
-                return
-            }
-            
-            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-            prefs.edit().putInt("recordingDuration", duration).apply()
-            
-            durationValueText.text = "$duration seconds"
-            Toast.makeText(this, getString(R.string.duration_saved, duration), Toast.LENGTH_SHORT).show()
-            
-        } catch (e: NumberFormatException) {
-            Toast.makeText(this, R.string.invalid_duration, Toast.LENGTH_SHORT).show()
-        }
+        val duration = durationNumberPicker.value
+
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        prefs.edit().putInt("recordingDuration", duration).apply()
+
+        durationValueText.text = "$duration seconds"
+        Toast.makeText(this, getString(R.string.duration_saved, duration), Toast.LENGTH_SHORT).show()
     }
 
     private fun requestAllPermissions() {
@@ -403,15 +381,12 @@ class SettingsActivity : AppCompatActivity() {
         textOsmAccountStatus.text = "Account bound: $username"
         textOsmAccountStatus.visibility = View.VISIBLE
         buttonOsmAccount.text = "Remove OSM Account"
-        checkboxAddOsmNote.isEnabled = true
     }
     
     private fun removeOsmAccount() {
         oauthManager.removeTokens()
         textOsmAccountStatus.visibility = View.GONE
         buttonOsmAccount.text = "Bind OSM Account"
-        checkboxAddOsmNote.isEnabled = false
-        checkboxAddOsmNote.isChecked = false
         Toast.makeText(this, "OSM account removed", Toast.LENGTH_SHORT).show()
     }
 

@@ -117,14 +117,11 @@
                     android:textColor="#757575"
                     android:layout_marginBottom="12dp" />
 
-                <EditText
-                    android:id="@+id/durationEditText"
-                    android:layout_width="match_parent"
+                <NumberPicker
+                    android:id="@+id/durationNumberPicker"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="@string/duration_hint"
-                    android:inputType="number"
-                    android:maxLength="2"
-                    android:textSize="14sp"
+                    android:layout_gravity="center"
                     android:layout_marginBottom="12dp" />
 
                 <Button
@@ -195,15 +192,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Bind OSM Account"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="8dp" />
-
-                <CheckBox
-                    android:id="@+id/checkboxAddOsmNote"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Add OSM Note"
-                    android:enabled="false" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
