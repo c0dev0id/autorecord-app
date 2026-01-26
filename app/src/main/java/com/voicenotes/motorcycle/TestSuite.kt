@@ -1795,11 +1795,14 @@ class TestSuite(private val context: Context) {
 
         runTest("Invalid Filename Pattern Parsing") {
             try {
+                // Test filenames that should NOT match coordinate extraction pattern
+                // Pattern extracts coords from end: _lat_lon.ext
                 val invalidFilenames = listOf(
                     "invalid_no_coords.ogg",
                     "VN_2024-01-15.ogg",
-                    "recording_40.7128_-74.0060.ogg",
-                    "VN_2024-01-15_12-30-45.ogg"
+                    "VN_2024-01-15_12-30-45.ogg",
+                    "coords_missing_40.7128.ogg",
+                    "only_lat_-74.0060.ogg"
                 )
 
                 val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|amr)$""".toRegex()
