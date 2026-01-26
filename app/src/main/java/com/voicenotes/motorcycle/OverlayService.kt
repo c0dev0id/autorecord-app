@@ -537,9 +537,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
     
     private fun finishRecordingProcess() {
-        // Show file saved message
-        val fileName = recordingFilePath?.let { File(it).name } ?: "unknown"
-        updateOverlay("File saved: $fileName")
+        // Show recording saved message
+        updateOverlay("Recording saved")
 
         // Recording complete - all processing handled in Recording Manager
         Log.d("OverlayService", "Recording complete - quitting")
