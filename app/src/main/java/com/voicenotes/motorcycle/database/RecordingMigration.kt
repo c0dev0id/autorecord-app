@@ -109,8 +109,7 @@ class RecordingMigration(private val context: Context) {
                         timestamp = timestamp,
                         latitude = lat,
                         longitude = lon,
-                        v2sStatus = V2SStatus.NOT_STARTED,
-                        osmStatus = OsmStatus.NOT_STARTED
+                        v2sStatus = V2SStatus.NOT_STARTED
                     )
                     
                     db.recordingDao().insertRecording(recording)

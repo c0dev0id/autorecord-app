@@ -11,7 +11,7 @@ Launch the app and it automatically:
 4. Saves with GPS coordinates
 5. Quits automatically
 
-All processing (transcription, waypoints, OSM notes) happens later in the **Recording Manager**.
+All processing (transcription, waypoints) happens later in the **Recording Manager**.
 
 ## Key Features
 
@@ -21,7 +21,6 @@ All processing (transcription, waypoints, OSM notes) happens later in the **Reco
 - **Recording Manager** - Review, process, and export recordings
 - **Speech-to-Text** - Optional Google Cloud transcription
 - **GPX Waypoints** - Export locations for mapping apps
-- **OSM Integration** - Optional OpenStreetMap note creation
 - **Configurable** - Set recording duration (1-99 seconds)
 
 ## Quick Start
@@ -58,15 +57,6 @@ Just tap "Voice Notes" whenever you want to record. The app quits automatically 
 Works perfectly offline! Optional features require:
 - Internet connection
 - [Google Cloud credentials](docs/DEVELOPER_GUIDE.md#google-cloud-setup) for transcription
-- [OSM account](docs/DEVELOPER_GUIDE.md#openstreetmap-oauth) for creating map notes
-
-#### OpenStreetMap OAuth Configuration
-
-The app uses OAuth 2.0 for OpenStreetMap authentication. When registering your OAuth application:
-- **Redirect URI:** `app.voicenotes.motorcycle://oauth`
-- This ensures the OAuth callback is handled exclusively by the main SettingsActivity
-- For multiple app variants (debug, manage), use unique redirect URI schemes per variant
-- See [Developer Guide](docs/DEVELOPER_GUIDE.md#openstreetmap-oauth) for detailed configuration instructions
 
 ## Building from Source
 
@@ -85,7 +75,6 @@ cd autorecord-app
 - **Audio:** MediaRecorder (Opus/OGG on Android 10+, AMR-WB on Android 8-9)
 - **Database:** Room (SQLite)
 - **Speech-to-Text:** Google Cloud Speech-to-Text API (optional)
-- **OAuth:** AppAuth for OpenStreetMap (optional)
 
 ## License
 

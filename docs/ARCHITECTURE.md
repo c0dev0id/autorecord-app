@@ -64,10 +64,10 @@
         ┌──────────────┴───────────────┐
         │                              │
         ▼                              ▼
-┌────────────────┐          ┌──────────────────┐
-│  Google Cloud  │          │   OpenStreetMap  │
-│  Speech-to-Text│          │    Notes API     │
-└────────────────┘          └──────────────────┘
+┌────────────────┐
+│  Google Cloud  │
+│  Speech-to-Text│
+└────────────────┘
 ```
 
 ### Design Philosophy
@@ -184,8 +184,6 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 │  OverlayService (recording logic)                           │
 │  BatchProcessingService (processing logic)                   │
 │  TranscriptionService (STT logic)                            │
-│  OsmNotesService (OSM logic)                                 │
-│  OsmOAuthManager (OAuth logic)                               │
 └───────────────────────┬─────────────────────────────────────┘
                         │
                         │ reads/writes
@@ -218,10 +216,8 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 | **MainActivity** | App entry point, start OverlayService | OverlayService |
 | **OverlayService** | Record audio, GPS, save to DB | RecordingDatabase, MediaRecorder, FusedLocationProviderClient, TextToSpeech |
 | **RecordingManagerActivity** | Display recordings, trigger processing | RecordingDatabase, BatchProcessingService, MediaPlayer |
-| **BatchProcessingService** | Process recordings in background | RecordingDatabase, TranscriptionService, OsmNotesService |
+| **BatchProcessingService** | Process recordings in background | RecordingDatabase, TranscriptionService |
 | **TranscriptionService** | Google Cloud Speech-to-Text API | HttpURLConnection, JSON parsing |
-| **OsmNotesService** | OpenStreetMap Notes API | HttpURLConnection, OsmOAuthManager |
-| **OsmOAuthManager** | OAuth 2.0 authentication | AppAuth library |
 | **RecordingDatabase** | Data persistence | Room library |
 | **SettingsActivity** | Configuration management | SharedPreferences |
 | **DebugLogActivity** | Logging and testing | TestSuite, DebugLogger |
@@ -312,38 +308,6 @@ RecordingManagerActivity.transcribeRecording()
         UI updates with transcription
 ```
 
-### OSM Note Creation Flow
-
-```
-User taps "Create OSM Note"
-        │
-        ▼
-Validate transcription exists
-        │
-        ▼
-Update status: OsmStatus.PROCESSING
-        │
-        ▼
-Start BatchProcessingService (osmOnly=true)
-        │
-        ▼
-OsmNotesService.createNote()
-        │
-        ├─ Check OAuth token
-        ├─ POST to OSM API
-        ├─ Parse response (note ID)
-        └─ Handle errors
-        │
-        ▼
-Update database:
-├─ osmStatus = COMPLETED
-├─ osmNoteId = "12345"
-└─ updatedAt = current timestamp
-        │
-        ▼
-UI updates with OSM status
-```
-
 ---
 
 ## Database Architecture
@@ -358,9 +322,7 @@ CREATE TABLE recordings (
     longitude REAL NOT NULL,
     timestamp INTEGER NOT NULL,
     v2sStatus TEXT NOT NULL,           -- Enum: NOT_STARTED, PROCESSING, etc.
-    osmStatus TEXT NOT NULL,            -- Enum: NOT_STARTED, PROCESSING, etc.
     v2sResult TEXT,                     -- Nullable: transcription text
-    osmNoteId TEXT,                     -- Nullable: OSM note ID
     createdAt INTEGER NOT NULL,
     updatedAt INTEGER NOT NULL
 );
@@ -389,14 +351,8 @@ data class Recording(
     @ColumnInfo(name = "v2sStatus")
     val v2sStatus: V2SStatus,
 
-    @ColumnInfo(name = "osmStatus")
-    val osmStatus: OsmStatus,
-
     @ColumnInfo(name = "v2sResult")
     val v2sResult: String? = null,
-
-    @ColumnInfo(name = "osmNoteId")
-    val osmNoteId: String? = null,
 
     @ColumnInfo(name = "createdAt")
     val createdAt: Long,
@@ -417,13 +373,6 @@ NOT_STARTED → PROCESSING → COMPLETED
                  FALLBACK
 ```
 
-**OsmStatus transitions**:
-```
-NOT_STARTED → PROCESSING → COMPLETED
-                    ↓
-                  ERROR
-```
-
 ### Type Converters
 
 ```kotlin
@@ -436,16 +385,6 @@ class Converters {
     @TypeConverter
     fun toV2SStatus(value: String): V2SStatus {
         return V2SStatus.valueOf(value)
-    }
-
-    @TypeConverter
-    fun fromOsmStatus(value: OsmStatus): String {
-        return value.name
-    }
-
-    @TypeConverter
-    fun toOsmStatus(value: String): OsmStatus {
-        return OsmStatus.valueOf(value)
     }
 }
 ```
@@ -598,21 +537,17 @@ onCreate()
 onStartCommand(intent)
     │
     ├─ Extract recordingId
-    ├─ Extract flags: transcribeOnly, osmOnly
+    ├─ Extract flags: transcribeOnly
     └─ Launch coroutine
             │
             ▼
-    processSingleRecording(id, transcribeOnly, osmOnly)
+    processSingleRecording(id, transcribeOnly)
             │
             ├─ if transcribeOnly:
             │   └─ transcribe() → update DB
             │
-            ├─ if osmOnly:
-            │   └─ createOsmNote() → update DB
-            │
-            └─ if neither:
-                ├─ transcribe() → update DB
-                └─ createOsmNote() → update DB
+            └─ if not:
+                └─ transcribe() → update DB
                         │
                         ▼
                 stopSelf()
@@ -735,7 +670,6 @@ class RecordingAdapter : RecyclerView.Adapter<RecordingAdapter.ViewHolder>() {
         fun bind(recording: Recording) {
             // Bind data to views
             updateTranscriptionUI(recording)
-            updateOsmUI(recording)
         }
     }
 }
@@ -767,13 +701,6 @@ class RecordingAdapter : RecyclerView.Adapter<RecordingAdapter.ViewHolder>() {
             <Button android:id="@+id/transcribeButton" />
         </LinearLayout>
         <TextView android:id="@+id/transcriptionText" />
-
-        <!-- OSM Note Section -->
-        <LinearLayout>
-            <ImageView android:id="@+id/osmStatusIcon" />
-            <ProgressBar android:id="@+id/osmProgressBar" />
-            <Button android:id="@+id/createOsmButton" />
-        </LinearLayout>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
@@ -855,75 +782,6 @@ val token = generateJWT(privateKey, clientEmail)
 
 // Add to request
 connection.setRequestProperty("Authorization", "Bearer $token")
-```
-
-### OpenStreetMap Integration
-
-**Architecture**:
-```
-OsmNotesService
-        │
-        ├─ Check OAuth token (via OsmOAuthManager)
-        ├─ Build note text
-        │   "Voice Note (2024-01-15 12:30:45)\n[transcription]"
-        │
-        ├─ POST to https://api.openstreetmap.org/api/0.6/notes
-        │   Parameters:
-        │   - lat: 40.7128
-        │   - lon: -74.0060
-        │   - text: note content
-        │
-        ├─ Add Authorization header (Bearer token)
-        └─ Parse XML response
-            <osm>
-              <note id="12345" lat="40.7128" lon="-74.0060">
-                <comment>
-                  <text>Voice Note (2024-01-15 12:30:45)...</text>
-                </comment>
-              </note>
-            </osm>
-```
-
-**OAuth 2.0 flow**:
-```
-1. User taps "Authenticate"
-        │
-        ▼
-2. OsmOAuthManager.startAuthFlow()
-        │
-        ▼
-3. Open browser with authorization URL
-   https://www.openstreetmap.org/oauth2/authorize
-   ?client_id=...
-   &redirect_uri=app.voicenotes.motorcycle://oauth
-   &response_type=code
-   &scope=write_notes
-        │
-        ▼
-4. User logs in and grants permission
-        │
-        ▼
-5. Browser redirects: app.voicenotes.motorcycle://oauth?code=AUTH_CODE
-        │
-        ▼
-6. OsmOAuthManager.handleCallback(code)
-        │
-        ▼
-7. Exchange code for access token
-   POST https://www.openstreetmap.org/oauth2/token
-   {
-     "grant_type": "authorization_code",
-     "code": "AUTH_CODE",
-     "redirect_uri": "app.voicenotes.motorcycle://oauth",
-     "client_id": "...",
-     "client_secret": "..."
-   }
-        │
-        ▼
-8. Store access token in SharedPreferences
-        │
-        ▼
-9. Token used for all API requests
 ```
 
 ---
@@ -1047,11 +905,9 @@ Latitude,Longitude,Timestamp,Transcription
 ```kotlin
 // Stored in BuildConfig (not in source code)
 val googleCloudCreds = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
-val osmClientSecret = BuildConfig.OSM_CLIENT_SECRET
 
-// OAuth tokens in SharedPreferences (app-private)
+// SharedPreferences (app-private)
 val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-val accessToken = prefs.getString("osm_access_token", null)
 ```
 
 **4. Network Security**:
@@ -1068,13 +924,12 @@ val accessToken = prefs.getString("osm_access_token", null)
 **Data sharing**:
 - Audio files: Never sent anywhere (except user export)
 - Transcriptions: Sent to Google Cloud (Base64 encoded)
-- GPS coordinates: Sent to OSM (if user creates note)
+- GPS coordinates: Stored locally only
 - No analytics or crash reporting
 
 **User control**:
 - User can delete any recording
 - User controls when to transcribe (opt-in)
-- User controls when to create OSM note (opt-in)
 - User can disable debug logging
 
 ---
@@ -1144,8 +999,7 @@ TestSuite
 ├── testConfiguration() - 4 tests
 │   ├── SharedPreferences Read/Write
 │   ├── Save Directory Configuration
-│   ├── Recording Duration Setting
-│   └── OSM Note Creation Toggle
+│   └── Recording Duration Setting
 │
 ├── testPermissions() - 4 tests
 │   ├── RECORD_AUDIO Permission
@@ -1161,7 +1015,6 @@ TestSuite
 │   ├── Query All Recordings
 │   ├── Delete Recording
 │   ├── V2S Status Enum Handling
-│   ├── OSM Status Enum Handling
 │   ├── Null Value Handling
 │   ├── Coordinate Precision
 │   ├── Empty String vs Null Handling
@@ -1185,7 +1038,6 @@ TestSuite
 ├── testAudioSystem() - 5 tests
 ├── testNetwork() - 5 tests
 ├── testGoogleCloudIntegration() - 3 tests
-├── testOSMIntegration() - 5 tests
 ├── testGPXFile() - 3 tests
 ├── testCSVFile() - 3 tests
 ├── testServiceLifecycle() - 2 tests

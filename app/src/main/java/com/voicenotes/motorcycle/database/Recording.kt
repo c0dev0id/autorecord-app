@@ -15,17 +15,6 @@ enum class V2SStatus {
     DISABLED        // Processing disabled
 }
 
-/**
- * Status for OSM note creation
- */
-enum class OsmStatus {
-    NOT_STARTED,    // Not yet created
-    PROCESSING,     // Currently creating note
-    COMPLETED,      // Successfully created
-    ERROR,          // Creation failed
-    DISABLED        // OSM integration disabled
-}
-
 @Entity(tableName = "recordings")
 data class Recording(
     @PrimaryKey(autoGenerate = true)
@@ -40,10 +29,6 @@ data class Recording(
     val v2sStatus: V2SStatus = V2SStatus.NOT_STARTED,
     val v2sResult: String? = null,  // Transcribed text or null if not transcribed
     val v2sFallback: Boolean = false, // True if result is a fallback/partial
-    
-    val osmStatus: OsmStatus = OsmStatus.NOT_STARTED,
-    val osmResult: String? = null,  // OSM note URL or ID if created
-    val osmNoteId: Long? = null,    // OSM note ID if available
     
     val errorMsg: String? = null,   // Last error message if any
     

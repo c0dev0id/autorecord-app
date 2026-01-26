@@ -25,9 +25,6 @@ interface RecordingDao {
     @Query("SELECT * FROM recordings WHERE v2sStatus = :status")
     suspend fun getRecordingsByV2SStatus(status: V2SStatus): List<Recording>
     
-    @Query("SELECT * FROM recordings WHERE osmStatus = :status")
-    suspend fun getRecordingsByOsmStatus(status: OsmStatus): List<Recording>
-    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecording(recording: Recording): Long
     

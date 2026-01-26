@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.voicenotes.motorcycle.database.Recording
 import com.voicenotes.motorcycle.database.RecordingDatabase
 import com.voicenotes.motorcycle.database.V2SStatus
-import com.voicenotes.motorcycle.database.OsmStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,9 +46,6 @@ class RecordingManagerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Recording Manager"
 
-        // Handle OAuth redirect if present
-        handleOAuthRedirect(intent)
-
         recyclerView = findViewById(R.id.recyclerView)
         emptyView = findViewById(R.id.emptyView)
 
@@ -57,7 +53,7 @@ class RecordingManagerActivity : AppCompatActivity() {
         adapter = RecordingAdapter(
             onPlayClick = { recording -> playRecording(recording) },
             onTranscribeClick = { recording -> transcribeRecording(recording) },
-            onCreateOsmClick = { recording -> createOsmNote(recording) },
+            onOpenMapsClick = { recording -> openMaps(recording) },
             onDeleteClick = { recording -> deleteRecording(recording) },
             onDownloadClick = { recording -> downloadRecording(recording) },
             onSaveTranscriptionClick = { recording, newText -> saveTranscriptionText(recording, newText) }
@@ -99,31 +95,6 @@ class RecordingManagerActivity : AppCompatActivity() {
                     adapter.submitList(recordings)
                 }
             }
-        }
-    }
-
-    private fun handleOAuthRedirect(intent: Intent?) {
-        val data = intent?.data
-        if (data != null && 
-            data.scheme == OsmOAuthManager.REDIRECT_SCHEME && 
-            data.host == OsmOAuthManager.REDIRECT_HOST && 
-            data.path == OsmOAuthManager.REDIRECT_PATH_MANAGER) {
-            
-            // Initialize OAuth manager
-            val oauthManager = OsmOAuthManager(this)
-            
-            // Handle the OAuth response
-            // Note: runOnUiThread is not needed here because OsmOAuthManager's callbacks
-            // already execute on the main thread via withContext(Dispatchers.Main)
-            oauthManager.handleOAuthResponse(
-                intent,
-                onSuccess = { username ->
-                    Toast.makeText(this, "Account bound: $username", Toast.LENGTH_SHORT).show()
-                },
-                onFailure = { error ->
-                    Toast.makeText(this, "OAuth failed: ${error.message}", Toast.LENGTH_SHORT).show()
-                }
-            )
         }
     }
 
@@ -186,57 +157,15 @@ class RecordingManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun createOsmNote(recording: Recording) {
-        // Check if OSM note is already created
-        if (recording.osmStatus == OsmStatus.COMPLETED) {
-            if (recording.osmResult != null) {
-                // Open the OSM note URL
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(recording.osmResult))
-                    startActivity(intent)
-                    return
-                } catch (e: Exception) {
-                    Toast.makeText(this, "OSM note already created", Toast.LENGTH_SHORT).show()
-                    return
-                }
-            }
-            Toast.makeText(this, "OSM note already created", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Check if already processing
-        if (recording.osmStatus == OsmStatus.PROCESSING) {
-            Toast.makeText(this, "OSM note creation in progress...", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Check if transcription is available
-        if (recording.v2sResult.isNullOrBlank()) {
-            Toast.makeText(this, "Please transcribe first", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        Toast.makeText(this, "Creating OSM note...", Toast.LENGTH_SHORT).show()
-
-        lifecycleScope.launch {
-            try {
-                val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
-                val updated = recording.copy(
-                    osmStatus = OsmStatus.PROCESSING,
-                    updatedAt = System.currentTimeMillis()
-                )
-                db.recordingDao().updateRecording(updated)
-
-                // Start batch processing service for OSM note creation only
-                val intent = Intent(this@RecordingManagerActivity, BatchProcessingService::class.java)
-                intent.putExtra("recordingId", recording.id)
-                intent.putExtra("osmOnly", true)
-                startService(intent)
-
-            } catch (e: Exception) {
-                Log.e("RecordingManager", "Error creating OSM note", e)
-                Toast.makeText(this@RecordingManagerActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-            }
+    private fun openMaps(recording: Recording) {
+        try {
+            // Create Google Maps URL with the recording's coordinates
+            val mapsUrl = "https://www.google.com/maps?q=${recording.latitude},${recording.longitude}"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl))
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("RecordingManager", "Error opening maps", e)
+            Toast.makeText(this, "Error opening maps: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -547,7 +476,7 @@ class RecordingManagerActivity : AppCompatActivity() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
         val sb = StringBuilder()
-        sb.append("Latitude,Longitude,Timestamp,Filename,Transcription,V2S Status,OSM Status\n")
+        sb.append("Latitude,Longitude,Timestamp,Filename,Transcription,V2S Status\n")
 
         recordings.forEach { recording ->
             sb.append("${recording.latitude},")
@@ -555,8 +484,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             sb.append("${dateFormat.format(Date(recording.timestamp))},")
             sb.append("\"${recording.filename}\",")
             sb.append("\"${recording.v2sResult ?: ""}\",")
-            sb.append("${recording.v2sStatus},")
-            sb.append("${recording.osmStatus}\n")
+            sb.append("${recording.v2sStatus}\n")
         }
 
         return sb.toString()
@@ -572,7 +500,7 @@ class RecordingManagerActivity : AppCompatActivity() {
 class RecordingAdapter(
     private val onPlayClick: (Recording) -> Unit,
     private val onTranscribeClick: (Recording) -> Unit,
-    private val onCreateOsmClick: (Recording) -> Unit,
+    private val onOpenMapsClick: (Recording) -> Unit,
     private val onDeleteClick: (Recording) -> Unit,
     private val onDownloadClick: (Recording) -> Unit,
     private val onSaveTranscriptionClick: (Recording, String) -> Unit
@@ -598,8 +526,6 @@ class RecordingAdapter(
             val new = newList[newItemPosition]
             return old.v2sResult == new.v2sResult &&
                    old.v2sStatus == new.v2sStatus &&
-                   old.osmStatus == new.osmStatus &&
-                   old.osmNoteId == new.osmNoteId &&
                    old.updatedAt == new.updatedAt
         }
         
@@ -610,8 +536,6 @@ class RecordingAdapter(
             val changes = mutableMapOf<String, Any?>()
             if (old.v2sResult != new.v2sResult) changes["v2sResult"] = new.v2sResult
             if (old.v2sStatus != new.v2sStatus) changes["v2sStatus"] = new.v2sStatus
-            if (old.osmStatus != new.osmStatus) changes["osmStatus"] = new.osmStatus
-            if (old.osmNoteId != new.osmNoteId) changes["osmNoteId"] = new.osmNoteId
             
             return if (changes.isNotEmpty()) changes else null
         }
@@ -649,9 +573,6 @@ class RecordingAdapter(
                     if (payload.containsKey("v2sStatus")) {
                         holder.updateTranscriptionUI(recording)
                     }
-                    if (payload.containsKey("osmStatus")) {
-                        holder.updateOsmUI(recording)
-                    }
                 }
             }
         }
@@ -670,12 +591,9 @@ class RecordingAdapter(
         private val v2sProgressBar: ProgressBar = view.findViewById(R.id.v2sProgressBar)
         private val transcribeButton: Button = view.findViewById(R.id.transcribeButton)
 
-        private val osmStatusIcon: ImageView = view.findViewById(R.id.osmStatusIcon)
-        private val osmProgressBar: ProgressBar = view.findViewById(R.id.osmProgressBar)
-        private val createOsmButton: Button = view.findViewById(R.id.createOsmButton)
-
         private val deleteButton: Button = view.findViewById(R.id.deleteButton)
         private val downloadButton: Button = view.findViewById(R.id.downloadButton)
+        private val openMapsButton: Button = view.findViewById(R.id.openMapsButton)
         private val playButton: Button = view.findViewById(R.id.playButton)
 
         private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
@@ -702,12 +620,10 @@ class RecordingAdapter(
             // Update transcription status for button drawable
             updateTranscriptionUI(recording)
 
-            // OSM section
-            updateOsmUI(recording)
-
             // Action buttons
             deleteButton.setOnClickListener { onDeleteClick(recording) }
             downloadButton.setOnClickListener { onDownloadClick(recording) }
+            openMapsButton.setOnClickListener { onOpenMapsClick(recording) }
             playButton.setOnClickListener { onPlayClick(recording) }
             
             // Download button visibility: show if recording has been transcoded or has data
@@ -762,48 +678,6 @@ class RecordingAdapter(
                     transcribeButton.text = "Disabled"
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
-                }
-            }
-        }
-
-        fun updateOsmUI(recording: Recording) {
-            // Update button text and drawable based on OSM status
-            when (recording.osmStatus) {
-                OsmStatus.NOT_STARTED -> {
-                    createOsmButton.text = "OSM Note"
-                    createOsmButton.isEnabled = true
-                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
-                    createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
-                }
-                OsmStatus.PROCESSING -> {
-                    createOsmButton.text = "Creating"
-                    createOsmButton.isEnabled = false
-                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
-                }
-                OsmStatus.COMPLETED -> {
-                    osmStatusIcon.setImageResource(R.drawable.ic_status_completed)
-                    osmStatusIcon.clearColorFilter()
-                    osmStatusIcon.visibility = View.VISIBLE
-                    osmProgressBar.visibility = View.GONE
-                    createOsmButton.text = if (recording.osmNoteId != null) {
-                        "Open Note ${recording.osmNoteId}"
-                    } else {
-                        "View Note"
-                    }
-                    createOsmButton.isEnabled = true
-                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
-                    createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
-                }
-                OsmStatus.ERROR -> {
-                    createOsmButton.text = "Retry"
-                    createOsmButton.isEnabled = true
-                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
-                    createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
-                }
-                OsmStatus.DISABLED -> {
-                    createOsmButton.text = "Disabled"
-                    createOsmButton.isEnabled = false
-                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                 }
             }
         }

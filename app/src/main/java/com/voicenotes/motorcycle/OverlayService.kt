@@ -34,7 +34,6 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.voicenotes.motorcycle.database.Recording
 import com.voicenotes.motorcycle.database.RecordingDatabase
 import com.voicenotes.motorcycle.database.V2SStatus
-import com.voicenotes.motorcycle.database.OsmStatus
 import kotlinx.coroutines.*
 import kotlin.coroutines.coroutineContext
 import java.io.File
@@ -581,8 +580,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                     timestamp = System.currentTimeMillis(),
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED
+                    v2sStatus = V2SStatus.NOT_STARTED
                 )
                 db.recordingDao().insertRecording(recording)
                 Log.d("OverlayService", "Recording saved to database: $fileName")
@@ -730,16 +728,15 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             
             // Create map links
             val googleMapsLink = "https://www.google.com/maps?q=$lat,$lng"
-            val osmLink = "https://www.openstreetmap.org/?mlat=$lat&mlon=$lng&zoom=17"
             
             if (csvFile.exists()) {
                 // Read existing content and check for duplicates
                 val existingLines = csvFile.readLines()
-                val updatedContent = replaceOrAddCsvEntry(existingLines, date, time, coords, text, googleMapsLink, osmLink)
+                val updatedContent = replaceOrAddCsvEntry(existingLines, date, time, coords, text, googleMapsLink)
                 csvFile.writeText(updatedContent)
             } else {
                 // Create new CSV file with UTF-8 BOM and header
-                val csvContent = buildNewCsvFile(date, time, coords, text, googleMapsLink, osmLink)
+                val csvContent = buildNewCsvFile(date, time, coords, text, googleMapsLink)
                 csvFile.writeText(csvContent)
             }
             
@@ -756,11 +753,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         time: String,
         coords: String,
         text: String,
-        googleMapsLink: String,
-        osmLink: String
+        googleMapsLink: String
     ): String {
         val utf8Bom = "\uFEFF"
-        val newEntry = buildCsvLine(date, time, coords, text, googleMapsLink, osmLink)
+        val newEntry = buildCsvLine(date, time, coords, text, googleMapsLink)
         
         // Check if we have a header (first line after BOM)
         if (existingLines.isEmpty()) {
@@ -807,17 +803,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         time: String,
         coords: String,
         text: String,
-        googleMapsLink: String,
-        osmLink: String
+        googleMapsLink: String
     ): String {
         val utf8Bom = "\uFEFF"
         val header = buildCsvHeader()
-        val entry = buildCsvLine(date, time, coords, text, googleMapsLink, osmLink)
+        val entry = buildCsvLine(date, time, coords, text, googleMapsLink)
         return utf8Bom + header + "\n" + entry
     }
     
     private fun buildCsvHeader(): String {
-        return "Date,Time,Coordinates,Text,Google Maps link,OSM link"
+        return "Date,Time,Coordinates,Text,Google Maps link"
     }
     
     private fun buildCsvLine(
@@ -825,10 +820,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         time: String,
         coords: String,
         text: String,
-        googleMapsLink: String,
-        osmLink: String
+        googleMapsLink: String
     ): String {
-        return "${escapeCsv(date)},${escapeCsv(time)},${escapeCsv(coords)},${escapeCsv(text)},${escapeCsv(googleMapsLink)},${escapeCsv(osmLink)}"
+        return "${escapeCsv(date)},${escapeCsv(time)},${escapeCsv(coords)},${escapeCsv(text)},${escapeCsv(googleMapsLink)}"
     }
     
     private fun escapeCsv(value: String): String {

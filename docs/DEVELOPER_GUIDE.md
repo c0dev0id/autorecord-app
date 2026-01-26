@@ -27,7 +27,6 @@ Voice Notes is an Android app designed for motorcyclists to record GPS-tagged vo
 - **Android SDK**: API 26 (Android 8.0) minimum, API 35 target
 - **Git**: For version control
 - **Google Cloud Platform account**: For Speech-to-Text API
-- **OpenStreetMap account**: For OAuth authentication
 
 ### Initial Setup
 
@@ -64,8 +63,6 @@ app/
 │   │   │   ├── BatchProcessingService.kt    # Background processing service
 │   │   │   ├── SettingsActivity.kt          # Configuration activity
 │   │   │   ├── TranscriptionService.kt      # Google Cloud Speech-to-Text
-│   │   │   ├── OsmNotesService.kt           # OpenStreetMap Notes API
-│   │   │   ├── OsmOAuthManager.kt           # OAuth 2.0 authentication
 │   │   │   ├── DebugLogActivity.kt          # Debug log viewer
 │   │   │   ├── DebugLogger.kt               # Logging utility
 │   │   │   ├── TestSuite.kt                 # On-device test suite
@@ -115,12 +112,11 @@ The app follows a **service-oriented architecture** with clear separation betwee
 
 3. **Database Layer**: Room-based persistence
    - Single source of truth for all recordings
-   - Tracks processing status (V2S, OSM)
+   - Tracks processing status (V2S)
    - LiveData for reactive UI updates
 
 4. **External Services**: API integrations
    - Google Cloud Speech-to-Text
-   - OpenStreetMap Notes API
 
 For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -172,7 +168,6 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 - Display list of recordings (LiveData-driven)
 - Play audio files
 - Trigger transcription
-- Create OSM notes
 - Export in multiple formats (Audio, GPX, CSV)
 - Delete recordings
 
@@ -180,7 +175,6 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 - `setupRecyclerView()`: Initialize RecyclerView with adapter
 - `playRecording()`: MediaPlayer-based playback
 - `transcribeRecording()`: Start Speech-to-Text processing
-- `createOsmNote()`: Create OpenStreetMap note
 - `exportRecordings()`: Multi-format export
 
 **UI features**:
@@ -188,27 +182,25 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 - Color-coded status indicators (green/red/orange/gray)
 - Progress spinners during operations
 - Real-time Toast feedback
-- Separate action buttons (Transcribe, OSM Note)
+- Separate action buttons (Transcribe)
 
 ### 3. BatchProcessingService (Background Processor)
 
 **Location**: `BatchProcessingService.kt`
 
-**Purpose**: Background service for processing recordings (transcription, OSM notes).
+**Purpose**: Background service for processing recordings (transcription).
 
 **Operation modes**:
 - `transcribeOnly`: Only perform Speech-to-Text
-- `osmOnly`: Only create OSM note (requires existing transcription)
-- Full processing: Both transcription and OSM note
+- Full processing: Perform transcription
 
 **Key methods**:
 - `processSingleRecording()`: Process one recording
 - `handleTranscriptionWithRetry()`: Retry logic for transcription
-- `handleOsmOnlyOperation()`: OSM-only processing
 
 **Status tracking**:
 - Updates database in real-time
-- Uses `V2SStatus` and `OsmStatus` enums
+- Uses `V2SStatus` enum
 - Handles errors gracefully
 
 ### 4. Database (Room)
@@ -225,9 +217,7 @@ data class Recording(
     val longitude: Double,
     val timestamp: Long,
     val v2sStatus: V2SStatus,
-    val osmStatus: OsmStatus,
     val v2sResult: String?,
-    val osmNoteId: String?,
     val createdAt: Long,
     val updatedAt: Long
 )
@@ -235,7 +225,6 @@ data class Recording(
 
 **Status enums**:
 - `V2SStatus`: NOT_STARTED, PROCESSING, COMPLETED, ERROR, FALLBACK
-- `OsmStatus`: NOT_STARTED, PROCESSING, COMPLETED, ERROR
 
 **DAO operations**: `RecordingDao.kt`
 - `insertRecording()`: Returns ID
@@ -266,25 +255,7 @@ data class Recording(
 val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
 ```
 
-### 6. OsmNotesService (OpenStreetMap)
-
-**Location**: `OsmNotesService.kt`
-
-**Purpose**: Creates notes on OpenStreetMap with transcription text.
-
-**Features**:
-- OAuth 2.0 authentication
-- Note creation at GPS coordinates
-- Username retrieval
-- Error handling
-
-**Note format**:
-```
-Voice Note (YYYY-MM-DD HH:MM:SS)
-[Transcription text]
-```
-
-### 7. SettingsActivity (Configuration)
+### 6. SettingsActivity (Configuration)
 
 **Location**: `SettingsActivity.kt`
 
@@ -293,16 +264,11 @@ Voice Note (YYYY-MM-DD HH:MM:SS)
 **Settings available**:
 - Recording duration (1-99 seconds)
 - Google Cloud credentials (Base64)
-- OSM OAuth configuration
-- OSM note creation toggle
 - Debug logging toggle
 
 **SharedPreferences keys**:
 - `recordingDuration`: Int (default 10)
-- `addOsmNote`: Boolean
 - `enableDebugLogging`: Boolean
-- `osm_access_token`: String
-- `osm_username`: String
 
 ---
 
@@ -330,62 +296,6 @@ Voice Note (YYYY-MM-DD HH:MM:SS)
    GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64=<paste base64 here>
    ```
 
-### OpenStreetMap OAuth
-
-1. **Register OAuth application**:
-   - Go to https://www.openstreetmap.org/oauth2/applications
-   - Create new application
-   - Set redirect URI: `app.voicenotes.motorcycle://oauth`
-   - Get Client ID and Client Secret
-
-2. **Add to `gradle.properties`**:
-   ```properties
-   OSM_CLIENT_ID=your_client_id_here
-   OSM_CLIENT_SECRET=your_client_secret_here
-   ```
-
-#### Configuring OAuth for Secondary Apps or Variants
-
-If you're building multiple app variants (e.g., a separate "manage" app, debug builds, or product flavors), each should use a **unique redirect URI scheme** to prevent OAuth redirect conflicts:
-
-**Main app:**
-- Redirect URI: `app.voicenotes.motorcycle://oauth`
-- Configuration in: `app/src/main/AndroidManifest.xml`
-- OsmOAuthManager: Uses `REDIRECT_URI = "app.voicenotes.motorcycle://oauth"`
-
-**Example: Debug variant:**
-- Redirect URI: `app.voicenotes.debug.motorcycle://oauth`
-- Configuration in: `app/src/debug/AndroidManifest.xml` (create if needed)
-- OsmOAuthManager: Override `REDIRECT_URI` for debug build variant
-
-**Example: "Manage" app variant:**
-- Redirect URI: `app.voicenotes-manage.motorcycle://oauth`
-- Configuration in: `app/src/manage/AndroidManifest.xml` (if using product flavors)
-- OsmOAuthManager: Override `REDIRECT_URI` for manage product flavor
-
-**Steps for each variant:**
-
-1. Create a variant-specific `AndroidManifest.xml` (e.g., `app/src/debug/AndroidManifest.xml`)
-2. Add the OAuth intent-filter with your unique scheme:
-   ```xml
-   <activity
-       android:name=".SettingsActivity">
-       <intent-filter>
-           <action android:name="android.intent.action.VIEW" />
-           <category android:name="android.intent.category.DEFAULT" />
-           <category android:name="android.intent.category.BROWSABLE" />
-           <data
-               android:scheme="app.voicenotes.debug.motorcycle"
-               android:host="oauth" />
-       </intent-filter>
-   </activity>
-   ```
-3. Update the `REDIRECT_URI` constant in `OsmOAuthManager.kt` for that build variant
-4. Register a separate OAuth application on OpenStreetMap with the variant's redirect URI
-5. Add the OAuth client ID to `gradle.properties` or use variant-specific configuration
-
-This ensures Android will only show the appropriate app for each OAuth redirect, eliminating the "two icons" selection problem.
-
 ### Build Configuration
 
 **`build.gradle` (app level)**:
@@ -395,10 +305,6 @@ android {
         debug {
             buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64",
                 "\"${project.findProperty('GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64') ?: ''}\""
-            buildConfigField "String", "OSM_CLIENT_ID",
-                "\"${project.findProperty('OSM_CLIENT_ID') ?: 'your_osm_client_id'}\""
-            buildConfigField "String", "OSM_CLIENT_SECRET",
-                "\"${project.findProperty('OSM_CLIENT_SECRET') ?: 'your_osm_client_secret'}\""
         }
         release {
             // Same as debug
@@ -484,9 +390,8 @@ android {
 7. Audio System Tests (5 tests)
 8. Network Tests (5 tests)
 9. Google Cloud Integration Tests (3 tests)
-10. OSM Integration Tests (5 tests)
-11. GPX File Tests (3 tests)
-12. CSV File Tests (3 tests)
+10. GPX File Tests (3 tests)
+11. CSV File Tests (3 tests)
 13. Service Lifecycle Tests (2 tests)
 14. **Error Handling Tests (14 tests)** - NEW
 
@@ -906,11 +811,8 @@ private fun startRecording(location: Location?) {
 
 ### API Documentation
 - **Google Cloud Speech-to-Text**: https://cloud.google.com/speech-to-text/docs
-- **OpenStreetMap API**: https://wiki.openstreetmap.org/wiki/API
-- **OAuth 2.0**: https://oauth.net/2/
 
 ### Libraries Used
-- **AppAuth**: OAuth 2.0 for Android
 - **Room**: Android persistence library
 - **Lifecycle**: Android Architecture Components
 - **Material Design**: UI components

@@ -14,8 +14,6 @@ import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -36,12 +34,6 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var openFolderButton: Button
     private lateinit var buttonDebugLog: Button
     private lateinit var appVersionText: TextView
-
-    private lateinit var buttonOsmAccount: Button
-    private lateinit var textOsmAccountStatus: TextView
-
-    private lateinit var oauthManager: OsmOAuthManager
-    private lateinit var oauthLauncher: ActivityResultLauncher<Intent>
 
     private val PERMISSIONS_REQUEST_CODE = 200
     private val OVERLAY_PERMISSION_REQUEST_CODE = 201
@@ -65,9 +57,6 @@ class SettingsActivity : AppCompatActivity() {
         buttonDebugLog = findViewById(R.id.buttonDebugLog)
         appVersionText = findViewById(R.id.appVersionText)
 
-        buttonOsmAccount = findViewById(R.id.buttonOsmAccount)
-        textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
-
         // Configure NumberPicker
         durationNumberPicker.minValue = 1
         durationNumberPicker.maxValue = 99
@@ -78,30 +67,8 @@ class SettingsActivity : AppCompatActivity() {
             saveDuration()
         }
         
-        oauthManager = OsmOAuthManager(this)
-        
         // Display app version
         appVersionText.text = getAppVersion()
-        
-        // Setup OAuth launcher
-        oauthLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK && result.data != null) {
-                oauthManager.handleOAuthResponse(
-                    result.data!!,
-                    onSuccess = { username ->
-                        runOnUiThread {
-                            updateOsmAccountUI(username)
-                            Toast.makeText(this, "Account bound: $username", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    onFailure = { error ->
-                        runOnUiThread {
-                            Toast.makeText(this, "OAuth failed: ${error.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                )
-            }
-        }
 
         loadCurrentSettings()
 
@@ -120,37 +87,6 @@ class SettingsActivity : AppCompatActivity() {
         
         buttonDebugLog.setOnClickListener {
             showDebugLog()
-        }
-
-        buttonOsmAccount.setOnClickListener {
-            if (oauthManager.isAuthenticated()) {
-                // Remove account
-                removeOsmAccount()
-            } else {
-                // Check if OSM client ID is properly configured
-                if (!isOsmClientIdConfigured()) {
-                    AlertDialog.Builder(this)
-                        .setTitle("OSM Integration Not Configured")
-                        .setMessage("OSM integration is not configured. The OSM Client ID is set to a placeholder value.\n\n" +
-                                "To enable OSM features:\n" +
-                                "1. Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications\n" +
-                                "2. Set redirect URI to: app.voicenotes.motorcycle://oauth\n" +
-                                "3. Add your Client ID to gradle.properties\n" +
-                                "4. Rebuild the app\n\n" +
-                                "See BUILD_INSTRUCTIONS.md for detailed setup instructions.")
-                        .setPositiveButton("OK", null)
-                        .show()
-                    return@setOnClickListener
-                }
-                
-                // Bind account
-                try {
-                    oauthManager.startOAuthFlow(oauthLauncher)
-                } catch (e: IllegalStateException) {
-                    Toast.makeText(this, "OSM Client ID not configured", Toast.LENGTH_LONG).show()
-                    android.util.Log.e("SettingsActivity", "OSM Client ID not configured", e)
-                }
-            }
         }
     }
 
@@ -213,21 +149,10 @@ class SettingsActivity : AppCompatActivity() {
         durationValueText.text = "$recordingDuration seconds"
         durationNumberPicker.value = recordingDuration
         
-        // Update OSM UI based on auth status
-        if (oauthManager.isAuthenticated()) {
-            val username = oauthManager.getUsername() ?: "Unknown"
-            updateOsmAccountUI(username)
-        }
-        
         // Update permission status list
         updatePermissionStatusList()
     }
     
-    private fun isOsmClientIdConfigured(): Boolean {
-        val clientId = BuildConfig.OSM_CLIENT_ID
-        return clientId.isNotBlank() && clientId != OsmOAuthManager.DEFAULT_CLIENT_ID_PLACEHOLDER
-    }
-
     private fun updatePermissionStatusList() {
         val statusLines = mutableListOf<String>()
         
@@ -343,19 +268,6 @@ class SettingsActivity : AppCompatActivity() {
             // Always check overlay permission after runtime permissions are handled
             checkAndRequestOverlayPermission()
         }
-    }
-    
-    private fun updateOsmAccountUI(username: String) {
-        textOsmAccountStatus.text = "Account bound: $username"
-        textOsmAccountStatus.visibility = View.VISIBLE
-        buttonOsmAccount.text = "Remove OSM Account"
-    }
-    
-    private fun removeOsmAccount() {
-        oauthManager.removeTokens()
-        textOsmAccountStatus.visibility = View.GONE
-        buttonOsmAccount.text = "Bind OSM Account"
-        Toast.makeText(this, "OSM account removed", Toast.LENGTH_SHORT).show()
     }
 
     override fun onResume() {

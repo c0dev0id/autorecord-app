@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.voicenotes.motorcycle.database.RecordingDatabase
 import com.voicenotes.motorcycle.database.Recording
 import com.voicenotes.motorcycle.database.V2SStatus
-import com.voicenotes.motorcycle.database.OsmStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,7 +27,6 @@ class BatchProcessingService : LifecycleService() {
 
         val recordingId = intent?.getLongExtra("recordingId", -1L) ?: -1L
         val transcribeOnly = intent?.getBooleanExtra("transcribeOnly", false) ?: false
-        val osmOnly = intent?.getBooleanExtra("osmOnly", false) ?: false
 
         if (recordingId <= 0) {
             Log.e("BatchProcessing", "Invalid recordingId: $recordingId")
@@ -37,13 +35,13 @@ class BatchProcessingService : LifecycleService() {
         }
 
         lifecycleScope.launch {
-            processSingleRecording(recordingId, transcribeOnly, osmOnly)
+            processSingleRecording(recordingId, transcribeOnly)
         }
 
         return START_NOT_STICKY
     }
     
-    private suspend fun processSingleRecording(recordingId: Long, transcribeOnly: Boolean = false, osmOnly: Boolean = false) {
+    private suspend fun processSingleRecording(recordingId: Long, transcribeOnly: Boolean = false) {
         val db = RecordingDatabase.getDatabase(this@BatchProcessingService)
         val recording = withContext(Dispatchers.IO) {
             db.recordingDao().getRecordingById(recordingId)
@@ -57,7 +55,6 @@ class BatchProcessingService : LifecycleService() {
 
         val operation = when {
             transcribeOnly -> "transcription"
-            osmOnly -> "OSM note creation"
             else -> "full processing"
         }
 
@@ -66,7 +63,7 @@ class BatchProcessingService : LifecycleService() {
             message = "Processing single recording ($operation): ${recording.filename}"
         )
 
-        processRecording(recording, 1, 1, transcribeOnly, osmOnly)
+        processRecording(recording, 1, 1, transcribeOnly)
         stopSelf()
     }
     
@@ -74,18 +71,9 @@ class BatchProcessingService : LifecycleService() {
         recording: Recording,
         currentFile: Int,
         totalFiles: Int,
-        transcribeOnly: Boolean = false,
-        osmOnly: Boolean = false
+        transcribeOnly: Boolean = false
     ) {
             val db = RecordingDatabase.getDatabase(this@BatchProcessingService)
-            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val addOsmNote = prefs.getBoolean("addOsmNote", false)
-
-            // Handle OSM-only operation
-            if (osmOnly) {
-                handleOsmOnlyOperation(recording, db, currentFile, totalFiles)
-                return
-            }
 
             // Update status to PROCESSING (for transcription)
             withContext(Dispatchers.IO) {
@@ -151,77 +139,6 @@ class BatchProcessingService : LifecycleService() {
                     )
                 }
                 
-                // Create OSM note if enabled and not transcription-only mode
-                if (addOsmNote && !transcribeOnly) {
-                    val oauthManager = OsmOAuthManager(this)
-                    if (oauthManager.isAuthenticated()) {
-                        broadcastProgress(recording.filename, "creating OSM note", currentFile, totalFiles)
-                        
-                        try {
-                            // Update OSM status to PROCESSING
-                            withContext(Dispatchers.IO) {
-                                val updated = recording.copy(
-                                    osmStatus = OsmStatus.PROCESSING,
-                                    updatedAt = System.currentTimeMillis()
-                                )
-                                db.recordingDao().updateRecording(updated)
-                            }
-                            
-                            val accessToken = oauthManager.getAccessToken()!!
-                            
-                            DebugLogger.logInfo(
-                                service = "BatchProcessingService",
-                                message = "Creating OSM note for ${recording.filename} at ${recording.latitude},${recording.longitude}"
-                            )
-                            
-                            val osmService = OsmNotesService()
-                            val osmResult = osmService.createNote(recording.latitude, recording.longitude, finalText, accessToken)
-                            
-                            osmResult.onSuccess { result ->
-                                // Update OSM status to COMPLETED
-                                withContext(Dispatchers.IO) {
-                                    val updated = recording.copy(
-                                        osmStatus = OsmStatus.COMPLETED,
-                                        osmResult = result.noteUrl,
-                                        osmNoteId = result.noteId,
-                                        updatedAt = System.currentTimeMillis()
-                                    )
-                                    db.recordingDao().updateRecording(updated)
-                                }
-                            }.onFailure { osmError ->
-                                // Update OSM status to ERROR
-                                withContext(Dispatchers.IO) {
-                                    val updated = recording.copy(
-                                        osmStatus = OsmStatus.ERROR,
-                                        errorMsg = "OSM: ${osmError.message}",
-                                        updatedAt = System.currentTimeMillis()
-                                    )
-                                    db.recordingDao().updateRecording(updated)
-                                }
-                            }
-                        } catch (e: Exception) {
-                            Log.e("BatchProcessing", "Failed to create OSM note", e)
-                            withContext(Dispatchers.IO) {
-                                val updated = recording.copy(
-                                    osmStatus = OsmStatus.ERROR,
-                                    errorMsg = "OSM: ${e.message}",
-                                    updatedAt = System.currentTimeMillis()
-                                )
-                                db.recordingDao().updateRecording(updated)
-                            }
-                        }
-                    } else {
-                        // Update OSM status to DISABLED (not authenticated)
-                        withContext(Dispatchers.IO) {
-                            val updated = recording.copy(
-                                osmStatus = OsmStatus.DISABLED,
-                                updatedAt = System.currentTimeMillis()
-                            )
-                            db.recordingDao().updateRecording(updated)
-                        }
-                    }
-                }
-                
                 // Send completion status for this file
                 broadcastProgress(recording.filename, "complete", currentFile, totalFiles)
                 
@@ -246,118 +163,6 @@ class BatchProcessingService : LifecycleService() {
                 // Send error status
                 broadcastProgress(recording.filename, "error", currentFile, totalFiles)
             }
-    }
-    
-    /**
-     * Handle OSM note creation only (when transcription already exists)
-     */
-    private suspend fun handleOsmOnlyOperation(
-        recording: Recording,
-        db: RecordingDatabase,
-        currentFile: Int,
-        totalFiles: Int
-    ) {
-        // Check if transcription exists
-        if (recording.v2sResult.isNullOrBlank()) {
-            Log.e("BatchProcessing", "Cannot create OSM note: No transcription available")
-            withContext(Dispatchers.IO) {
-                val updated = recording.copy(
-                    osmStatus = OsmStatus.ERROR,
-                    errorMsg = "No transcription available",
-                    updatedAt = System.currentTimeMillis()
-                )
-                db.recordingDao().updateRecording(updated)
-            }
-            return
-        }
-
-        val oauthManager = OsmOAuthManager(this)
-        if (!oauthManager.isAuthenticated()) {
-            Log.e("BatchProcessing", "Cannot create OSM note: Not authenticated")
-            withContext(Dispatchers.IO) {
-                val updated = recording.copy(
-                    osmStatus = OsmStatus.DISABLED,
-                    errorMsg = "OSM authentication required",
-                    updatedAt = System.currentTimeMillis()
-                )
-                db.recordingDao().updateRecording(updated)
-            }
-            return
-        }
-
-        broadcastProgress(recording.filename, "creating OSM note", currentFile, totalFiles)
-
-        try {
-            // Update OSM status to PROCESSING
-            withContext(Dispatchers.IO) {
-                val updated = recording.copy(
-                    osmStatus = OsmStatus.PROCESSING,
-                    updatedAt = System.currentTimeMillis()
-                )
-                db.recordingDao().updateRecording(updated)
-            }
-
-            val accessToken = oauthManager.getAccessToken()!!
-
-            DebugLogger.logInfo(
-                service = "BatchProcessingService",
-                message = "Creating OSM note for ${recording.filename} at ${recording.latitude},${recording.longitude}"
-            )
-
-            val osmService = OsmNotesService()
-            val noteText = recording.v2sResult!!
-            val createNoteResult = osmService.createNote(recording.latitude, recording.longitude, noteText, accessToken)
-
-            createNoteResult.onSuccess { result ->
-                // Update OSM status to COMPLETED
-                withContext(Dispatchers.IO) {
-                    val updated = recording.copy(
-                        osmStatus = OsmStatus.COMPLETED,
-                        osmResult = result.noteUrl,
-                        osmNoteId = result.noteId,
-                        updatedAt = System.currentTimeMillis()
-                    )
-                    db.recordingDao().updateRecording(updated)
-                }
-                DebugLogger.logInfo(
-                    service = "BatchProcessingService",
-                    message = "OSM note created successfully: ${result.noteUrl}"
-                )
-                broadcastProgress(recording.filename, "complete", currentFile, totalFiles)
-            }.onFailure { osmError ->
-                // Update OSM status to ERROR
-                withContext(Dispatchers.IO) {
-                    val updated = recording.copy(
-                        osmStatus = OsmStatus.ERROR,
-                        errorMsg = "OSM: ${osmError.message}",
-                        updatedAt = System.currentTimeMillis()
-                    )
-                    db.recordingDao().updateRecording(updated)
-                }
-                DebugLogger.logError(
-                    service = "BatchProcessingService",
-                    error = "Failed to create OSM note: ${osmError.message}",
-                    exception = osmError
-                )
-                broadcastProgress(recording.filename, "error", currentFile, totalFiles)
-            }
-        } catch (e: Exception) {
-            Log.e("BatchProcessing", "Failed to create OSM note", e)
-            withContext(Dispatchers.IO) {
-                val updated = recording.copy(
-                    osmStatus = OsmStatus.ERROR,
-                    errorMsg = "OSM: ${e.message}",
-                    updatedAt = System.currentTimeMillis()
-                )
-                db.recordingDao().updateRecording(updated)
-            }
-            DebugLogger.logError(
-                service = "BatchProcessingService",
-                error = "Failed to create OSM note",
-                exception = e
-            )
-            broadcastProgress(recording.filename, "error", currentFile, totalFiles)
-        }
     }
 
     /**

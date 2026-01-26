@@ -12,9 +12,3 @@ kotlin.code.style=official
 # For local development: Copy this file to gradle.properties and add your service account JSON
 # For CI/CD: Add GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON as a GitHub Secret with the full JSON content
 GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON={}
-
-# OpenStreetMap OAuth Client ID
-# Register your OAuth app at: https://www.openstreetmap.org/oauth2/applications
-# For local development: Copy this file to gradle.properties and add your client ID
-# For CI/CD: Add OSM_KEY as a GitHub Secret
-OSM_CLIENT_ID=your_osm_client_id

@@ -20,18 +20,4 @@ class Converters {
             V2SStatus.NOT_STARTED
         }
     }
-    
-    @TypeConverter
-    fun fromOsmStatus(value: OsmStatus): String {
-        return value.name
-    }
-    
-    @TypeConverter
-    fun toOsmStatus(value: String): OsmStatus {
-        return try {
-            OsmStatus.valueOf(value)
-        } catch (e: IllegalArgumentException) {
-            OsmStatus.NOT_STARTED
-        }
-    }
 }

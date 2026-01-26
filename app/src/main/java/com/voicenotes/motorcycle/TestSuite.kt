@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import com.voicenotes.motorcycle.database.RecordingDatabase
 import com.voicenotes.motorcycle.database.Recording
 import com.voicenotes.motorcycle.database.V2SStatus
-import com.voicenotes.motorcycle.database.OsmStatus
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.HttpURLConnection
@@ -58,7 +57,6 @@ class TestSuite(private val context: Context) {
         testAudioSystem()
         testNetwork()
         testGoogleCloudIntegration()
-        testOSMIntegration()
         testGPXFile()
         testCSVFile()
         testServiceLifecycle()
@@ -118,12 +116,6 @@ class TestSuite(private val context: Context) {
                 TestResult("Recording Duration Setting", false, "Invalid duration: $duration")
             }
         }
-
-        runTest("OSM Note Creation Toggle") {
-            val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val enabled = prefs.getBoolean("addOsmNote", false)
-            TestResult("OSM Note Creation Toggle", true, "OSM note creation: ${if (enabled) "enabled" else "disabled"}")
-        }
         
         log("")
     }
@@ -158,9 +150,7 @@ class TestSuite(private val context: Context) {
                     longitude = -74.0060,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -188,9 +178,7 @@ class TestSuite(private val context: Context) {
                     longitude = -122.4194,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -219,9 +207,7 @@ class TestSuite(private val context: Context) {
                     longitude = -0.1278,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -277,9 +263,7 @@ class TestSuite(private val context: Context) {
                     longitude = 2.3522,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -311,9 +295,7 @@ class TestSuite(private val context: Context) {
                     longitude = 139.6503,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.PROCESSING,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -331,37 +313,6 @@ class TestSuite(private val context: Context) {
             }
         }
 
-        runTest("OSM Status Enum Handling") {
-            try {
-                val recording = Recording(
-                    id = 0,
-                    filename = "test_recording.ogg",
-                    filepath = "/test/path/osm_status_test.ogg",
-                    latitude = -33.8688,
-                    longitude = 151.2093,
-                    timestamp = System.currentTimeMillis(),
-                    v2sStatus = V2SStatus.COMPLETED,
-                    osmStatus = OsmStatus.COMPLETED,
-                    v2sResult = "Test transcription",
-                    osmNoteId = 12345L,
-                    createdAt = System.currentTimeMillis(),
-                    updatedAt = System.currentTimeMillis()
-                )
-
-                val id = runBlocking { dao.insertRecording(recording) }
-                val retrieved = runBlocking { dao.getRecordingById(id) }
-
-                if (retrieved?.osmStatus == OsmStatus.COMPLETED &&
-                    retrieved.osmNoteId == 12345L) {
-                    TestResult("OSM Status Enum Handling", true, "OSM status and note ID persisted correctly")
-                } else {
-                    TestResult("OSM Status Enum Handling", false, "OSM status mismatch")
-                }
-            } catch (e: Exception) {
-                TestResult("OSM Status Enum Handling", false, "Enum handling failed: ${e.message}")
-            }
-        }
-
         runTest("Null Value Handling") {
             try {
                 val recording = Recording(
@@ -372,9 +323,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,  // null transcription
-                    osmNoteId = null,  // null OSM note ID
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -382,7 +331,7 @@ class TestSuite(private val context: Context) {
                 val id = runBlocking { dao.insertRecording(recording) }
                 val retrieved = runBlocking { dao.getRecordingById(id) }
 
-                if (retrieved?.v2sResult == null && retrieved?.osmNoteId == null) {
+                if (retrieved?.v2sResult == null) {
                     TestResult("Null Value Handling", true, "Null values handled correctly")
                 } else {
                     TestResult("Null Value Handling", false, "Null values not preserved")
@@ -405,9 +354,7 @@ class TestSuite(private val context: Context) {
                     longitude = lon,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -437,9 +384,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.COMPLETED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = "",  // empty string
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -467,9 +412,7 @@ class TestSuite(private val context: Context) {
                     longitude = 13.4050,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -488,22 +431,17 @@ class TestSuite(private val context: Context) {
                 runBlocking { dao.updateRecording(updated) }
 
                 // Update 3: OSM processing
-                updated = updated.copy(osmStatus = OsmStatus.PROCESSING)
                 runBlocking { dao.updateRecording(updated) }
 
                 // Update 4: OSM completed
                 updated = updated.copy(
-                    osmStatus = OsmStatus.COMPLETED,
-                    osmNoteId = 98765L
                 )
                 runBlocking { dao.updateRecording(updated) }
 
                 val final = runBlocking { dao.getRecordingById(id) }
 
                 if (final?.v2sStatus == V2SStatus.COMPLETED &&
-                    final.osmStatus == OsmStatus.COMPLETED &&
                     final.v2sResult == "Final transcription" &&
-                    final.osmNoteId == 98765L) {
                     TestResult("Multiple Status Updates", true, "Multiple updates handled correctly")
                 } else {
                     TestResult("Multiple Status Updates", false, "Update sequence failed")
@@ -1267,68 +1205,6 @@ class TestSuite(private val context: Context) {
     }
     
     /**
-     * OSM Integration Tests
-     */
-    private fun testOSMIntegration() {
-        log("[TEST] === OSM Integration Tests ===")
-        
-        runTest("OSM OAuth Tokens Exist") {
-            val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val accessToken = prefs.getString("osm_access_token", null)
-            
-            TestResult(
-                "OSM OAuth Tokens Exist", 
-                true, 
-                if (accessToken != null) "Access token exists" else "No access token found"
-            )
-        }
-        
-        runTest("OSM Client ID Configuration") {
-            val clientId = BuildConfig.OSM_CLIENT_ID
-            val configured = clientId.isNotBlank() && clientId != "your_osm_client_id"
-            
-            TestResult(
-                "OSM Client ID Configuration", 
-                true, 
-                if (configured) "Client ID configured" else "Client ID not configured (placeholder)"
-            )
-        }
-        
-        runTest("OsmOAuthManager Initialization") {
-            try {
-                val manager = OsmOAuthManager(context)
-                TestResult("OsmOAuthManager Initialization", true, "Manager initialized successfully")
-            } catch (e: Exception) {
-                TestResult("OsmOAuthManager Initialization", false, "Initialization error: ${e.message}")
-            }
-        }
-        
-        runTest("OSM Username Retrieval") {
-            val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val username = prefs.getString("osm_username", null)
-            
-            TestResult(
-                "OSM Username Retrieval", 
-                true, 
-                if (username != null) "Username: $username" else "No username stored"
-            )
-        }
-        
-        runTest("OSM Note Creation Settings") {
-            val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val enabled = prefs.getBoolean("addOsmNote", false)
-            
-            TestResult(
-                "OSM Note Creation Settings", 
-                true, 
-                "OSM note creation: ${if (enabled) "enabled" else "disabled"}"
-            )
-        }
-        
-        log("")
-    }
-    
-    /**
      * GPX File Tests
      */
     private fun testGPXFile() {
@@ -1524,9 +1400,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1556,9 +1430,7 @@ class TestSuite(private val context: Context) {
                     longitude = 185.0,  // Invalid: > 180
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1587,9 +1459,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1618,9 +1488,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.COMPLETED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = longText,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1651,9 +1519,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.COMPLETED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = specialText,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1683,9 +1549,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.COMPLETED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = multilineText,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1713,9 +1577,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.COMPLETED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = "Test",
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1740,9 +1602,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.COMPLETED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = "Test",
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1768,9 +1628,7 @@ class TestSuite(private val context: Context) {
                     longitude = -74.0,
                     timestamp = System.currentTimeMillis(),
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
@@ -1835,9 +1693,7 @@ class TestSuite(private val context: Context) {
                     longitude = 0.0,
                     timestamp = year2038Timestamp,
                     v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED,
                     v2sResult = null,
-                    osmNoteId = null,
                     createdAt = year2038Timestamp,
                     updatedAt = year2038Timestamp
                 )
@@ -1870,9 +1726,7 @@ class TestSuite(private val context: Context) {
                         longitude = -74.0 + (i * 0.001),
                         timestamp = System.currentTimeMillis(),
                         v2sStatus = V2SStatus.NOT_STARTED,
-                        osmStatus = OsmStatus.NOT_STARTED,
                         v2sResult = null,
-                        osmNoteId = null,
                         createdAt = System.currentTimeMillis(),
                         updatedAt = System.currentTimeMillis()
                     )

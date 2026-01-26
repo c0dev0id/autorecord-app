@@ -95,7 +95,6 @@ android {
         
         // Read service account JSON from gradle.properties and base64-encode it
         buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64", "\"${(project.findProperty('GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON') ?: '')?.bytes?.encodeBase64()?.toString() ?: ''}\""
-        buildConfigField "String", "OSM_CLIENT_ID", "\"${project.findProperty('OSM_CLIENT_ID') ?: 'your_osm_client_id'}\""
         manifestPlaceholders = [appAuthRedirectScheme: "app.voicenotes.motorcycle"]
     }
 
@@ -171,7 +170,6 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     
     // OAuth and OSM API
-    implementation 'net.openid:appauth:0.11.1'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     
     // Room Database

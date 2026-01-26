@@ -53,7 +53,7 @@ After installation, you'll see **two icons** on your home screen:
 **Voice Notes Manager (Settings Icon)**
 - Configure app settings
 - View and manage your recordings
-- Process recordings (transcription, OSM notes)
+- Process recordings (transcription)
 - Export data in various formats
 - View debug logs
 
@@ -134,7 +134,7 @@ Recordings are displayed as cards showing:
 - **Date and time** of recording
 - **GPS coordinates** (latitude, longitude)
 - **Transcription** (if processed)
-- **Status indicators** for Speech-to-Text and OSM notes
+- **Status indicators** for Speech-to-Text
 - **Action buttons** (play, transcribe, export, delete)
 
 Recordings are sorted by **newest first**.
@@ -173,26 +173,6 @@ Convert your voice recording to text:
 **Requirements:**
 - Internet connection
 - Google Cloud credentials configured (developer task)
-
-#### Creating OSM Notes
-
-Add your voice note as an OpenStreetMap note:
-
-1. **First:** Transcribe the recording (required)
-2. Enable OSM integration in settings (see [Optional Online Features](#optional-online-features))
-3. Tap **"Create Note"** button
-4. Watch the status:
-   - Progress spinner appears
-   - When complete: green checkmark ✓ and button changes to "View Note"
-5. Tap **"View Note"** to open the OSM note in your browser
-
-**Status Indicators:**
-- **Gray ?** - Not yet created
-- **Spinner** - Creating note...
-- **Green ✓** - Created successfully (tap to view)
-- **Red ✗** - Failed (error message shown)
-
-**Note:** OSM section only appears when OSM integration is enabled.
 
 ### Exporting Recordings
 
@@ -280,23 +260,6 @@ Shows whether Google Cloud Speech-to-Text is configured.
 
 See [Optional Online Features](#optional-online-features) for setup.
 
-### OpenStreetMap Integration
-
-#### Enable OSM Notes
-
-1. Bind your OSM account (see below)
-2. Check **"Add OSM Note"** box
-3. OSM section will appear in Recording Manager
-
-#### Bind OSM Account
-
-1. Tap **"Bind OSM Account"**
-2. Sign in to OpenStreetMap
-3. Authorize the app
-4. Your username appears in settings
-
-**To remove:** Tap "Remove OSM Account"
-
 ### Debug Log
 
 View detailed logs of API calls and errors:
@@ -322,7 +285,6 @@ Voice Notes works perfectly **offline** - it will always record audio and captur
 ### What Requires Internet
 
 ❌ Speech-to-Text transcription
-❌ Creating OpenStreetMap notes
 
 ### Speech-to-Text Transcription
 
@@ -340,25 +302,6 @@ Voice Notes works perfectly **offline** - it will always record audio and captur
 - Export audio and GPX files normally
 
 **To enable:** Developer must configure Google Cloud credentials (see Developer Guide)
-
-### OpenStreetMap Integration
-
-**What it does:** Creates map notes at your recording locations
-
-**Why it's optional:**
-- Requires OSM developer account
-- Requires OAuth client ID configuration
-- Pre-built APKs may not have credentials
-
-**If not configured:**
-- Recordings still save normally
-- OSM section won't appear in Recording Manager
-- GPX export still works for mapping apps
-
-**To enable:**
-1. Developer configures OSM OAuth client ID
-2. You bind your OSM account in settings
-3. Check "Add OSM Note" box
 
 ---
 
@@ -403,7 +346,6 @@ This means:
 GPX (GPS Exchange Format) is supported by most mapping applications:
 
 - Garmin devices
-- OSMAnd
 - Maps.me
 - Komoot
 - OsmAnd
@@ -425,7 +367,6 @@ Spreadsheet format with these columns:
 - Filename
 - Transcription
 - V2S Status
-- OSM Status
 
 Compatible with Excel, Google Sheets, LibreOffice Calc, etc.
 
@@ -485,17 +426,6 @@ Compatible with Excel, Google Sheets, LibreOffice Calc, etc.
 - Pre-built APK doesn't have Google Cloud credentials
 - Feature not available unless you build from source with credentials
 
-### OSM Notes Not Creating
-
-**Problem:** OSM note creation fails
-
-**Solutions:**
-1. Ensure transcription completed first (required)
-2. Check internet connection
-3. Verify OSM account is bound in settings
-4. Check "Add OSM Note" is enabled
-5. Check Debug Log for error details
-
 ### Storage Space Issues
 
 **Problem:** "Not enough storage space"
@@ -527,7 +457,6 @@ Voice Notes only stores data **locally on your device**:
 - GPS coordinates
 - Timestamps
 - Transcriptions (if you use the feature)
-- OSM note URLs (if you create them)
 
 ### What Data is NOT Collected
 
@@ -545,11 +474,6 @@ Voice Notes only stores data **locally on your device**:
 - Audio file sent to Google for transcription
 - Subject to Google Cloud Privacy Policy
 - Only when you tap "Transcribe"
-
-**OpenStreetMap:**
-- Note text and coordinates sent to OSM
-- Public data visible to everyone
-- Only when you tap "Create Note"
 
 ### Deleting Your Data
 

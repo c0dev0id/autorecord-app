@@ -43,68 +43,17 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
-        <!-- SettingsActivity: Main settings interface and OAuth redirect handler
-             
-             OAuth Redirect URI Configuration:
-             ================================
-             This activity handles OAuth 2.0 redirects from OpenStreetMap authentication.
-             
-             Current scheme: app.voicenotes.motorcycle://oauth
-             
-             When registering your OAuth application at https://www.openstreetmap.org/oauth2/applications,
-             use this redirect URI: app.voicenotes.motorcycle://oauth
-             
-             IMPORTANT: This intent-filter is attached ONLY to SettingsActivity, not to the
-             SettingsLauncher activity-alias below. This ensures that only the SettingsActivity
-             receives OAuth redirects, preventing Android from showing multiple app options
-             during the OAuth flow.
-             
-             For secondary apps or debug builds:
-             ===================================
-             If you need to create a separate "manage" app or debug variant that also uses
-             OpenStreetMap OAuth, you should:
-             
-             1. Use a different redirect URI scheme in your variant's AndroidManifest.xml:
-                Example: app.voicenotes-manage.motorcycle://oauth
-                         or: app.voicenotes.debug.motorcycle://oauth
-             
-             2. Update the REDIRECT_URI constant in OsmOAuthManager.kt for that variant
-             
-             3. Register a separate OAuth application on OpenStreetMap with the new redirect URI
-             
-             4. Use build flavors or variant-specific manifests to keep the configurations separate:
-                - app/src/main/AndroidManifest.xml (main app)
-                - app/src/debug/AndroidManifest.xml (debug variant)
-                - app/src/manage/AndroidManifest.xml (manage variant, if using product flavors)
-             
-             This ensures each app variant has its own unique OAuth redirect handler, eliminating
-             the "two icons" selection problem where users must choose which app to open.
-        -->
         <activity
             android:name=".SettingsActivity"
             android:exported="true"
             android:label="@string/settings_title"
             android:parentActivityName=".MainActivity">
-            <!-- OAuth 2.0 Redirect Handler for OpenStreetMap
-                 ONLY this activity handles OAuth redirects - not the SettingsLauncher alias -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="app.voicenotes.motorcycle"
-                    android:host="oauth" />
-            </intent-filter>
         </activity>
 
         <!-- Activity alias for Settings launcher icon
              
              This creates a second launcher icon labeled "Voice Notes Manager" that opens
-             SettingsActivity. It only handles LAUNCHER intents, NOT OAuth redirects.
-             
-             The OAuth intent-filter above is attached to SettingsActivity directly,
-             ensuring that OAuth redirects ONLY open SettingsActivity, not this alias.
-             This prevents the "two icons" selection problem during OAuth flows.
+             SettingsActivity. It handles LAUNCHER intents only.
         -->
         <activity-alias
             android:name=".SettingsLauncher"
@@ -113,7 +62,6 @@
             android:label="@string/settings_launcher_name"
             android:icon="@mipmap/ic_launcher_settings"
             android:roundIcon="@mipmap/ic_launcher_settings_round">
-            <!-- LAUNCHER intent-filter only - NO OAuth handling here -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -128,19 +76,9 @@
         
         <activity
             android:name=".RecordingManagerActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="Recording Manager"
             android:parentActivityName=".SettingsActivity">
-            <!-- OAuth 2.0 Redirect Handler for Recording Manager -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="app.voicenotes.motorcycle"
-                    android:host="oauth"
-                    android:path="/manager" />
-            </intent-filter>
         </activity>
         
         <service
