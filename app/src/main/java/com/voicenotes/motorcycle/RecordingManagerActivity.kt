@@ -59,7 +59,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             onCreateOsmClick = { recording -> createOsmNote(recording) },
             onDeleteClick = { recording -> deleteRecording(recording) },
             onDownloadClick = { recording -> downloadRecording(recording) },
-            onChangeTextClick = { recording -> changeTranscriptionText(recording) }
+            onSaveTranscriptionClick = { recording, newText -> saveTranscriptionText(recording, newText) }
         )
         recyclerView.adapter = adapter
 
@@ -235,6 +235,35 @@ class RecordingManagerActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("RecordingManager", "Error creating OSM note", e)
                 Toast.makeText(this@RecordingManagerActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun saveTranscriptionText(recording: Recording, newText: String) {
+        val trimmedText = newText.trim()
+        if (trimmedText.isEmpty()) {
+            Toast.makeText(this, "Transcription cannot be empty", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
+                val updated = recording.copy(
+                    v2sResult = trimmedText,
+                    v2sStatus = V2SStatus.COMPLETED,
+                    updatedAt = System.currentTimeMillis()
+                )
+                db.recordingDao().updateRecording(updated)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@RecordingManagerActivity, "Transcription saved successfully", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("RecordingManager", "Error saving transcription", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@RecordingManagerActivity, "Error saving: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -545,7 +574,7 @@ class RecordingAdapter(
     private val onCreateOsmClick: (Recording) -> Unit,
     private val onDeleteClick: (Recording) -> Unit,
     private val onDownloadClick: (Recording) -> Unit,
-    private val onChangeTextClick: (Recording) -> Unit
+    private val onSaveTranscriptionClick: (Recording, String) -> Unit
 ) : RecyclerView.Adapter<RecordingAdapter.ViewHolder>() {
 
     private var recordings = listOf<Recording>()
@@ -572,19 +601,19 @@ class RecordingAdapter(
         private val locationText: TextView = view.findViewById(R.id.locationText)
         private val playIcon: ImageView = view.findViewById(R.id.playIcon)
 
-        private val transcriptionText: TextView = view.findViewById(R.id.transcriptionText)
-        private val changeTextButton: Button = view.findViewById(R.id.changeTextButton)
+        private val transcriptionEditText: EditText = view.findViewById(R.id.transcriptionEditText)
+        private val saveTranscriptionButton: Button = view.findViewById(R.id.saveTranscriptionButton)
         private val v2sStatusIcon: ImageView = view.findViewById(R.id.v2sStatusIcon)
         private val v2sProgressBar: ProgressBar = view.findViewById(R.id.v2sProgressBar)
         private val transcribeButton: Button = view.findViewById(R.id.transcribeButton)
 
-        private val osmSection: View = view.findViewById(R.id.osmSection)
         private val osmStatusIcon: ImageView = view.findViewById(R.id.osmStatusIcon)
         private val osmProgressBar: ProgressBar = view.findViewById(R.id.osmProgressBar)
         private val createOsmButton: Button = view.findViewById(R.id.createOsmButton)
 
         private val deleteButton: Button = view.findViewById(R.id.deleteButton)
         private val downloadButton: Button = view.findViewById(R.id.downloadButton)
+        private val playButton: Button = view.findViewById(R.id.playButton)
 
         private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
 
@@ -595,10 +624,19 @@ class RecordingAdapter(
             // Format location
             locationText.text = "${String.format("%.6f", recording.latitude)}, ${String.format("%.6f", recording.longitude)}"
 
-            // Play button
+            // Play icon (top right)
             playIcon.setOnClickListener { onPlayClick(recording) }
 
-            // Transcription section
+            // Transcription EditText
+            transcriptionEditText.setText(recording.v2sResult ?: "")
+            
+            // Save transcription button
+            saveTranscriptionButton.setOnClickListener {
+                val newText = transcriptionEditText.text.toString()
+                onSaveTranscriptionClick(recording, newText)
+            }
+
+            // Update transcription status for button drawable
             updateTranscriptionUI(recording)
 
             // OSM section
@@ -607,141 +645,87 @@ class RecordingAdapter(
             // Action buttons
             deleteButton.setOnClickListener { onDeleteClick(recording) }
             downloadButton.setOnClickListener { onDownloadClick(recording) }
+            playButton.setOnClickListener { onPlayClick(recording) }
+            
+            // Download button visibility: show if recording has been transcoded or has data
+            // For now, keeping it hidden by default as per spec (conditionally visible)
+            downloadButton.visibility = if (shouldShowDownloadButton(recording)) View.VISIBLE else View.GONE
+        }
+        
+        private fun shouldShowDownloadButton(recording: Recording): Boolean {
+            // Show download button if transcription is completed or if there's transcribed text
+            return recording.v2sStatus == V2SStatus.COMPLETED && !recording.v2sResult.isNullOrBlank()
         }
 
         private fun updateTranscriptionUI(recording: Recording) {
-            // Update transcription text
-            if (recording.v2sResult != null && recording.v2sResult.isNotBlank()) {
-                transcriptionText.text = recording.v2sResult
-                transcriptionText.setTextColor(itemView.context.getColor(android.R.color.black))
-                transcriptionText.setTypeface(null, android.graphics.Typeface.NORMAL)
-                // Show Change Text button when there is transcription
-                changeTextButton.visibility = View.VISIBLE
-                changeTextButton.setOnClickListener { onChangeTextClick(recording) }
-            } else {
-                transcriptionText.text = "No transcription yet"
-                transcriptionText.setTextColor(itemView.context.getColor(android.R.color.darker_gray))
-                transcriptionText.setTypeface(null, android.graphics.Typeface.ITALIC)
-                // Hide Change Text button when there's no transcription
-                changeTextButton.visibility = View.GONE
-            }
-
-            // Update status and button based on V2S status
+            // Update button text and drawable based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
-                    v2sStatusIcon.setImageResource(R.drawable.ic_status_not_started)
-                    v2sStatusIcon.clearColorFilter()
-                    v2sStatusIcon.visibility = View.VISIBLE
-                    v2sProgressBar.visibility = View.GONE
-                    transcribeButton.text = "Transcribe"
+                    transcribeButton.text = "Transcode"
                     transcribeButton.isEnabled = true
+                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.PROCESSING -> {
-                    v2sStatusIcon.setImageResource(R.drawable.ic_status_processing)
-                    v2sStatusIcon.clearColorFilter()
-                    v2sStatusIcon.visibility = View.VISIBLE
-                    v2sProgressBar.visibility = View.GONE
-                    transcribeButton.text = "Processing..."
+                    transcribeButton.text = "Processing"
                     transcribeButton.isEnabled = false
-                    // Hide Change Text button during processing
-                    changeTextButton.visibility = View.GONE
+                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
                 }
                 V2SStatus.COMPLETED -> {
-                    v2sStatusIcon.setImageResource(R.drawable.ic_status_completed)
-                    v2sStatusIcon.clearColorFilter()
-                    v2sStatusIcon.visibility = View.VISIBLE
-                    v2sProgressBar.visibility = View.GONE
-                    transcribeButton.text = "Completed"
+                    transcribeButton.text = "Transcode"
                     transcribeButton.isEnabled = false
+                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                 }
                 V2SStatus.FALLBACK -> {
-                    v2sStatusIcon.setImageResource(R.drawable.ic_status_error)
-                    v2sStatusIcon.clearColorFilter()
-                    v2sStatusIcon.visibility = View.VISIBLE
-                    v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Retry"
                     transcribeButton.isEnabled = true
+                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.ERROR -> {
-                    v2sStatusIcon.setImageResource(R.drawable.ic_status_error)
-                    v2sStatusIcon.clearColorFilter()
-                    v2sStatusIcon.visibility = View.VISIBLE
-                    v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Retry"
                     transcribeButton.isEnabled = true
+                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-
-                    // Show error message if available
-                    if (recording.errorMsg != null) {
-                        transcriptionText.text = "Error: ${recording.errorMsg}"
-                        transcriptionText.setTextColor(itemView.context.getColor(android.R.color.holo_red_dark))
-                    }
-                    // Hide Change Text button on error
-                    changeTextButton.visibility = View.GONE
                 }
                 V2SStatus.DISABLED -> {
-                    v2sStatusIcon.setImageResource(R.drawable.ic_status_not_started)
-                    v2sStatusIcon.clearColorFilter()
-                    v2sStatusIcon.visibility = View.VISIBLE
-                    v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Disabled"
                     transcribeButton.isEnabled = false
-                    // Hide Change Text button when disabled
-                    changeTextButton.visibility = View.GONE
+                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                 }
             }
         }
 
         private fun updateOsmUI(recording: Recording) {
-            // OSM section is always visible (removed global toggle)
-            osmSection.visibility = View.VISIBLE
-
-            // Update status and button based on OSM status
+            // Update button text and drawable based on OSM status
             when (recording.osmStatus) {
                 OsmStatus.NOT_STARTED -> {
-                    osmStatusIcon.setImageResource(R.drawable.ic_status_not_started)
-                    osmStatusIcon.clearColorFilter()
-                    osmStatusIcon.visibility = View.VISIBLE
-                    osmProgressBar.visibility = View.GONE
-                    createOsmButton.text = "Create Note"
+                    createOsmButton.text = "OSM Note"
                     createOsmButton.isEnabled = true
+                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
                 OsmStatus.PROCESSING -> {
-                    osmStatusIcon.setImageResource(R.drawable.ic_status_processing)
-                    osmStatusIcon.clearColorFilter()
-                    osmStatusIcon.visibility = View.VISIBLE
-                    osmProgressBar.visibility = View.GONE
-                    createOsmButton.text = "Creating..."
+                    createOsmButton.text = "Creating"
                     createOsmButton.isEnabled = false
+                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
                 }
                 OsmStatus.COMPLETED -> {
-                    osmStatusIcon.setImageResource(R.drawable.ic_status_completed)
-                    osmStatusIcon.clearColorFilter()
-                    osmStatusIcon.visibility = View.VISIBLE
-                    osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "View Note"
                     createOsmButton.isEnabled = true
+                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
                 OsmStatus.ERROR -> {
-                    osmStatusIcon.setImageResource(R.drawable.ic_status_error)
-                    osmStatusIcon.clearColorFilter()
-                    osmStatusIcon.visibility = View.VISIBLE
-                    osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "Retry"
                     createOsmButton.isEnabled = true
+                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
                 OsmStatus.DISABLED -> {
-                    osmStatusIcon.setImageResource(R.drawable.ic_status_not_started)
-                    osmStatusIcon.clearColorFilter()
-                    osmStatusIcon.visibility = View.VISIBLE
-                    osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "Disabled"
                     createOsmButton.isEnabled = false
+                    createOsmButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                 }
             }
         }

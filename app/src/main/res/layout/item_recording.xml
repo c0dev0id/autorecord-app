@@ -93,178 +93,165 @@
             android:orientation="vertical"
             android:layout_marginBottom="12dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Speech-to-Text"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="#424242"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/transcriptionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No transcription yet"
-                android:textSize="14sp"
-                android:textColor="#757575"
-                android:fontStyle="italic"
-                android:maxLines="3"
-                android:ellipsize="end"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:background="#F5F5F5"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Button with Status Icon -->
+            <!-- Transcription Label and EditText with Save Button -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Transcription:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#424242"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/transcriptionEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="transcribed text goes here... field can be changed!"
+                    android:textSize="14sp"
+                    android:textColor="#212121"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:background="#F5F5F5"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:inputType="text" />
+
+                <Button
+                    android:id="@+id/saveTranscriptionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Save"
+                    android:textSize="13sp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:layout_marginStart="8dp"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:backgroundTint="#757575"
+                    android:textColor="#FFFFFF" />
+
+            </LinearLayout>
+
+            <!-- Action Buttons Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
                 <Button
+                    android:id="@+id/deleteButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Delete"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:backgroundTint="#D32F2F"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/downloadButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Download"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:backgroundTint="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <Button
                     android:id="@+id/transcribeButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Transcribe"
-                    android:textSize="12sp"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Transcode"
+                    android:textSize="13sp"
+                    android:drawableEnd="@drawable/ic_status_not_started"
+                    android:drawablePadding="4dp"
+                    android:layout_marginEnd="8dp"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:backgroundTint="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/createOsmButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="OSM Note"
+                    android:textSize="13sp"
+                    android:drawableEnd="@drawable/ic_status_not_started"
+                    android:drawablePadding="4dp"
+                    android:layout_marginEnd="8dp"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:backgroundTint="#000000"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/playButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:text="Play"
+                    android:textSize="13sp"
                     style="?android:attr/buttonBarButtonStyle"
                     android:backgroundTint="#1976D2"
                     android:textColor="#FFFFFF" />
 
-                <ImageView
-                    android:id="@+id/v2sStatusIcon"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="Transcription Status"
-                    android:layout_marginStart="8dp" />
-
-                <ProgressBar
-                    android:id="@+id/v2sProgressBar"
-                    style="?android:attr/progressBarStyleSmall"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:visibility="gone"
-                    android:layout_marginStart="8dp" />
-
-                <Button
-                    android:id="@+id/changeTextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Change Text"
-                    android:textSize="11sp"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:layout_marginStart="8dp"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:backgroundTint="#757575"
-                    android:textColor="#FFFFFF"
-                    android:visibility="gone" />
-
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- OSM Note Section -->
-        <LinearLayout
-            android:id="@+id/osmSection"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="12dp"
-            android:visibility="visible">
+        <!-- Hidden status views (kept for backward compatibility with existing code) -->
+        <ImageView
+            android:id="@+id/v2sStatusIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="Transcription Status"
+            android:visibility="gone" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="OSM Note"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="#424242"
-                android:layout_marginBottom="8dp" />
+        <ProgressBar
+            android:id="@+id/v2sProgressBar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:visibility="gone" />
 
-            <!-- Button with Status Icon -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+        <ImageView
+            android:id="@+id/osmStatusIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="OSM Status"
+            android:visibility="gone" />
 
-                <Button
-                    android:id="@+id/createOsmButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Create Note"
-                    android:textSize="12sp"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:backgroundTint="#7CB342"
-                    android:textColor="#FFFFFF" />
+        <ProgressBar
+            android:id="@+id/osmProgressBar"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/osmStatusIcon"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="OSM Status"
-                    android:layout_marginStart="8dp" />
-
-                <ProgressBar
-                    android:id="@+id/osmProgressBar"
-                    style="?android:attr/progressBarStyleSmall"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:visibility="gone"
-                    android:layout_marginStart="8dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Divider -->
         <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E0E0E0"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end">
-
-            <Button
-                android:id="@+id/downloadButton"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="Export"
-                android:textSize="12sp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:layout_marginEnd="8dp"
-                style="?android:attr/buttonBarButtonStyle"
-                android:textColor="#616161" />
-
-            <Button
-                android:id="@+id/deleteButton"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="Delete"
-                android:textSize="12sp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                style="?android:attr/buttonBarButtonStyle"
-                android:textColor="#D32F2F" />
-
-        </LinearLayout>
+            android:id="@+id/osmSection"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 
