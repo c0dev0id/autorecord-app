@@ -6,36 +6,46 @@ plugins {
 
 def getVersionName() {
     try {
-        // Try to get the current git tag
-        def process = 'git describe --tags --exact-match HEAD'.execute()
+        // Try to get version from git describe (includes tag and distance from tag)
+        def process = 'git describe --tags --always --dirty'.execute()
         process.waitFor()
         if (process.exitValue() == 0) {
-            def tag = process.text.trim()
-            if (tag && !tag.isEmpty()) {
-                return tag // Returns like "v1.0.0"
-            }
-        }
-    } catch (Exception ignored) {
-        // Not on a tag
-    }
-    
-    try {
-        // Get short commit hash
-        def process = 'git rev-parse --short HEAD'.execute()
-        process.waitFor()
-        if (process.exitValue() == 0) {
-            def hash = process.text.trim()
-            if (hash && !hash.isEmpty()) {
-                return "dev-${hash}" // Returns like "dev-abc1234"
+            def version = process.text.trim()
+            if (version && !version.isEmpty()) {
+                // Strip 'v' prefix if present (v1.0.0 -> 1.0.0)
+                if (version.startsWith('v')) {
+                    version = version.substring(1)
+                }
+                // git describe format: tag-commits-ghash or tag if on exact tag
+                // Examples: "1.0.0" (on tag) or "0.0.3-17-gfc5d7f2" (17 commits after tag)
+                return version
             }
         }
     } catch (Exception ignored) {
         // Git not available
     }
-    
-    // Fallback when git is not available or commands fail
-    // Ensure we always return a non-null string
+
+    // Fallback when git is not available
     return "1.0.0"
+}
+
+def getVersionCode() {
+    try {
+        // Count commits in current branch
+        def process = 'git rev-list --count HEAD'.execute()
+        process.waitFor()
+        if (process.exitValue() == 0) {
+            def count = process.text.trim()
+            if (count && !count.isEmpty()) {
+                return count.toInteger()
+            }
+        }
+    } catch (Exception ignored) {
+        // Git not available
+    }
+
+    // Fallback version code
+    return 1
 }
 
 android {
@@ -46,7 +56,7 @@ android {
         applicationId "com.voicenotes.motorcycle"
         minSdk 26
         targetSdk 34
-        versionCode 1
+        versionCode getVersionCode()
         versionName getVersionName()
         
         // Read service account JSON from gradle.properties and base64-encode it
