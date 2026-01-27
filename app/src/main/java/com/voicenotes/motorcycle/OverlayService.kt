@@ -913,6 +913,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // Send broadcast to finish MainActivity
         val finishIntent = Intent("com.voicenotes.motorcycle.FINISH_ACTIVITY")
+        finishIntent.setPackage(packageName) // Make intent explicit for non-exported receiver
         sendBroadcast(finishIntent)
         
         stopSelf()
