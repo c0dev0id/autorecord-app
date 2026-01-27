@@ -62,12 +62,53 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ matrix.task.command }}-
 
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.konan
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Cache Kotlin
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.kotlin
+            ~/.gradle/kotlin-dsl
+          key: ${{ runner.os }}-kotlin-${{ hashFiles('**/*.gradle.kts', '**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-kotlin-
+
+      - name: Cache Android NDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/android/sdk/ndk
+          key: ${{ runner.os }}-ndk-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-ndk-
+
+      - name: Cache Lint
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/lint
+          key: ${{ runner.os }}-lint-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-lint-
+
       - name: Cache Android SDK
         uses: actions/cache@v4
         with:
           path: |
             ~/.android/build-cache
             ~/.android/cache
+            /usr/local/lib/android/sdk/platforms
+            /usr/local/lib/android/sdk/platform-tools
+            /usr/local/lib/android/sdk/build-tools
           key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-android-sdk-
@@ -147,12 +188,53 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-coverage-
       
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.konan
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Cache Kotlin
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.kotlin
+            ~/.gradle/kotlin-dsl
+          key: ${{ runner.os }}-kotlin-${{ hashFiles('**/*.gradle.kts', '**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-kotlin-
+
+      - name: Cache Android NDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/android/sdk/ndk
+          key: ${{ runner.os }}-ndk-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-ndk-
+
+      - name: Cache Lint
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/lint
+          key: ${{ runner.os }}-lint-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-lint-
+
       - name: Cache Android SDK
         uses: actions/cache@v4
         with:
           path: |
             ~/.android/build-cache
             ~/.android/cache
+            /usr/local/lib/android/sdk/platforms
+            /usr/local/lib/android/sdk/platform-tools
+            /usr/local/lib/android/sdk/build-tools
           key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-android-sdk-
@@ -237,6 +319,44 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-final-
 
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.konan
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Cache Kotlin
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.kotlin
+            ~/.gradle/kotlin-dsl
+          key: ${{ runner.os }}-kotlin-${{ hashFiles('**/*.gradle.kts', '**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-kotlin-
+
+      - name: Cache Android NDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/android/sdk/ndk
+          key: ${{ runner.os }}-ndk-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-ndk-
+
+      - name: Cache Lint
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android/lint
+          key: ${{ runner.os }}-lint-${{ hashFiles('**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-lint-
+
       # Cache Android SDK components to avoid re-downloading (~1-2 GB)
       - name: Cache Android SDK
         uses: actions/cache@v4
@@ -244,6 +364,9 @@ jobs:
           path: |
             ~/.android/build-cache
             ~/.android/cache
+            /usr/local/lib/android/sdk/platforms
+            /usr/local/lib/android/sdk/platform-tools
+            /usr/local/lib/android/sdk/build-tools
           key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-android-sdk-
