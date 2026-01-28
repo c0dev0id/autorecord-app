@@ -209,8 +209,7 @@ class SettingsActivity : AppCompatActivity() {
             updatePermissionStatusList()
             if (Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
-                // Continue permission flow - check storage and battery optimization
-                checkStoragePermissions()
+                // Continue permission flow - check battery optimization
                 checkAndRequestBatteryOptimization()
             } else {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
@@ -267,8 +266,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 .show()
         } else {
-            // Check storage and battery optimization permissions next
-            checkStoragePermissions()
+            // Check battery optimization permission next
             checkAndRequestBatteryOptimization()
         }
     }
