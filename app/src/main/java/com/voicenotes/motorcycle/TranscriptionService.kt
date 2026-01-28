@@ -170,12 +170,12 @@ class TranscriptionService(private val context: Context) {
                 // Perform recognition
                 val response = speechClient.recognize(recognitionConfig, audio)
                 
-                // Extract transcribed text
+                // Extract transcribed text - join all results for complete transcription
                 val transcribedText = response.resultsList
-                    .flatMap { it.alternativesList }
-                    .firstOrNull()
-                    ?.transcript
-                    ?: ""
+                    .joinToString(" ") { result ->
+                        result.alternativesList.firstOrNull()?.transcript ?: ""
+                    }
+                    .trim()
 
                 Log.d("TranscriptionService", "Transcription result: '$transcribedText'")
                 
