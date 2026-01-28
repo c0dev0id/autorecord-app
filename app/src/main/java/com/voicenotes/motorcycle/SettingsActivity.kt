@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
@@ -37,6 +38,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private val PERMISSIONS_REQUEST_CODE = 200
     private val OVERLAY_PERMISSION_REQUEST_CODE = 201
+    private val BATTERY_OPTIMIZATION_REQUEST_CODE = 202
 
     private val requiredPermissions = arrayOf(
         Manifest.permission.RECORD_AUDIO,
@@ -187,20 +189,40 @@ class SettingsActivity : AppCompatActivity() {
         } else {
             getString(R.string.permission_not_granted, getString(R.string.permission_overlay))
         })
-        
+
+        // Check battery optimization
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val hasBatteryExemption = powerManager.isIgnoringBatteryOptimizations(packageName)
+        statusLines.add(if (hasBatteryExemption) {
+            "✓ Battery optimization (disabled)"
+        } else {
+            "✗ Battery optimization (enabled - may interrupt recording)"
+        })
+
         permissionStatusList.text = statusLines.joinToString("\n")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        
+
         if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
             updatePermissionStatusList()
             if (Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
+                // Continue permission flow - check storage and battery optimization
+                checkStoragePermissions()
+                checkAndRequestBatteryOptimization()
             } else {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
             }
+        } else if (requestCode == BATTERY_OPTIMIZATION_REQUEST_CODE) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
+                Toast.makeText(this, "Battery optimization disabled", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Background recording may be interrupted", Toast.LENGTH_LONG).show()
+            }
+            updatePermissionStatusList()
         }
     }
 
@@ -241,6 +263,36 @@ class SettingsActivity : AppCompatActivity() {
                     startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
                 }
                 .setNegativeButton("Cancel") { _, _ ->
+                    updatePermissionStatusList()
+                }
+                .show()
+        } else {
+            // Check storage and battery optimization permissions next
+            checkStoragePermissions()
+            checkAndRequestBatteryOptimization()
+        }
+    }
+
+    private fun checkAndRequestBatteryOptimization() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val packageName = packageName
+
+        if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            AlertDialog.Builder(this)
+                .setTitle("Battery Optimization")
+                .setMessage("To ensure reliable background recording, this app needs unrestricted battery access.\n\n" +
+                        "This will prevent Android from stopping the recording when the screen is off or the app is in the background.")
+                .setPositiveButton("Grant") { _, _ ->
+                    try {
+                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                        intent.data = Uri.parse("package:$packageName")
+                        startActivityForResult(intent, BATTERY_OPTIMIZATION_REQUEST_CODE)
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "Unable to open battery settings", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Skip") { _, _ ->
+                    Toast.makeText(this, "Background recording may be interrupted", Toast.LENGTH_LONG).show()
                     updatePermissionStatusList()
                 }
                 .show()

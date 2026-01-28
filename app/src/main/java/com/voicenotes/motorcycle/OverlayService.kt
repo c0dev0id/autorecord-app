@@ -1,10 +1,15 @@
 package com.voicenotes.motorcycle
 
 import android.Manifest
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.location.Location
 import android.media.AudioManager
@@ -24,6 +29,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
@@ -41,6 +47,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
+
+    companion object {
+        private const val NOTIFICATION_ID = 1
+        private const val CHANNEL_ID = "voice_notes_recording"
+    }
 
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
@@ -76,7 +87,20 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
     override fun onCreate() {
         super.onCreate()
-        
+
+        // Start as foreground service to prevent Android from killing us
+        createNotificationChannel()
+        val notification = createNotification("Initializing...")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+
         // Check if overlay permission is granted
         if (!Settings.canDrawOverlays(this)) {
             Log.e("OverlayService", "Overlay permission not granted - cannot start overlay service")
@@ -87,7 +111,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             stopSelf()
             return
         }
-        
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         textToSpeech = TextToSpeech(this, this)
         
@@ -864,6 +888,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun updateOverlay(text: String) {
         handler.post {
             bubbleLine1?.text = text
+            // Also update the notification so users know what's happening
+            updateNotification(text)
         }
     }
 
@@ -944,5 +970,47 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
         
         super.onDestroy()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Voice Recording",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Shows recording status"
+                setShowBadge(false)
+            }
+
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun createNotification(contentText: String): Notification {
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Voice Notes Recording")
+            .setContentText(contentText)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .build()
+    }
+
+    private fun updateNotification(contentText: String) {
+        val notification = createNotification(contentText)
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 }
