@@ -638,6 +638,7 @@ class RecordingAdapter(
         private var processingAnimator: ObjectAnimator? = null
         private var processingDrawableAnimator: ValueAnimator? = null
         private var animatedDrawable: Drawable? = null
+        private var pendingAnimationRunnable: Runnable? = null
 
         fun bind(recording: Recording) {
             // Format date and time
@@ -706,10 +707,14 @@ class RecordingAdapter(
                     transcribeButton.text = context.getString(R.string.processing)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
+                    // Remove any pending animation callbacks to prevent multiple concurrent animations
+                    pendingAnimationRunnable?.let { transcribeButton.removeCallbacks(it) }
                     // Ensure the drawable is set before starting animation
-                    transcribeButton.post {
+                    pendingAnimationRunnable = Runnable {
                         startProcessingAnimation()
+                        pendingAnimationRunnable = null
                     }
+                    transcribeButton.post(pendingAnimationRunnable)
                 }
                 V2SStatus.COMPLETED -> {
                     stopProcessingAnimation()
@@ -791,6 +796,10 @@ class RecordingAdapter(
          * Resets drawable and icon alpha to fully visible.
          */
         fun stopProcessingAnimation() {
+            // Remove any pending animation callbacks
+            pendingAnimationRunnable?.let { transcribeButton.removeCallbacks(it) }
+            pendingAnimationRunnable = null
+            
             // Cancel and cleanup drawable animator
             processingDrawableAnimator?.cancel()
             processingDrawableAnimator = null
