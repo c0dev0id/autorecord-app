@@ -1,7 +1,6 @@
 package com.voicenotes.motorcycle
 
 import android.content.Intent
-import android.graphics.Color
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -12,7 +11,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -628,6 +626,14 @@ class RecordingAdapter(
         super.onViewRecycled(holder)
     }
 
+    // Data class to hold status configuration
+    private data class StatusConfig(
+        val colorRes: Int,
+        val drawableRes: Int,
+        val textRes: Int,
+        val isEnabled: Boolean
+    )
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val dateTimeText: TextView = view.findViewById(R.id.dateTimeText)
         private val locationText: TextView = view.findViewById(R.id.locationText)
@@ -648,11 +654,8 @@ class RecordingAdapter(
         private var previousStatus: V2SStatus? = null
 
         fun bind(recording: Recording) {
-            // Clear any existing animations
-            itemView.clearAnimation()
-            
-            // Set initial alpha for fade-in
-            itemView.alpha = 0f
+            // Reset previous status when binding new data to prevent incorrect animations
+            previousStatus = recording.v2sStatus
             
             // Format date and time
             dateTimeText.text = dateFormat.format(Date(recording.timestamp))
@@ -690,13 +693,6 @@ class RecordingAdapter(
             // Download button visibility: show if recording has been transcoded or has data
             // For now, keeping it hidden by default as per spec (conditionally visible)
             downloadButton.visibility = if (shouldShowDownloadButton(recording)) View.VISIBLE else View.GONE
-            
-            // Fade in animation
-            itemView.animate()
-                .alpha(1f)
-                .setDuration(300)
-                .setInterpolator(DecelerateInterpolator())
-                .start()
         }
         
         fun updateTranscriptionText(text: String) {
@@ -712,9 +708,52 @@ class RecordingAdapter(
             return file.exists()
         }
         
+        // Helper function to get status configuration
+        private fun getStatusConfig(status: V2SStatus): StatusConfig {
+            return when (status) {
+                V2SStatus.NOT_STARTED -> StatusConfig(
+                    R.color.status_not_started,
+                    R.drawable.ic_status_not_started,
+                    R.string.transcribe,
+                    true
+                )
+                V2SStatus.PROCESSING -> StatusConfig(
+                    R.color.status_processing,
+                    R.drawable.ic_status_processing,
+                    R.string.processing,
+                    false
+                )
+                V2SStatus.COMPLETED -> StatusConfig(
+                    R.color.status_completed,
+                    R.drawable.ic_status_completed,
+                    R.string.retranscribe,
+                    true
+                )
+                V2SStatus.FALLBACK -> StatusConfig(
+                    R.color.status_fallback,
+                    R.drawable.ic_status_error,
+                    R.string.retry,
+                    true
+                )
+                V2SStatus.ERROR -> StatusConfig(
+                    R.color.status_error,
+                    R.drawable.ic_status_error,
+                    R.string.retry,
+                    true
+                )
+                V2SStatus.DISABLED -> StatusConfig(
+                    R.color.status_disabled,
+                    R.drawable.ic_status_not_started,
+                    R.string.disabled,
+                    false
+                )
+            }
+        }
+        
         // Update status icon with smooth fade transition
-        private fun updateStatusIconWithTransition(newStatus: V2SStatus, drawable: Int) {
+        private fun updateStatusIconWithTransition(newStatus: V2SStatus) {
             val context = itemView.context
+            val config = getStatusConfig(newStatus)
             
             // Fade out
             v2sStatusIcon.animate()
@@ -722,32 +761,8 @@ class RecordingAdapter(
                 .setDuration(150)
                 .withEndAction {
                     // Update icon and color
-                    when (newStatus) {
-                        V2SStatus.NOT_STARTED -> {
-                            v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_not_started))
-                            v2sStatusIcon.setImageResource(drawable)
-                        }
-                        V2SStatus.PROCESSING -> {
-                            v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_processing))
-                            v2sStatusIcon.setImageResource(drawable)
-                        }
-                        V2SStatus.COMPLETED -> {
-                            v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_completed))
-                            v2sStatusIcon.setImageResource(drawable)
-                        }
-                        V2SStatus.FALLBACK -> {
-                            v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_fallback))
-                            v2sStatusIcon.setImageResource(drawable)
-                        }
-                        V2SStatus.ERROR -> {
-                            v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_error))
-                            v2sStatusIcon.setImageResource(drawable)
-                        }
-                        V2SStatus.DISABLED -> {
-                            v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_disabled))
-                            v2sStatusIcon.setImageResource(drawable)
-                        }
-                    }
+                    v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, config.colorRes))
+                    v2sStatusIcon.setImageResource(config.drawableRes)
                     
                     // Fade in
                     v2sStatusIcon.animate()
@@ -760,88 +775,28 @@ class RecordingAdapter(
 
         fun updateTranscriptionUI(recording: Recording) {
             val context = itemView.context
+            val config = getStatusConfig(recording.v2sStatus)
             
             // Check if status has changed to apply transition animation
             val statusChanged = previousStatus != null && previousStatus != recording.v2sStatus
             
-            // Update button text and drawable based on V2S status
-            when (recording.v2sStatus) {
-                V2SStatus.NOT_STARTED -> {
-                    if (statusChanged) {
-                        updateStatusIconWithTransition(recording.v2sStatus, R.drawable.ic_status_not_started)
-                    } else {
-                        v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_not_started))
-                        v2sStatusIcon.setImageResource(R.drawable.ic_status_not_started)
-                        v2sStatusIcon.alpha = 1f
-                    }
-                    transcribeButton.text = context.getString(R.string.transcribe)
-                    transcribeButton.isEnabled = true
-                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
-                    transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                }
-                V2SStatus.PROCESSING -> {
-                    if (statusChanged) {
-                        updateStatusIconWithTransition(recording.v2sStatus, R.drawable.ic_status_processing)
-                    } else {
-                        v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_processing))
-                        v2sStatusIcon.setImageResource(R.drawable.ic_status_processing)
-                        v2sStatusIcon.alpha = 1f
-                    }
-                    transcribeButton.text = context.getString(R.string.processing)
-                    transcribeButton.isEnabled = false
-                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
-                }
-                V2SStatus.COMPLETED -> {
-                    if (statusChanged) {
-                        updateStatusIconWithTransition(recording.v2sStatus, R.drawable.ic_status_completed)
-                    } else {
-                        v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_completed))
-                        v2sStatusIcon.setImageResource(R.drawable.ic_status_completed)
-                        v2sStatusIcon.alpha = 1f
-                    }
-                    transcribeButton.text = context.getString(R.string.retranscribe)
-                    transcribeButton.isEnabled = true
-                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
-                    transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                }
-                V2SStatus.FALLBACK -> {
-                    if (statusChanged) {
-                        updateStatusIconWithTransition(recording.v2sStatus, R.drawable.ic_status_error)
-                    } else {
-                        v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_fallback))
-                        v2sStatusIcon.setImageResource(R.drawable.ic_status_error)
-                        v2sStatusIcon.alpha = 1f
-                    }
-                    transcribeButton.text = context.getString(R.string.retry)
-                    transcribeButton.isEnabled = true
-                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
-                    transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                }
-                V2SStatus.ERROR -> {
-                    if (statusChanged) {
-                        updateStatusIconWithTransition(recording.v2sStatus, R.drawable.ic_status_error)
-                    } else {
-                        v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_error))
-                        v2sStatusIcon.setImageResource(R.drawable.ic_status_error)
-                        v2sStatusIcon.alpha = 1f
-                    }
-                    transcribeButton.text = context.getString(R.string.retry)
-                    transcribeButton.isEnabled = true
-                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
-                    transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                }
-                V2SStatus.DISABLED -> {
-                    if (statusChanged) {
-                        updateStatusIconWithTransition(recording.v2sStatus, R.drawable.ic_status_not_started)
-                    } else {
-                        v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, R.color.status_disabled))
-                        v2sStatusIcon.setImageResource(R.drawable.ic_status_not_started)
-                        v2sStatusIcon.alpha = 1f
-                    }
-                    transcribeButton.text = context.getString(R.string.disabled)
-                    transcribeButton.isEnabled = false
-                    transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
-                }
+            // Update status icon with or without animation
+            if (statusChanged) {
+                updateStatusIconWithTransition(recording.v2sStatus)
+            } else {
+                v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, config.colorRes))
+                v2sStatusIcon.setImageResource(config.drawableRes)
+                v2sStatusIcon.alpha = 1f
+            }
+            
+            // Update button state
+            transcribeButton.text = context.getString(config.textRes)
+            transcribeButton.isEnabled = config.isEnabled
+            transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, config.drawableRes, 0)
+            
+            // Set click listener for enabled states
+            if (config.isEnabled) {
+                transcribeButton.setOnClickListener { onTranscribeClick(recording) }
             }
             
             // Update previous status for next check
