@@ -38,6 +38,8 @@ class RecordingManagerActivity : AppCompatActivity() {
     private lateinit var emptyView: TextView
     private lateinit var adapter: RecordingAdapter
     private var mediaPlayer: MediaPlayer? = null
+    private var currentlyPlayingButton: Button? = null
+    private var currentlyPlayingFilepath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +53,7 @@ class RecordingManagerActivity : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = RecordingAdapter(
-            onPlayClick = { recording -> playRecording(recording) },
+            onPlayClick = { recording, btn -> playRecording(recording, btn) },
             onTranscribeClick = { recording -> transcribeRecording(recording) },
             onOpenMapsClick = { recording -> openMaps(recording) },
             onDeleteClick = { recording -> deleteRecording(recording) },
@@ -98,11 +100,25 @@ class RecordingManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun playRecording(recording: Recording) {
+    private fun playRecording(recording: Recording, playButton: Button) {
         try {
-            // Stop any currently playing audio
+            // If already playing this file, stop it
+            if (mediaPlayer != null && currentlyPlayingFilepath == recording.filepath) {
+                mediaPlayer?.stop()
+                mediaPlayer?.release()
+                mediaPlayer = null
+                playButton.text = "Play"
+                currentlyPlayingButton = null
+                currentlyPlayingFilepath = null
+                Toast.makeText(this, "Playback stopped", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            // Stop any other playing audio
             mediaPlayer?.release()
+            currentlyPlayingButton?.text = "Play"
 
+            // Start new playback
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(recording.filepath)
                 prepare()
@@ -110,9 +126,16 @@ class RecordingManagerActivity : AppCompatActivity() {
                 setOnCompletionListener {
                     it.release()
                     mediaPlayer = null
+                    currentlyPlayingButton?.text = "Play"
+                    currentlyPlayingButton = null
+                    currentlyPlayingFilepath = null
                     Toast.makeText(this@RecordingManagerActivity, "Playback finished", Toast.LENGTH_SHORT).show()
                 }
             }
+            
+            playButton.text = "Stop"
+            currentlyPlayingButton = playButton
+            currentlyPlayingFilepath = recording.filepath
             Toast.makeText(this, "Playing recording...", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Log.e("RecordingManager", "Error playing recording", e)
@@ -121,12 +144,6 @@ class RecordingManagerActivity : AppCompatActivity() {
     }
 
     private fun transcribeRecording(recording: Recording) {
-        // Check if transcription is already complete
-        if (recording.v2sStatus == V2SStatus.COMPLETED) {
-            Toast.makeText(this, "Already transcribed", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         // Check if already processing
         if (recording.v2sStatus == V2SStatus.PROCESSING) {
             Toast.makeText(this, "Transcription in progress...", Toast.LENGTH_SHORT).show()
@@ -498,7 +515,7 @@ class RecordingManagerActivity : AppCompatActivity() {
 }
 
 class RecordingAdapter(
-    private val onPlayClick: (Recording) -> Unit,
+    private val onPlayClick: (Recording, Button) -> Unit,
     private val onTranscribeClick: (Recording) -> Unit,
     private val onOpenMapsClick: (Recording) -> Unit,
     private val onDeleteClick: (Recording) -> Unit,
@@ -605,11 +622,17 @@ class RecordingAdapter(
             // Format location
             locationText.text = "${String.format("%.6f", recording.latitude)}, ${String.format("%.6f", recording.longitude)}"
 
-            // Play icon (top right)
-            playIcon.setOnClickListener { onPlayClick(recording) }
+            // Play icon (top right) - hidden to avoid duplicate play controls
+            playIcon.visibility = View.GONE
 
-            // Transcription EditText
-            transcriptionEditText.setText(recording.v2sResult ?: "")
+            // Transcription EditText - set empty when no transcription available
+            if (recording.v2sResult.isNullOrBlank() ||
+                recording.v2sStatus == V2SStatus.NOT_STARTED ||
+                recording.v2sStatus == V2SStatus.DISABLED) {
+                transcriptionEditText.setText("")
+            } else {
+                transcriptionEditText.setText(recording.v2sResult)
+            }
             
             // Save transcription button
             saveTranscriptionButton.setOnClickListener {
@@ -624,7 +647,7 @@ class RecordingAdapter(
             deleteButton.setOnClickListener { onDeleteClick(recording) }
             downloadButton.setOnClickListener { onDownloadClick(recording) }
             openMapsButton.setOnClickListener { onOpenMapsClick(recording) }
-            playButton.setOnClickListener { onPlayClick(recording) }
+            playButton.setOnClickListener { onPlayClick(recording, playButton) }
             
             // Download button visibility: show if recording has been transcoded or has data
             // For now, keeping it hidden by default as per spec (conditionally visible)
@@ -658,9 +681,10 @@ class RecordingAdapter(
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
                 }
                 V2SStatus.COMPLETED -> {
-                    transcribeButton.text = "Transcode"
-                    transcribeButton.isEnabled = false
+                    transcribeButton.text = "Retranscribe"
+                    transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
+                    transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.FALLBACK -> {
                     transcribeButton.text = "Retry"
