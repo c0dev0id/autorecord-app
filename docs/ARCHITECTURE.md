@@ -697,7 +697,6 @@ class RecordingAdapter : RecyclerView.Adapter<RecordingAdapter.ViewHolder>() {
         <!-- Speech-to-Text Section -->
         <LinearLayout>
             <ImageView android:id="@+id/v2sStatusIcon" />
-            <ProgressBar android:id="@+id/v2sProgressBar" />
             <Button android:id="@+id/transcribeButton" />
         </LinearLayout>
         <TextView android:id="@+id/transcriptionText" />

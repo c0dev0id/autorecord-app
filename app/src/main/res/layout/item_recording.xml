@@ -208,13 +208,6 @@
             android:contentDescription="Transcription Status"
             android:visibility="gone" />
 
-        <ProgressBar
-            android:id="@+id/v2sProgressBar"
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:visibility="gone" />
-
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

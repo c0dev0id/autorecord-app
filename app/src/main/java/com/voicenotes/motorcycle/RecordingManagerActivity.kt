@@ -614,7 +614,6 @@ class RecordingAdapter(
         private val transcriptionEditText: EditText = view.findViewById(R.id.transcriptionEditText)
         private val saveTranscriptionButton: Button = view.findViewById(R.id.saveTranscriptionButton)
         private val v2sStatusIcon: ImageView = view.findViewById(R.id.v2sStatusIcon)
-        private val v2sProgressBar: ProgressBar = view.findViewById(R.id.v2sProgressBar)
         private val transcribeButton: Button = view.findViewById(R.id.transcribeButton)
 
         private val deleteButton: Button = view.findViewById(R.id.deleteButton)
@@ -688,14 +687,12 @@ class RecordingAdapter(
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.PROCESSING -> {
                     startProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.processing)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
-                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.COMPLETED -> {
                     stopProcessingAnimation()
@@ -703,7 +700,6 @@ class RecordingAdapter(
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.FALLBACK -> {
                     stopProcessingAnimation()
@@ -711,7 +707,6 @@ class RecordingAdapter(
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.ERROR -> {
                     stopProcessingAnimation()
@@ -719,14 +714,12 @@ class RecordingAdapter(
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
-                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.DISABLED -> {
                     stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.disabled)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
-                    v2sProgressBar.visibility = View.GONE
                 }
             }
         }

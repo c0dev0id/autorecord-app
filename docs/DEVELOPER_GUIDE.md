@@ -545,7 +545,6 @@ This section consolidates testing procedures and implementation notes for key fe
 - Alpha-pulse animation fades icon between 0.3f (30%) and 1.0f (100%) opacity
 - Duration: 800ms per cycle (fade in + fade out)
 - Repeat mode: REVERSE, infinite until processing completes
-- Progress bar (v2sProgressBar) hidden during all statuses
 
 **Animation Lifecycle**:
 1. **PROCESSING status**: `startProcessingAnimation()` creates and starts ObjectAnimator
