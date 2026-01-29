@@ -677,34 +677,40 @@ class RecordingAdapter(
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
+                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.PROCESSING -> {
                     transcribeButton.text = context.getString(R.string.processing)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
+                    v2sProgressBar.visibility = View.VISIBLE
                 }
                 V2SStatus.COMPLETED -> {
                     transcribeButton.text = context.getString(R.string.retranscribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
+                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.FALLBACK -> {
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
+                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.ERROR -> {
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
+                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.DISABLED -> {
                     transcribeButton.text = context.getString(R.string.disabled)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
+                    v2sProgressBar.visibility = View.GONE
                 }
             }
         }
