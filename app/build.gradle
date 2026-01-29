@@ -51,6 +51,7 @@ def getVersionName() {
         // Try to get version from git describe (includes tag and distance from tag)
         def process = 'git describe --tags --always --dirty'.execute()
         process.waitFor()
+        
         if (process.exitValue() == 0) {
             def version = process.text.trim()
             if (version && !version.isEmpty()) {
@@ -64,42 +65,82 @@ def getVersionName() {
                 def isDirty = version.endsWith('-dirty')
                 def versionWithoutDirty = version.replace('-dirty', '')
                 if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
-                    // No tags exist, prepend base version to commit hash
-                    // Use first 7 characters of the hash (or less if shorter)
-                    def shortHash = versionWithoutDirty.substring(0, Math.min(7, versionWithoutDirty.length()))
-                    version = "1.0.0-" + shortHash
-                    // Re-add -dirty suffix if it was present
-                    if (isDirty) {
-                        version = version + '-dirty'
-                    }
+                    // No tags exist - this is a fail-fast scenario
+                    throw new GradleException(
+                        "Version detection failed: No git tags found in repository.\n" +
+                        "Git tags are required for proper version detection.\n" +
+                        "To fix:\n" +
+                        "  - Create a git tag: git tag -a v1.0.0 -m 'Initial release'\n" +
+                        "  - For CI/CD: Ensure checkout includes tags with fetch-depth: 0\n" +
+                        "Current commit: ${versionWithoutDirty}"
+                    )
                 }
                 
                 return version
             }
         }
         
-        // If git describe command failed with non-zero exit, try to get short hash directly
-        def hashProcess = 'git rev-parse --short=7 HEAD'.execute()
-        hashProcess.waitFor()
-        if (hashProcess.exitValue() == 0) {
-            def hash = hashProcess.text.trim()
-            if (hash && !hash.isEmpty()) {
-                def versionFromHash = "1.0.0-${hash}"
-                // Check if working tree is dirty
-                def dirtyCheck = 'git diff-index --quiet HEAD'.execute()
-                dirtyCheck.waitFor()
-                if (dirtyCheck.exitValue() != 0) {
-                    versionFromHash = versionFromHash + '-dirty'
+        // If git describe failed with non-zero exit, try fetching tags once
+        println "Git describe failed, attempting to fetch tags..."
+        def fetchProcess = 'git fetch --tags --quiet'.execute()
+        fetchProcess.waitFor()
+        
+        // Retry git describe after fetching tags
+        def retryProcess = 'git describe --tags --always --dirty'.execute()
+        retryProcess.waitFor()
+        
+        if (retryProcess.exitValue() == 0) {
+            def version = retryProcess.text.trim()
+            if (version && !version.isEmpty()) {
+                // Strip 'v' prefix if present
+                if (version.startsWith('v')) {
+                    version = version.substring(1)
                 }
-                return versionFromHash
+                
+                // Check again if result is just a commit hash (no tags)
+                def isDirty = version.endsWith('-dirty')
+                def versionWithoutDirty = version.replace('-dirty', '')
+                if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
+                    // Still no tags after fetch - fail fast
+                    throw new GradleException(
+                        "Version detection failed: No git tags found in repository after fetch.\n" +
+                        "Git tags are required for proper version detection.\n" +
+                        "To fix:\n" +
+                        "  - Create a git tag: git tag -a v1.0.0 -m 'Initial release'\n" +
+                        "  - For CI/CD: Ensure checkout includes tags with fetch-depth: 0\n" +
+                        "Current commit: ${versionWithoutDirty}"
+                    )
+                }
+                
+                return version
             }
         }
-    } catch (Exception ignored) {
-        // Git not available
+        
+        // If we reach here, git describe still failed
+        throw new GradleException(
+            "Version detection failed: Unable to run 'git describe --tags'.\n" +
+            "Git tags are required for proper version detection.\n" +
+            "Ensure:\n" +
+            "  1. Git is available in PATH\n" +
+            "  2. Repository has at least one git tag\n" +
+            "  3. For CI/CD: Use fetch-depth: 0 to include all history and tags"
+        )
+        
+    } catch (GradleException e) {
+        // Re-throw GradleException to fail the build
+        throw e
+    } catch (Exception e) {
+        // Git not available or other unexpected error
+        throw new GradleException(
+            "Version detection failed: Git is not available or accessible.\n" +
+            "Error: ${e.message}\n" +
+            "Git and git tags are required for building this project.\n" +
+            "Ensure:\n" +
+            "  1. Git is installed and in PATH\n" +
+            "  2. Repository has at least one git tag\n" +
+            "  3. For CI/CD: Use fetch-depth: 0 to include all history and tags"
+        )
     }
-
-    // Final fallback when git is completely unavailable
-    return "1.0.0-unknown"
 }
 
 def getVersionCode() {

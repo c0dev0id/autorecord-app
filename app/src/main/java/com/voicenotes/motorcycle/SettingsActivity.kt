@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.NumberPicker
@@ -49,6 +51,9 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        
+        // Enable Up navigation
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         durationValueText = findViewById(R.id.durationValueText)
         durationNumberPicker = findViewById(R.id.durationNumberPicker)
@@ -98,6 +103,7 @@ class SettingsActivity : AppCompatActivity() {
             val buildConfigVersion = BuildConfig.VERSION_NAME
             
             if (!buildConfigVersion.isNullOrEmpty() && buildConfigVersion != "null") {
+                Log.d("SettingsActivity", "Version source: BuildConfig.VERSION_NAME = $buildConfigVersion")
                 return "Version $buildConfigVersion"
             }
             
@@ -106,14 +112,17 @@ class SettingsActivity : AppCompatActivity() {
             val versionName = packageInfo.versionName
             
             if (!versionName.isNullOrEmpty() && versionName != "null") {
+                Log.d("SettingsActivity", "Version source: PackageManager.versionName = $versionName")
                 return "Version $versionName"
             }
             
             // Final fallback
+            Log.d("SettingsActivity", "Version source: FALLBACK_VERSION = $FALLBACK_VERSION")
             FALLBACK_VERSION
             
         } catch (e: Exception) {
-            android.util.Log.e("SettingsActivity", "Error getting version", e)
+            Log.e("SettingsActivity", "Error getting version", e)
+            Log.d("SettingsActivity", "Version source: Exception fallback = $FALLBACK_VERSION")
             FALLBACK_VERSION
         }
     }
@@ -323,5 +332,22 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadCurrentSettings()
+    }
+    
+    // Handle Up navigation
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+    
+    // Handle home/up button in options menu
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
