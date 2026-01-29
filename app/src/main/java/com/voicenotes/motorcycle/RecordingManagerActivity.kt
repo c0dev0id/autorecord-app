@@ -487,7 +487,7 @@ class RecordingManagerActivity : AppCompatActivity() {
         recordings.forEach { recording ->
             sb.append("  <wpt lat=\"${recording.latitude}\" lon=\"${recording.longitude}\">\n")
             sb.append("    <time>${dateFormat.format(Date(recording.timestamp))}</time>\n")
-            sb.append("    <name>${recording.filename}</name>\n")
+            sb.append("    <name>${escapeXml(recording.filename)}</name>\n")
             sb.append("    <desc>${escapeXml(recording.v2sResult ?: "")}</desc>\n")
             sb.append("  </wpt>\n")
         }
@@ -505,6 +505,11 @@ class RecordingManagerActivity : AppCompatActivity() {
             .replace("'", "&apos;")
     }
 
+    private fun escapeCsv(text: String): String {
+        // Escape CSV values: double any quotes and wrap in quotes
+        return "\"${text.replace("\"", "\"\"")}\""
+    }
+
     private fun generateCSV(recordings: List<Recording>): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
@@ -515,8 +520,8 @@ class RecordingManagerActivity : AppCompatActivity() {
             sb.append("${recording.latitude},")
             sb.append("${recording.longitude},")
             sb.append("${dateFormat.format(Date(recording.timestamp))},")
-            sb.append("\"${recording.filename}\",")
-            sb.append("\"${recording.v2sResult ?: ""}\"\n")
+            sb.append("${escapeCsv(recording.filename)},")
+            sb.append("${escapeCsv(recording.v2sResult ?: "")}\n")
         }
 
         return sb.toString()
