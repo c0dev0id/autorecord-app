@@ -501,6 +501,125 @@ fun runAllTests() {
 
 **Expected result**: `Total: 82, Passed: 82, Failed: 0`
 
+### Testing & QA
+
+This section consolidates testing procedures and implementation notes for key features.
+
+#### Fallback Transcription Testing
+
+**Feature**: When Speech-to-Text returns empty/blank text, the system stores a human-readable fallback placeholder directly in `v2sResult`.
+
+**Implementation Details**:
+- Fallback format: `"latitude,longitude (no text)"` with coordinates formatted to 6 decimal places
+- Example: `"37.774929,-122.419416 (no text)"`
+- Status set to `V2SStatus.FALLBACK` with `v2sFallback = true`
+- Stored in database, displayed in UI, and exported to files consistently
+
+**Test Cases**:
+1. **Quiet/empty recording tests**:
+   - After processing: `v2sStatus == FALLBACK`, `v2sFallback == true`, `v2sResult == "lat,lng (no text)"`
+   - Recording Manager EditText displays the same fallback placeholder text
+   - GPX/CSV exports contain the same placeholder text from v2sResult
+   - All three (DB, UI, exports) show identical text
+
+2. **Blank transcription** (spaces/tabs/newlines):
+   - Results in FALLBACK status with placeholder text
+   - Same behavior as empty transcription
+
+3. **Retranscribe from FALLBACK**:
+   - "Retry" button appears and is enabled for FALLBACK status
+   - Clicking clears `v2sFallback` and `errorMsg` before starting new transcription
+   - If new transcription succeeds with content, status becomes COMPLETED
+   - New transcription replaces fallback text in v2sResult
+
+**Code Locations**:
+- `BatchProcessingService.kt` (lines 100-117): Stores fallback placeholder when transcription is blank
+- `RecordingManagerActivity.kt` (lines 628-638): Displays v2sResult (includes fallback)
+- `TranscriptionService.kt` (lines 174-178): Joins all Speech-to-Text result chunks
+
+#### Processing Animation Testing
+
+**Feature**: Visual feedback during transcription processing using alpha-pulse animation on status icon.
+
+**Implementation Details**:
+- Alpha-pulse animation fades icon between 0.3f (30%) and 1.0f (100%) opacity
+- Duration: 800ms per cycle (fade in + fade out)
+- Repeat mode: REVERSE, infinite until processing completes
+- Progress bar (v2sProgressBar) hidden during all statuses
+
+**Animation Lifecycle**:
+1. **PROCESSING status**: `startProcessingAnimation()` creates and starts ObjectAnimator
+2. **Status change**: `stopProcessingAnimation()` cancels animator, nulls reference, resets alpha to 1.0f
+3. **View recycling**: `onViewRecycled()` calls `stopProcessingAnimation()` to prevent memory leaks
+
+**Test Cases**:
+1. **Animation behavior**:
+   - Start transcription → status icon pulses smoothly
+   - Alpha fades between 30% and 100% opacity over 800ms
+   - Animation continues until transcription completes
+   - Progress bar remains hidden during PROCESSING
+
+2. **Status transitions**:
+   - PROCESSING → COMPLETED: Animation stops, icon becomes static
+   - PROCESSING → FALLBACK: Animation stops, shows error icon
+   - PROCESSING → ERROR: Animation stops, shows error icon
+
+3. **View recycling**:
+   - Scroll list while processing → no animation artifacts
+   - No duplicate animations on same item
+   - Memory usage stable during scrolling
+
+**Code Locations**:
+- `RecordingManagerActivity.kt` (lines 627-628): `processingAnimator` property
+- `RecordingManagerActivity.kt` (lines 738-764): Animation helper methods
+- `RecordingManagerActivity.kt` (lines 605-608): `onViewRecycled()` cleanup
+
+#### Long Transcription Testing
+
+**Feature**: Complete transcription of audio files longer than 10 seconds.
+
+**Implementation Details**:
+- Google Cloud Speech-to-Text API returns multiple result chunks for longer audio
+- All chunks are joined with spaces using `joinToString(" ")`
+- Ensures no truncation of transcribed content
+
+**Test Cases**:
+1. Record audio file longer than 10 seconds with continuous speech
+2. Transcribe the recording
+3. Compare transcribed text length with actual spoken content
+4. Verify no content is missing from middle or end
+5. Check that all result chunks are joined properly
+
+**Expected Behavior**:
+- Complete transcription of all spoken words
+- No truncation after first few words
+- Multiple result chunks properly joined with spaces
+
+#### UI/UX Testing Checklist
+
+**Transcription Button States**:
+- NOT_STARTED: "Transcribe" button (enabled)
+- PROCESSING: "Processing" button (disabled)
+- COMPLETED: "Retranscribe" button (enabled)
+- FALLBACK: "Retry" button (enabled)
+- ERROR: "Retry" button (enabled)
+- DISABLED: "Disabled" button (disabled)
+
+**Playback Controls**:
+- Play button toggles to "Stop" during playback
+- Only one play control per recording (action row button)
+- Starting new playback stops previous playback
+- Playback completion resets button to "Play"
+
+**Regression Testing**:
+- [ ] Recording list loads correctly
+- [ ] Date/time displays properly
+- [ ] GPS coordinates display correctly
+- [ ] Delete button works
+- [ ] Export functionality works
+- [ ] Manual transcription editing works
+- [ ] Status icons display correctly
+
 ---
 
 ## Development Workflow
