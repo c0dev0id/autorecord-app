@@ -107,16 +107,16 @@ class RecordingManagerActivity : AppCompatActivity() {
                 mediaPlayer?.stop()
                 mediaPlayer?.release()
                 mediaPlayer = null
-                playButton.text = "Play"
+                playButton.text = getString(R.string.play)
                 currentlyPlayingButton = null
                 currentlyPlayingFilepath = null
-                Toast.makeText(this, "Playback stopped", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.playback_stopped), Toast.LENGTH_SHORT).show()
                 return
             }
             
             // Stop any other playing audio
             mediaPlayer?.release()
-            currentlyPlayingButton?.text = "Play"
+            currentlyPlayingButton?.text = getString(R.string.play)
 
             // Start new playback
             mediaPlayer = MediaPlayer().apply {
@@ -126,17 +126,17 @@ class RecordingManagerActivity : AppCompatActivity() {
                 setOnCompletionListener {
                     it.release()
                     mediaPlayer = null
-                    currentlyPlayingButton?.text = "Play"
+                    currentlyPlayingButton?.text = getString(R.string.play)
                     currentlyPlayingButton = null
                     currentlyPlayingFilepath = null
-                    Toast.makeText(this@RecordingManagerActivity, "Playback finished", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@RecordingManagerActivity, getString(R.string.playback_finished), Toast.LENGTH_SHORT).show()
                 }
             }
             
-            playButton.text = "Stop"
+            playButton.text = getString(R.string.stop)
             currentlyPlayingButton = playButton
             currentlyPlayingFilepath = recording.filepath
-            Toast.makeText(this, "Playing recording...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.playing_recording), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Log.e("RecordingManager", "Error playing recording", e)
             Toast.makeText(this, "Error playing recording: ${e.message}", Toast.LENGTH_LONG).show()
@@ -146,11 +146,11 @@ class RecordingManagerActivity : AppCompatActivity() {
     private fun transcribeRecording(recording: Recording) {
         // Check if already processing
         if (recording.v2sStatus == V2SStatus.PROCESSING) {
-            Toast.makeText(this, "Transcription in progress...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.transcription_in_progress), Toast.LENGTH_SHORT).show()
             return
         }
 
-        Toast.makeText(this, "Starting transcription...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.starting_transcription), Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
             try {
@@ -669,39 +669,40 @@ class RecordingAdapter(
         }
 
         fun updateTranscriptionUI(recording: Recording) {
+            val context = itemView.context
             // Update button text and drawable based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
-                    transcribeButton.text = "Transcribe"
+                    transcribeButton.text = context.getString(R.string.transcribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.PROCESSING -> {
-                    transcribeButton.text = "Processing"
+                    transcribeButton.text = context.getString(R.string.processing)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
                 }
                 V2SStatus.COMPLETED -> {
-                    transcribeButton.text = "Retranscribe"
+                    transcribeButton.text = context.getString(R.string.retranscribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.FALLBACK -> {
-                    transcribeButton.text = "Retry"
+                    transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.ERROR -> {
-                    transcribeButton.text = "Retry"
+                    transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.DISABLED -> {
-                    transcribeButton.text = "Disabled"
+                    transcribeButton.text = context.getString(R.string.disabled)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                 }

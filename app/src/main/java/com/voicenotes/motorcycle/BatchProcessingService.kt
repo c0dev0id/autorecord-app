@@ -97,11 +97,14 @@ class BatchProcessingService : LifecycleService() {
                     message = "Transcription successful for ${recording.filename}: $transcribedText"
                 )
                 
+                // Format coordinates once (6 decimal places)
+                val latStr = String.format("%.6f", recording.latitude)
+                val lngStr = String.format("%.6f", recording.longitude)
+                val coords = "$latStr,$lngStr"
+                
                 // Compute final text: use fallback placeholder if transcription is blank
                 val finalText = if (transcribedText.isBlank()) {
-                    val latStr = String.format("%.6f", recording.latitude)
-                    val lngStr = String.format("%.6f", recording.longitude)
-                    "$latStr,$lngStr (no text)"
+                    "$coords (no text)"
                 } else {
                     transcribedText
                 }
@@ -120,8 +123,6 @@ class BatchProcessingService : LifecycleService() {
                 
                 // Create/update GPX and CSV (legacy support)
                 try {
-                    val coords = "${String.format("%.6f", recording.latitude)},${String.format("%.6f", recording.longitude)}"
-                    
                     broadcastProgress(recording.filename, "creating GPX", currentFile, totalFiles)
                     
                     DebugLogger.logInfo(
