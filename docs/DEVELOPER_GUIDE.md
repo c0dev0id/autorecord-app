@@ -537,40 +537,29 @@ This section consolidates testing procedures and implementation notes for key fe
 - `RecordingManagerActivity.kt` (lines 628-638): Displays v2sResult (includes fallback)
 - `TranscriptionService.kt` (lines 174-178): Joins all Speech-to-Text result chunks
 
-#### Processing Animation Testing
+#### Processing Indicator Testing
 
-**Feature**: Visual feedback during transcription processing using alpha-pulse animation on status icon.
+**Feature**: Visual feedback during transcription processing using a static orange icon.
 
 **Implementation Details**:
-- Alpha-pulse animation fades icon between 0.3f (30%) and 1.0f (100%) opacity
-- Duration: 800ms per cycle (fade in + fade out)
-- Repeat mode: REVERSE, infinite until processing completes
-
-**Animation Lifecycle**:
-1. **PROCESSING status**: `startProcessingAnimation()` creates and starts ObjectAnimator
-2. **Status change**: `stopProcessingAnimation()` cancels animator, nulls reference, resets alpha to 1.0f
-3. **View recycling**: `onViewRecycled()` calls `stopProcessingAnimation()` to prevent memory leaks
+- Static orange icon displayed during PROCESSING status
+- Icon color: RGB(255, 165, 0) - Orange
+- Button shows "Processing..." text and is disabled
+- No animation - simple, reliable visual indicator
 
 **Test Cases**:
-1. **Animation behavior**:
-   - Start transcription → status icon pulses smoothly
-   - Alpha fades between 30% and 100% opacity over 800ms
-   - Animation continues until transcription completes
+1. **Processing indicator behavior**:
+   - Start transcription → static orange icon appears immediately
+   - Button shows "Processing..." and is disabled
+   - Icon remains static (no pulsing or animation)
 
 2. **Status transitions**:
-   - PROCESSING → COMPLETED: Animation stops, icon becomes static
-   - PROCESSING → FALLBACK: Animation stops, shows error icon
-   - PROCESSING → ERROR: Animation stops, shows error icon
-
-3. **View recycling**:
-   - Scroll list while processing → no animation artifacts
-   - No duplicate animations on same item
-   - Memory usage stable during scrolling
+   - PROCESSING → COMPLETED: Icon changes to green checkmark
+   - PROCESSING → FALLBACK: Icon changes to error icon
+   - PROCESSING → ERROR: Icon changes to error icon
 
 **Code Locations**:
-- `RecordingManagerActivity.kt` (lines 627-628): `processingAnimator` property
-- `RecordingManagerActivity.kt` (lines 738-764): Animation helper methods
-- `RecordingManagerActivity.kt` (lines 605-608): `onViewRecycled()` cleanup
+- `RecordingManagerActivity.kt` (ViewHolder.updateTranscriptionUI()): Status icon display logic
 
 #### Long Transcription Testing
 

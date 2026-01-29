@@ -158,14 +158,14 @@ Convert your voice recording to text:
 1. Find the recording you want to transcribe
 2. Tap the **"Transcribe"** button
 3. Watch the status:
-   - Progress spinner appears
+   - Static orange icon appears
    - Button shows "Processing..."
    - When complete: green checkmark ✓ and transcribed text appears
 4. If it fails: red X appears with error message, tap "Retry"
 
 **Status Indicators:**
 - **Gray ?** - Not yet transcribed
-- **Spinner** - Transcribing now...
+- **Static Orange Icon** - Processing now (no animation)
 - **Green ✓** - Completed successfully
 - **Orange ⚠** - Partial result (fallback)
 - **Red ✗** - Failed (error message shown)
@@ -355,7 +355,7 @@ GPX (GPS Exchange Format) is supported by most mapping applications:
 - Waypoint at recording location
 - Timestamp
 - Recording filename
-- Transcribed text (if available)
+- Transcribed text (if available, in description element)
 
 ### CSV Format
 
@@ -366,7 +366,6 @@ Spreadsheet format with these columns:
 - Timestamp
 - Filename
 - Transcription
-- V2S Status
 
 Compatible with Excel, Google Sheets, LibreOffice Calc, etc.
 

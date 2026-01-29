@@ -713,7 +713,9 @@ when (recording.v2sStatus) {
         statusIcon.setImageResource(android.R.drawable.ic_menu_help)
     }
     V2SStatus.PROCESSING -> {
-        startProcessingAnimation()  // Alpha-pulse animation on statusIcon
+        // Static orange icon - no animation
+        statusIcon.setColorFilter(Color.rgb(255, 165, 0))
+        statusIcon.setImageResource(R.drawable.ic_status_processing)
         button.isEnabled = false
     }
     V2SStatus.COMPLETED -> {
@@ -849,9 +851,9 @@ val (year, month, day, hour, minute, second, lat, lon, ext) = match.destructured
 
 **3. CSV (Comma-Separated Values)**:
 ```csv
-Latitude,Longitude,Timestamp,Transcription
-40.7128,-74.0060,2024-01-15 12:30:45,"Transcription text"
-40.7138,-74.0070,2024-01-15 12:35:22,"Another transcription"
+Latitude,Longitude,Timestamp,Filename,Transcription
+40.7128,-74.0060,2024-01-15 12:30:45,"recording1.ogg","Transcription text"
+40.7138,-74.0070,2024-01-15 12:35:22,"recording2.ogg","Another transcription"
 ```
 
 **Note**: CSV includes UTF-8 BOM (`\uFEFF`) for Excel compatibility
