@@ -102,7 +102,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                 } else {
                     recyclerView.visibility = View.VISIBLE
                     emptyView.visibility = View.GONE
-                    adapter.submitList(recordings)
+                    adapter.updateData(recordings)
                 }
             }
         }
@@ -577,6 +577,10 @@ class RecordingAdapter(
         recordings = sorted
         diffResult.dispatchUpdatesTo(this)
     }
+    
+    fun updateData(newRecordings: List<Recording>) {
+        submitList(newRecordings)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -631,6 +635,7 @@ class RecordingAdapter(
         
         // Animator for processing status alpha-pulse effect
         private var processingAnimator: ObjectAnimator? = null
+        private var processingDrawableAnimator: ValueAnimator? = null
 
         fun bind(recording: Recording) {
             // Format date and time
@@ -731,32 +736,64 @@ class RecordingAdapter(
         }
         
         /**
-         * Start alpha-pulse animation on v2sStatusIcon for PROCESSING status.
-         * Fades between 0.3f and 1.0f alpha with 800ms duration, infinite repeat.
+         * Start alpha-pulse animation for PROCESSING status.
+         * Animates the transcribeButton's right compound drawable if present,
+         * otherwise falls back to v2sStatusIcon.
+         * Fades between 30% and 100% alpha with 800ms duration, infinite repeat.
          */
         fun startProcessingAnimation() {
             // Don't create multiple animators for the same ViewHolder
-            if (processingAnimator?.isRunning == true) {
+            if (processingDrawableAnimator?.isRunning == true || processingAnimator?.isRunning == true) {
                 return
             }
             
-            // Cancel any existing animator
+            // Cancel any existing animators
+            processingDrawableAnimator?.cancel()
             processingAnimator?.cancel()
             
-            // Create alpha pulse animator
-            processingAnimator = ObjectAnimator.ofFloat(v2sStatusIcon, "alpha", 0.3f, 1.0f).apply {
-                duration = 800
-                repeatMode = ValueAnimator.REVERSE
-                repeatCount = ValueAnimator.INFINITE
-                start()
+            // Get the right compound drawable from transcribeButton
+            val drawables = transcribeButton.compoundDrawables
+            val rightDrawable = drawables[2] // Index 2 is the right drawable (left, top, right, bottom)
+            
+            if (rightDrawable != null) {
+                // Animate the button's compound drawable
+                val mutatedDrawable = rightDrawable.mutate()
+                processingDrawableAnimator = ValueAnimator.ofInt(77, 255).apply { // 77 is ~30% of 255
+                    duration = 800
+                    repeatMode = ValueAnimator.REVERSE
+                    repeatCount = ValueAnimator.INFINITE
+                    addUpdateListener { animation ->
+                        val alpha = animation.animatedValue as Int
+                        mutatedDrawable.alpha = alpha
+                    }
+                    start()
+                }
+            } else {
+                // Fallback to v2sStatusIcon animation
+                processingAnimator = ObjectAnimator.ofFloat(v2sStatusIcon, "alpha", 0.3f, 1.0f).apply {
+                    duration = 800
+                    repeatMode = ValueAnimator.REVERSE
+                    repeatCount = ValueAnimator.INFINITE
+                    start()
+                }
             }
         }
         
         /**
          * Stop and cleanup the processing animation.
-         * Resets icon alpha to fully visible (1.0f).
+         * Resets drawable and icon alpha to fully visible.
          */
         fun stopProcessingAnimation() {
+            // Cancel and cleanup drawable animator
+            processingDrawableAnimator?.cancel()
+            processingDrawableAnimator = null
+            
+            // Reset drawable alpha if present
+            val drawables = transcribeButton.compoundDrawables
+            val rightDrawable = drawables[2]
+            rightDrawable?.mutate()?.alpha = 255
+            
+            // Cancel and cleanup icon animator (fallback)
             processingAnimator?.cancel()
             processingAnimator = null
             v2sStatusIcon.alpha = 1f
