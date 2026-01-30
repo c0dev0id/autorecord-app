@@ -5,25 +5,25 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class DebugLogActivity : AppCompatActivity() {
 
-    private lateinit var switchEnableLogging: SwitchCompat
-    private lateinit var buttonRunTests: Button
-    private lateinit var buttonRefreshLog: Button
-    private lateinit var buttonCopyLog: Button
-    private lateinit var buttonShareLog: Button
-    private lateinit var buttonClearLog: Button
+    private lateinit var switchEnableLogging: SwitchMaterial
+    private lateinit var buttonRunTests: MaterialButton
+    private lateinit var buttonRefreshLog: MaterialButton
+    private lateinit var buttonCopyLog: MaterialButton
+    private lateinit var buttonShareLog: MaterialButton
+    private lateinit var buttonClearLog: MaterialButton
     private lateinit var textViewLog: TextView
     private lateinit var scrollViewLog: ScrollView
     

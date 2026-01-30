@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -16,11 +17,11 @@
         android:layout_marginBottom="16dp" />
 
     <!-- Debug Logging Toggle -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:elevation="2dp">
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,21 +46,21 @@
                 android:textColor="#757575"
                 android:layout_marginBottom="12dp" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchEnableLogging"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Enable Logging"
                 android:textSize="14sp" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Test Suite -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:elevation="2dp">
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -84,21 +85,21 @@
                 android:textColor="#757575"
                 android:layout_marginBottom="12dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonRunTests"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Run Tests"
                 android:textSize="14sp" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Log Display Area -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:elevation="2dp">
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -121,47 +122,47 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="8dp">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonRefreshLog"
+                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Refresh"
                     android:textSize="14sp"
-                    android:layout_marginEnd="4dp"
-                    style="?android:attr/borderlessButtonStyle" />
+                    android:layout_marginEnd="4dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonCopyLog"
+                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Copy All"
                     android:textSize="14sp"
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    style="?android:attr/borderlessButtonStyle" />
+                    android:layout_marginEnd="4dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonShareLog"
+                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Share"
                     android:textSize="14sp"
                     android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    style="?android:attr/borderlessButtonStyle" />
+                    android:layout_marginEnd="4dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonClearLog"
+                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Clear"
                     android:textSize="14sp"
-                    android:layout_marginStart="4dp"
-                    style="?android:attr/borderlessButtonStyle" />
+                    android:layout_marginStart="4dp" />
             </LinearLayout>
 
             <ScrollView
@@ -181,6 +182,6 @@
                     android:padding="8dp" />
             </ScrollView>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

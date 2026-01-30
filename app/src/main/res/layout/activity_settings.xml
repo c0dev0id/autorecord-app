@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5"
@@ -29,11 +30,11 @@
             android:layout_marginBottom="32dp" />
 
         <!-- Permissions Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:elevation="2dp">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -58,7 +59,7 @@
                     android:textColor="#757575"
                     android:layout_marginBottom="12dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/requestPermissionsButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -84,14 +85,14 @@
                     android:textColor="#616161"
                     android:lineSpacingExtra="4dp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Recording Duration Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:elevation="2dp">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -132,14 +133,14 @@
                     android:layout_gravity="center"
                     android:layout_marginBottom="12dp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Save Directory Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:elevation="2dp">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -147,21 +148,21 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/openFolderButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Open Recording Manager"
                     android:textSize="14sp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Debug Card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:elevation="2dp">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -186,24 +187,24 @@
                     android:textColor="#757575"
                     android:layout_marginBottom="12dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonDebugLog"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="View Debug Log"
                     android:textSize="14sp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Quit Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/quitButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/quit_app"
             android:textSize="16sp"
             android:layout_marginTop="24dp"
-            android:backgroundTint="#D32F2F"
+            app:backgroundTint="#D32F2F"
             android:textColor="#FFFFFF" />
 
     </LinearLayout>

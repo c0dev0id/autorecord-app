@@ -13,14 +13,14 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
@@ -31,11 +31,11 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var durationValueText: TextView
     private lateinit var durationNumberPicker: NumberPicker
-    private lateinit var requestPermissionsButton: Button
+    private lateinit var requestPermissionsButton: MaterialButton
     private lateinit var permissionStatusList: TextView
-    private lateinit var quitButton: Button
-    private lateinit var openFolderButton: Button
-    private lateinit var buttonDebugLog: Button
+    private lateinit var quitButton: MaterialButton
+    private lateinit var openFolderButton: MaterialButton
+    private lateinit var buttonDebugLog: MaterialButton
     private lateinit var appVersionText: TextView
 
     private val PERMISSIONS_REQUEST_CODE = 200
@@ -260,7 +260,7 @@ class SettingsActivity : AppCompatActivity() {
     
     private fun checkAndRequestOverlayPermission() {
         if (!Settings.canDrawOverlays(this)) {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.overlay_permission_required)
                 .setMessage(R.string.overlay_permission_message)
                 .setPositiveButton("Grant") { _, _ ->
@@ -285,7 +285,7 @@ class SettingsActivity : AppCompatActivity() {
         val packageName = packageName
 
         if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Battery Optimization")
                 .setMessage("To ensure reliable background recording, this app needs unrestricted battery access.\n\n" +
                         "This will prevent Android from stopping the recording when the screen is off or the app is in the background.")
