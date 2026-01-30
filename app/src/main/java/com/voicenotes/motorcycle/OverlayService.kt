@@ -70,10 +70,12 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private var countdownRunnable: Runnable? = null
     private var ttsTimeoutRunnable: Runnable? = null
     private var bluetoothScoTimeoutRunnable: Runnable? = null
+    private var unconfiguredOverlayTimeoutRunnable: Runnable? = null
     
     // Flags to prevent double cleanup
     private var isOverlayRemoved = false
     private var isServiceStopping = false
+    private var isUnconfiguredMode = false
     
     // Exception handler for coroutines
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -183,6 +185,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
     override fun onInit(status: Int) {
         ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
+        
+        // Don't proceed with recording if we're in unconfigured mode
+        if (isUnconfiguredMode) {
+            Log.d("OverlayService", "TTS initialized but in unconfigured mode, not starting recording")
+            return
+        }
+        
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech?.language = Locale.US
             isTtsInitialized = true
@@ -571,21 +580,25 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun handleUnconfiguredOverlay() {
         Log.d("OverlayService", "Handling unconfigured overlay display")
         
-        // Check if overlay permission is granted
-        if (!Settings.canDrawOverlays(this)) {
-            Log.e("OverlayService", "Overlay permission not granted - cannot show unconfigured message")
-            stopSelf()
-            return
-        }
+        // Set flag to prevent recording flow from starting
+        isUnconfiguredMode = true
         
         // Cancel TTS timeout since we're not using TTS for this flow
         ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
+        
+        // Verify overlay was created successfully
+        if (overlayView == null || bubbleLine1 == null) {
+            Log.e("OverlayService", "Overlay not created - cannot show unconfigured message")
+            stopSelf()
+            return
+        }
         
         // Show the unconfigured message in the overlay
         updateOverlay(getString(R.string.app_unconfigured_overlay_message))
         
         // Schedule service stop after 10 seconds
-        handler.postDelayed({ stopSelfAndFinish() }, 10000)
+        unconfiguredOverlayTimeoutRunnable = Runnable { stopSelfAndFinish() }
+        handler.postDelayed(unconfiguredOverlayTimeoutRunnable!!, 10000)
     }
 
     private fun stopRecording() {
@@ -949,6 +962,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Cancel countdown if running
         countdownRunnable?.let { handler.removeCallbacks(it) }
         
+        // Cancel unconfigured overlay timeout if running
+        unconfiguredOverlayTimeoutRunnable?.let { handler.removeCallbacks(it) }
+        
         // Clear recording state from SharedPreferences
         val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         prefs.edit().apply {
@@ -992,6 +1008,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
         bluetoothScoTimeoutRunnable?.let { handler.removeCallbacks(it) }
         countdownRunnable?.let { handler.removeCallbacks(it) }
+        unconfiguredOverlayTimeoutRunnable?.let { handler.removeCallbacks(it) }
         
         textToSpeech?.shutdown()
         mediaRecorder?.release()
