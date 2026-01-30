@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Declare that we query for the Voice Notes app -->
+    <queries>
+        <package android:name="com.voicenotes.motorcycle" />
+    </queries>
+
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher_settings"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_settings_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        android:theme="@android:style/Theme.Translucent.NoTitleBar">
 
         <activity
             android:name=".MainActivity"

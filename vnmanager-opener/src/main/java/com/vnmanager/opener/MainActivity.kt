@@ -1,8 +1,11 @@
 package com.vnmanager.opener
 
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -26,20 +29,34 @@ class MainActivity : AppCompatActivity() {
             // Create explicit intent to launch the main app's SettingsActivity
             val intent = Intent().apply {
                 component = ComponentName(TARGET_PACKAGE, TARGET_ACTIVITY)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
             
             startActivity(intent)
-        } catch (e: Exception) {
+            finish()
+        } catch (e: ActivityNotFoundException) {
             // Show error toast if the main app is not installed or activity not found
             Toast.makeText(
                 this,
-                "Voice Notes app not found. Please install Voice Notes first.",
+                R.string.error_app_not_found,
                 Toast.LENGTH_LONG
             ).show()
-        } finally {
-            // Always finish this activity
-            finish()
+            
+            // Delay finish to allow toast to be visible
+            Handler(Looper.getMainLooper()).postDelayed({
+                finish()
+            }, 2000)
+        } catch (e: SecurityException) {
+            // Handle case where activity cannot be accessed due to permission issues
+            Toast.makeText(
+                this,
+                R.string.error_permission_denied,
+                Toast.LENGTH_LONG
+            ).show()
+            
+            // Delay finish to allow toast to be visible
+            Handler(Looper.getMainLooper()).postDelayed({
+                finish()
+            }, 2000)
         }
     }
 }

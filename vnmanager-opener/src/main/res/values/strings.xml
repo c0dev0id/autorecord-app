@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">VN Manager</string>
+    <string name="error_app_not_found">Voice Notes app not found. Please install Voice Notes first.</string>
+    <string name="error_permission_denied">Cannot access Voice Notes app. Permission denied.</string>
 </resources>
