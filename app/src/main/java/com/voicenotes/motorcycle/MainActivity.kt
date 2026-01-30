@@ -67,8 +67,9 @@ class MainActivity : AppCompatActivity() {
 
     // Required runtime permissions for headless mode
     // Note: BLUETOOTH_CONNECT is only required on API 31+ (Android 12+)
-    private val requiredPermissions: Array<String>
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    // Using lazy initialization to avoid creating new arrays on each access
+    private val requiredPermissions: Array<String> by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -80,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         }
+    }
 
     /**
      * Logs intent details for debugging both UI and headless launch modes.
@@ -290,7 +292,7 @@ class MainActivity : AppCompatActivity() {
         // Start overlay service
         Log.d(TAG, "Starting OverlayService")
         val serviceIntent = Intent(this, OverlayService::class.java)
-        startService(serviceIntent)
+        ContextCompat.startForegroundService(this, serviceIntent)
 
         // Immediately finish - don't keep MainActivity around
         Log.d(TAG, "Finishing MainActivity immediately")
@@ -311,7 +313,7 @@ class MainActivity : AppCompatActivity() {
         // Note: Intent extra key is "additionalDuration" for backward compatibility
         val serviceIntent = Intent(this, OverlayService::class.java)
         serviceIntent.putExtra("additionalDuration", configuredDuration)
-        startService(serviceIntent)
+        ContextCompat.startForegroundService(this, serviceIntent)
 
         // Finish immediately - don't keep MainActivity around
         Log.d(TAG, "Finishing MainActivity after extending recording")
