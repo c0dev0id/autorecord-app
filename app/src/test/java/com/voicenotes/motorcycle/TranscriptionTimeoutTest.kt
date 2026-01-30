@@ -12,20 +12,22 @@ import org.junit.Assert.*
 class TranscriptionTimeoutTest {
 
     @Test
-    fun testTimeoutDurationIsSetTo20Seconds() {
-        println("TEST: Verify timeout is configured for 20 seconds")
+    fun testTimeoutConfigurationDocumentation() {
+        println("TEST: Document expected timeout configuration")
         
-        // This is a logic test to verify the expected timeout value
+        // This test documents the expected timeout value for TranscriptionService
+        // The actual implementation uses withTimeout(20000) in TranscriptionService.kt
         val expectedTimeoutMs = 20000L
         val expectedTimeoutSeconds = 20
         
         println("  Expected timeout: ${expectedTimeoutMs}ms ($expectedTimeoutSeconds seconds)")
+        println("  Implementation: TranscriptionService.transcribeAudioFile() uses withTimeout(20000)")
         
         // Verify the timeout conversion
         assertEquals("Timeout should be 20000ms", 20000L, expectedTimeoutMs)
         assertEquals("Timeout should be 20 seconds", 20, expectedTimeoutSeconds)
         
-        println("  ✓ TEST PASSED: Timeout is correctly set to 20 seconds (20000ms)")
+        println("  ✓ TEST PASSED: Timeout configuration documented as 20 seconds (20000ms)")
     }
 
     @Test
@@ -135,9 +137,6 @@ class TranscriptionTimeoutTest {
         println("  Transcription result: '$transcribedText'")
         
         // Successful transcription should update to COMPLETED
-        val latStr = String.format("%.6f", recording.latitude)
-        val lngStr = String.format("%.6f", recording.longitude)
-        
         val updatedRecording = recording.copy(
             v2sStatus = V2SStatus.COMPLETED,
             v2sResult = transcribedText,
