@@ -50,7 +50,7 @@
     <string name="processing_complete">Processing complete</string>
     <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
     <string name="app_unconfigured_title">App Not Configured</string>
-    <string name="app_unconfigured_overlay_message">The application is not yet configured. Configure it by long-pressing the app icon and choosing 'Manage', or install and open the 'VN Manager' helper app if your launcher does not support long-press.</string>
+    <string name="app_unconfigured_overlay_message">The application is not yet configured. Configure it by long-pressing the app icon and choosing \'Manage\', or install and open the \'VN Manager\' helper app if your launcher does not support long-press.</string>
     
     <!-- Transcription strings -->
     <string name="transcribe">Transcribe</string>
