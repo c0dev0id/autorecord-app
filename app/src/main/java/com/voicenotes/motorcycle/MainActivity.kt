@@ -27,23 +27,28 @@ import kotlinx.coroutines.launch
  * This activity has two distinct launch modes:
  * 
  * 1. Normal Launch (Headless Mode): When launched from the app icon or background trigger,
- *    immediately starts OverlayService in the background via ContextCompat.startForegroundService
- *    and finishes. No UI is shown. No configuration or permission checks are performed here - 
- *    those are handled entirely by OverlayService on startup.
+ *    performs a permission guard check for required runtime permissions (RECORD_AUDIO, 
+ *    ACCESS_FINE_LOCATION, BLUETOOTH_CONNECT). If any are missing, logs and finishes immediately
+ *    without starting services or showing UI. If all permissions are granted, starts OverlayService 
+ *    in the background via ContextCompat.startForegroundService and finishes immediately. No UI 
+ *    is shown.
  * 
  * 2. Explicit UI Mode: When launched with EXTRA_SHOW_UI=true, shows UI for permission management 
  *    and configuration. This is triggered via long-press "Manage" action or VN Manager app.
  * 
  * Separation of Responsibilities:
- * - MainActivity: Only handles explicit UI requests (EXTRA_SHOW_UI=true) for settings/permission 
- *   management. Never checks for "unconfigured" state or displays configuration warnings.
+ * - MainActivity: Handles explicit UI requests (EXTRA_SHOW_UI=true) for settings/permission 
+ *   management. On normal (headless) launches, performs a permission guard check and finishes 
+ *   immediately if any required runtime permissions are missing. Does not check for "unconfigured" 
+ *   state or display configuration warnings.
  * 
- * - OverlayService: Owns all configuration/permission validation on service start. Displays brief 
- *   overlay messages if unconfigured, then auto-stops. MainActivity never performs unconfigured 
- *   detection on normal launches.
+ * - OverlayService: Owns all other configuration/permission validation on service start (overlay 
+ *   permission, save directory, etc.). Displays brief overlay messages if unconfigured, then 
+ *   auto-stops. MainActivity only performs the runtime permission guard check on normal launches.
  * 
  * This design ensures the app remains truly headless on normal launch with no UI footprint,
- * while still providing clear feedback about configuration issues via overlay bubbles.
+ * while preventing crashes from missing required runtime permissions, and still providing clear 
+ * feedback about other configuration issues via overlay bubbles.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -101,11 +106,26 @@ class MainActivity : AppCompatActivity() {
         // Log intent details for debugging both UI and headless modes
         logIntentDetails("onCreate", intent, shouldShowUI)
         
-        // For normal launch (not explicit UI request), start service immediately and finish
-        // IMPORTANT: No configuration or permission checks are done here. OverlayService
-        // owns all unconfigured detection and displays appropriate feedback if needed.
+        // For normal launch (not explicit UI request), guard permissions and start service
+        // IMPORTANT: We check required runtime permissions here as a guard. If any are missing,
+        // we log and finish immediately to avoid crashes or incomplete initialization.
+        // OverlayService owns all other configuration checks (overlay permission, save directory).
         if (!shouldShowUI) {
-            Log.d(TAG, "Headless mode: Starting OverlayService and finishing immediately")
+            Log.d(TAG, "Headless mode: Checking required runtime permissions")
+            
+            // Permission guard: Check if all required runtime permissions are granted
+            val missingPermissions = requiredPermissions.filter { permission ->
+                ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
+            }
+            
+            if (missingPermissions.isNotEmpty()) {
+                Log.w(TAG, "Headless mode blocked: Missing required permissions: ${missingPermissions.joinToString()}")
+                Log.w(TAG, "MainActivity finishing immediately without starting service or showing UI")
+                finish()
+                return
+            }
+            
+            Log.d(TAG, "All required runtime permissions granted, starting OverlayService")
             
             // Check if recording is currently active
             val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
