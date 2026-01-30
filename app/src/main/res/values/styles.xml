@@ -2,7 +2,6 @@
 <resources>
     <!-- Base button style with Material Design ripple effects -->
     <style name="AppButton" parent="Widget.MaterialComponents.Button">
-        <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="rippleColor">#40FFFFFF</item>
         <item name="android:stateListAnimator">@null</item>
     </style>

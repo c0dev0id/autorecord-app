@@ -210,7 +210,7 @@ The RecordingManagerActivity includes several Material Design animations:
        .withEndAction { /* update icon and color */ }
    ```
 
-2. **Ripple effects**: All buttons use Material Design ripple effects via `android:foreground="?attr/selectableItemBackground"`
+2. **Ripple effects**: All buttons use MaterialButton with Material Design ripple effects via AppButton style
 
 3. **Card elevation**: Cards animate elevation on press using `android:stateListAnimator` (4dp → 8dp)
 
@@ -574,10 +574,11 @@ This section consolidates testing procedures and implementation notes for key fe
 **Feature**: Visual feedback during transcription processing using a static orange icon.
 
 **Implementation Details**:
-- Static orange icon displayed during PROCESSING status
-- Icon color: RGB(255, 165, 0) - Orange
+- Static orange filled circle icon displayed during PROCESSING status
+- Icon color: #FF6F00 (Orange)
 - Button shows "Processing..." text and is disabled
-- No animation - simple, reliable visual indicator
+- No animation - simple, reliable visual indicator (static icon only)
+- Status icon always visible in recording item cards
 
 **Test Cases**:
 1. **Processing indicator behavior**:

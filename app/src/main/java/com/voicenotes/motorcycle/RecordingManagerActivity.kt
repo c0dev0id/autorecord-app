@@ -624,6 +624,8 @@ class RecordingAdapter(
     
     override fun onViewRecycled(holder: ViewHolder) {
         super.onViewRecycled(holder)
+        // Cancel any ongoing animations and reset alpha
+        holder.resetStatusIcon()
     }
 
     // Data class to hold status configuration
@@ -777,6 +779,9 @@ class RecordingAdapter(
             val context = itemView.context
             val config = getStatusConfig(recording.v2sStatus)
             
+            // Ensure status icon is visible
+            v2sStatusIcon.visibility = View.VISIBLE
+            
             // Check if status has changed to apply transition animation
             val statusChanged = previousStatus != null && previousStatus != recording.v2sStatus
             
@@ -801,6 +806,12 @@ class RecordingAdapter(
             
             // Update previous status for next check
             previousStatus = recording.v2sStatus
+        }
+        
+        // Reset status icon animation and ensure proper state
+        fun resetStatusIcon() {
+            v2sStatusIcon.clearAnimation()
+            v2sStatusIcon.alpha = 1f
         }
     }
 }

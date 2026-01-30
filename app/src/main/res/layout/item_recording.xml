@@ -119,8 +119,9 @@
                     android:ellipsize="end"
                     android:inputType="text" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/saveTranscriptionButton"
+                    style="@style/AppButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Save"
@@ -128,10 +129,7 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:layout_marginStart="8dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:backgroundTint="#757575"
+                    app:backgroundTint="#757575"
                     android:textColor="#FFFFFF" />
 
             </LinearLayout>
@@ -143,22 +141,21 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/deleteButton"
+                    style="@style/AppButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Delete"
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:backgroundTint="#D32F2F"
+                    app:backgroundTint="#D32F2F"
                     android:textColor="#FFFFFF" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/downloadButton"
+                    style="@style/AppButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -166,14 +163,12 @@
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
                     android:visibility="gone"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:backgroundTint="#424242"
+                    app:backgroundTint="#424242"
                     android:textColor="#FFFFFF" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/transcribeButton"
+                    style="@style/AppButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -182,50 +177,61 @@
                     android:drawableEnd="@drawable/ic_status_not_started"
                     android:drawablePadding="4dp"
                     android:layout_marginEnd="8dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:backgroundTint="#424242"
+                    app:backgroundTint="#424242"
                     android:textColor="#FFFFFF" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/openMapsButton"
+                    style="@style/AppButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Open Maps"
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:backgroundTint="#4CAF50"
+                    app:backgroundTint="#4CAF50"
                     android:textColor="#FFFFFF" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/playButton"
+                    style="@style/AppButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Play"
                     android:textSize="13sp"
-                    android:foreground="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:backgroundTint="#1976D2"
+                    app:backgroundTint="#1976D2"
                     android:textColor="#FFFFFF" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- Hidden status views (kept for backward compatibility with existing code) -->
-        <ImageView
-            android:id="@+id/v2sStatusIcon"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:contentDescription="Transcription Status"
-            android:visibility="gone" />
+        <!-- Status Icon - visible indicator for transcription status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:layout_marginEnd="8dp" />
+
+            <ImageView
+                android:id="@+id/v2sStatusIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="Transcription Status"
+                android:visibility="visible" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
