@@ -27,20 +27,20 @@ import kotlinx.coroutines.launch
  * This activity has two distinct launch modes:
  * 
  * 1. Normal Launch (Headless Mode): When launched from the app icon or background trigger,
- *    immediately starts OverlayService in the background and finishes. No UI is shown. 
- *    No configuration or permission checks are performed here - those are handled entirely 
- *    by OverlayService on startup.
+ *    immediately starts OverlayService in the background via ContextCompat.startForegroundService
+ *    and finishes. No UI is shown. No configuration or permission checks are performed here - 
+ *    those are handled entirely by OverlayService on startup.
  * 
- * 2. Explicit UI Mode: When launched with EXTRA_SHOW_UI or fromSettings flag, shows UI for 
- *    permission management and configuration. This is triggered via long-press "Manage" action
- *    or VN Manager app.
+ * 2. Explicit UI Mode: When launched with EXTRA_SHOW_UI=true, shows UI for permission management 
+ *    and configuration. This is triggered via long-press "Manage" action or VN Manager app.
  * 
  * Separation of Responsibilities:
- * - MainActivity: Only handles explicit UI requests for settings/permission management.
- *   Never checks for "unconfigured" state or displays configuration warnings.
+ * - MainActivity: Only handles explicit UI requests (EXTRA_SHOW_UI=true) for settings/permission 
+ *   management. Never checks for "unconfigured" state or displays configuration warnings.
  * 
- * - OverlayService: Handles all configuration/permission validation on service start.
- *   Displays brief overlay messages if unconfigured, then auto-stops.
+ * - OverlayService: Owns all configuration/permission validation on service start. Displays brief 
+ *   overlay messages if unconfigured, then auto-stops. MainActivity never performs unconfigured 
+ *   detection on normal launches.
  * 
  * This design ensures the app remains truly headless on normal launch with no UI footprint,
  * while still providing clear feedback about configuration issues via overlay bubbles.
@@ -66,27 +66,46 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.BLUETOOTH_CONNECT
     )
 
+    /**
+     * Logs intent details for debugging both UI and headless launch modes.
+     * Helps troubleshoot intent routing and decision making.
+     */
+    private fun logIntentDetails(context: String, intent: Intent?, showingUI: Boolean) {
+        if (intent == null) {
+            Log.d(TAG, "$context: Intent is null, showingUI=$showingUI")
+            return
+        }
+        
+        val action = intent.action ?: "null"
+        val categories = intent.categories?.joinToString(", ") ?: "none"
+        val extras = intent.extras?.keySet()?.joinToString(", ") { key ->
+            "$key=${intent.extras?.get(key)}"
+        } ?: "none"
+        
+        Log.d(TAG, "$context: Intent details - " +
+                "action=$action, " +
+                "categories=$categories, " +
+                "extras=[$extras], " +
+                "showingUI=$showingUI")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate() called")
         
         // Initialize AppContextHolder for DebugLogger
         AppContextHolder.context = applicationContext
 
-        // Check if we should show UI (explicit request from user)
+        // Check if we should show UI (explicit request via EXTRA_SHOW_UI only)
         shouldShowUI = intent?.getBooleanExtra(EXTRA_SHOW_UI, false) ?: false
         
-        // Check if user is coming from settings or explicitly opening the app UI
-        val fromSettings = intent?.getBooleanExtra("fromSettings", false) ?: false
-
-        // Determine if this is an explicit UI request
-        val explicitUIRequest = shouldShowUI || fromSettings
+        // Log intent details for debugging both UI and headless modes
+        logIntentDetails("onCreate", intent, shouldShowUI)
         
         // For normal launch (not explicit UI request), start service immediately and finish
         // IMPORTANT: No configuration or permission checks are done here. OverlayService
-        // will handle all validation on startup and display appropriate feedback if needed.
-        if (!explicitUIRequest) {
-            Log.d(TAG, "Normal launch (headless mode) - starting OverlayService and finishing")
+        // owns all unconfigured detection and displays appropriate feedback if needed.
+        if (!shouldShowUI) {
+            Log.d(TAG, "Headless mode: Starting OverlayService and finishing immediately")
             
             // Check if recording is currently active
             val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
@@ -107,36 +126,49 @@ class MainActivity : AppCompatActivity() {
             return
         }
         
-        // Below this point: explicit UI request only (settings/manager flow)
-        Log.d(TAG, "Explicit UI request - showing configuration UI")
+        // Below this point: explicit UI request only (EXTRA_SHOW_UI=true)
+        Log.d(TAG, "UI mode: Showing configuration UI")
         
-        // Show UI for setup/permissions
-        setContentView(R.layout.activity_main)
+        // Defensive UI inflation with error handling
+        try {
+            setContentView(R.layout.activity_main)
 
-        // Register broadcast receiver
-        finishReceiver = FinishActivityReceiver(this)
-        val filter = IntentFilter("com.voicenotes.motorcycle.FINISH_ACTIVITY")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("UnspecifiedRegisterReceiverFlag")
-            registerReceiver(finishReceiver, filter)
+            // Register broadcast receiver
+            finishReceiver = FinishActivityReceiver(this)
+            val filter = IntentFilter("com.voicenotes.motorcycle.FINISH_ACTIVITY")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                @Suppress("UnspecifiedRegisterReceiverFlag")
+                registerReceiver(finishReceiver, filter)
+            }
+            isReceiverRegistered = true
+
+            // Check overlay permission and start recording
+            Log.d(TAG, "Checking overlay permission")
+            checkOverlayPermission()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to inflate UI or initialize activity", e)
+            Toast.makeText(this, "Failed to initialize UI: ${e.message}", Toast.LENGTH_LONG).show()
+            finish()
         }
-        isReceiverRegistered = true
-
-        // Check overlay permission and start recording
-        Log.d(TAG, "Checking overlay permission")
-        checkOverlayPermission()
     }
     
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
         
-        // Check if recording is currently active
+        // Log intent details for debugging
+        logIntentDetails("onNewIntent", intent, false)
+        
+        // Keep existing behavior: extend recording if currently recording
+        // Do NOT trigger UI inflation or other configuration flows from new intents
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         if (prefs.getBoolean("isCurrentlyRecording", false)) {
+            Log.d(TAG, "onNewIntent: Recording in progress - extending")
             extendRecording()
+        } else {
+            Log.d(TAG, "onNewIntent: No recording in progress - ignoring")
         }
     }
 
