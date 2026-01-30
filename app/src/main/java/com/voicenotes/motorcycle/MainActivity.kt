@@ -87,8 +87,22 @@ class MainActivity : AppCompatActivity() {
         // For normal launch (not explicit UI request), start service immediately and finish
         if (!explicitUIRequest) {
             Log.d(TAG, "Normal launch (headless mode) - starting OverlayService and finishing")
-            val serviceIntent = Intent(this, OverlayService::class.java)
-            ContextCompat.startForegroundService(this, serviceIntent)
+            
+            // Check if recording is currently active
+            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            if (prefs.getBoolean("isCurrentlyRecording", false)) {
+                Log.d(TAG, "Recording in progress - extending recording")
+                // Start service with extension request
+                val serviceIntent = Intent(this, OverlayService::class.java)
+                val configuredDuration = prefs.getInt("recordingDuration", 10)
+                serviceIntent.putExtra("additionalDuration", configuredDuration)
+                ContextCompat.startForegroundService(this, serviceIntent)
+            } else {
+                // Normal startup - start service
+                val serviceIntent = Intent(this, OverlayService::class.java)
+                ContextCompat.startForegroundService(this, serviceIntent)
+            }
+            
             finish()
             return
         }

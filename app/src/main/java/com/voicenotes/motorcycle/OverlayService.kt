@@ -103,7 +103,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             startForeground(NOTIFICATION_ID, notification)
         }
 
-        // Check if overlay permission is granted
+        // Check if overlay permission is granted before creating overlay
         if (!Settings.canDrawOverlays(this)) {
             Log.e("OverlayService", "Overlay permission not granted - cannot start overlay service")
             DebugLogger.logError(
@@ -115,11 +115,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        
+        // Create overlay first
+        createOverlay()
+        
+        // Initialize TTS (but only if permissions are present will we use it)
         textToSpeech = TextToSpeech(this, this)
         
-        // Add TTS timeout
+        // Add TTS timeout - only proceeds to recording if permissions are present
         ttsTimeoutRunnable = Runnable {
-            if (!isTtsInitialized) {
+            if (!isTtsInitialized && !isUnconfiguredMode) {
                 Log.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
                 DebugLogger.logError(
                     service = "OverlayService",
@@ -129,8 +134,6 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             }
         }
         handler.postDelayed(ttsTimeoutRunnable!!, 10000)
-        
-        createOverlay()
     }
 
     private fun createOverlay() {
