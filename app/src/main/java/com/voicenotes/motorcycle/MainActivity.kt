@@ -8,13 +8,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+
 import android.provider.Settings
 import android.util.Log
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
+
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,9 +28,6 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_SHOW_UI = "show_ui"
     }
 
-    private lateinit var infoText: TextView
-    private lateinit var progressBar: ProgressBar
-
     private val PERMISSIONS_REQUEST_CODE = 100
     private val OVERLAY_PERMISSION_REQUEST_CODE = 101
     
@@ -41,26 +35,6 @@ class MainActivity : AppCompatActivity() {
     private var isReceiverRegistered = false
     
     private var shouldShowUI = false
-    
-    private val timeoutHandler = Handler(Looper.getMainLooper())
-    private val initializationTimeout = Runnable {
-        Log.e(TAG, "Initialization timeout - app stuck!")
-        runOnUiThread {
-            progressBar.visibility = View.GONE
-            infoText.text = "Initialization failed. Please try again."
-            
-            AlertDialog.Builder(this)
-                .setTitle("Initialization Error")
-                .setMessage("The app failed to initialize. Please restart and try again.")
-                .setPositiveButton("Restart") { _, _ ->
-                    val intent = Intent(this, SettingsActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-                .setCancelable(false)
-                .show()
-        }
-    }
 
     private val requiredPermissions = arrayOf(
         Manifest.permission.RECORD_AUDIO,
@@ -112,9 +86,6 @@ class MainActivity : AppCompatActivity() {
         
         // Show UI for setup/permissions
         setContentView(R.layout.activity_main)
-        
-        infoText = findViewById(R.id.infoText)
-        progressBar = findViewById(R.id.progressBar)
 
         // Register broadcast receiver
         finishReceiver = FinishActivityReceiver(this)
@@ -126,14 +97,6 @@ class MainActivity : AppCompatActivity() {
             registerReceiver(finishReceiver, filter)
         }
         isReceiverRegistered = true
-
-        // Show "Initializing..." message
-        Log.d(TAG, "Showing initializing message")
-        infoText.text = getString(R.string.initializing)
-        progressBar.visibility = View.VISIBLE
-        
-        // Set 10-second timeout for initialization
-        timeoutHandler.postDelayed(initializationTimeout, 10000)
 
         // Check overlay permission and start recording
         Log.d(TAG, "Checking overlay permission")
@@ -219,7 +182,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startRecordingProcess() {
         Log.d(TAG, "startRecordingProcess() called")
-        cancelInitializationTimeout() // Cancel timeout once we're progressing
 
         if (!checkPermissions()) {
             Log.d(TAG, "Permissions not granted, requesting")
@@ -245,10 +207,6 @@ class MainActivity : AppCompatActivity() {
         // Immediately finish - don't keep MainActivity around
         Log.d(TAG, "Finishing MainActivity immediately")
         finish()
-    }
-    
-    private fun cancelInitializationTimeout() {
-        timeoutHandler.removeCallbacks(initializationTimeout)
     }
     
     private fun extendRecording() {
@@ -311,18 +269,12 @@ class MainActivity : AppCompatActivity() {
             unregisterReceiver(finishReceiver)
             isReceiverRegistered = false
         }
-        // Cancel initialization timeout to prevent memory leaks
-        cancelInitializationTimeout()
         super.onDestroy()
     }
 
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume() called")
-
-        // Update UI status
-        progressBar.visibility = View.GONE
-        infoText.text = "Ready"
 
         if (Settings.canDrawOverlays(this)) {
             Log.d(TAG, "Ready to record in onResume")
