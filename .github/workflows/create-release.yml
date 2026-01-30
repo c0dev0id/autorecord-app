@@ -215,6 +215,7 @@ jobs:
           path: |
             app/build
             build
+            vnmanager-opener/build
           key: ${{ runner.os }}-build-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-build-
@@ -319,6 +320,8 @@ jobs:
           echo "Listing APK files:"
           ls -la app/build/outputs/apk/debug/ || echo "Debug directory not found"
           ls -la app/build/outputs/apk/release/ || echo "Release directory not found"
+          ls -la vnmanager-opener/build/outputs/apk/debug/ || echo "VN Manager Debug directory not found"
+          ls -la vnmanager-opener/build/outputs/apk/release/ || echo "VN Manager Release directory not found"
 
           # Rename debug APK
           if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
@@ -341,9 +344,29 @@ jobs:
             echo "HAS_RELEASE=false" >> $GITHUB_ENV
           fi
 
+          # Rename vnmanager-opener debug APK
+          if [ -f "vnmanager-opener/build/outputs/apk/debug/vnmanager-opener-debug.apk" ]; then
+            cp vnmanager-opener/build/outputs/apk/debug/vnmanager-opener-debug.apk vnmanager-opener-${VERSION_NUMBER}-debug.apk
+            echo "VNMANAGER_DEBUG_APK_FILE=vnmanager-opener-${VERSION_NUMBER}-debug.apk" >> $GITHUB_ENV
+            echo "VN Manager Opener debug APK found and renamed"
+          else
+            echo "Warning: No vnmanager-opener debug APK found!"
+          fi
+
+          # Rename vnmanager-opener release APK (if it exists)
+          if [ -f "vnmanager-opener/build/outputs/apk/release/vnmanager-opener-release.apk" ]; then
+            cp vnmanager-opener/build/outputs/apk/release/vnmanager-opener-release.apk vnmanager-opener-${VERSION_NUMBER}.apk
+            echo "VNMANAGER_RELEASE_APK_FILE=vnmanager-opener-${VERSION_NUMBER}.apk" >> $GITHUB_ENV
+            echo "HAS_VNMANAGER_RELEASE=true" >> $GITHUB_ENV
+            echo "VN Manager Opener release APK found and renamed"
+          else
+            echo "Warning: No vnmanager-opener release APK"
+            echo "HAS_VNMANAGER_RELEASE=false" >> $GITHUB_ENV
+          fi
+
           # Show APK sizes
           echo "APK sizes:"
-          ls -lh motorcycle-voice-notes-*.apk
+          ls -lh motorcycle-voice-notes-*.apk vnmanager-opener-*.apk 2>/dev/null || echo "Some APKs not found"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -354,6 +377,8 @@ jobs:
           files: |
             ${{ env.DEBUG_APK_FILE }}
             ${{ env.HAS_RELEASE == 'true' && env.RELEASE_APK_FILE || '' }}
+            ${{ env.VNMANAGER_DEBUG_APK_FILE }}
+            ${{ env.HAS_VNMANAGER_RELEASE == 'true' && env.VNMANAGER_RELEASE_APK_FILE || '' }}
           draft: false
           prerelease: false
         env:
@@ -373,11 +398,23 @@ jobs:
           else
             echo "- ⚠️ Release APK not available (signing not configured)" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "- VN Manager Opener Debug APK: ${{ env.VNMANAGER_DEBUG_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ env.HAS_VNMANAGER_RELEASE }}" == "true" ]; then
+            echo "- VN Manager Opener Release APK: ${{ env.VNMANAGER_RELEASE_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ VN Manager Opener Release APK not available" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**APK Sizes**:" >> $GITHUB_STEP_SUMMARY
           ls -lh ${{ env.DEBUG_APK_FILE }} >> $GITHUB_STEP_SUMMARY
           if [ "${{ env.HAS_RELEASE }}" == "true" ]; then
             ls -lh ${{ env.RELEASE_APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f "${{ env.VNMANAGER_DEBUG_APK_FILE }}" ]; then
+            ls -lh ${{ env.VNMANAGER_DEBUG_APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ env.HAS_VNMANAGER_RELEASE }}" == "true" ]; then
+            ls -lh ${{ env.VNMANAGER_RELEASE_APK_FILE }} >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Changelog" >> $GITHUB_STEP_SUMMARY

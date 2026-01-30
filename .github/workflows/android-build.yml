@@ -58,6 +58,7 @@ jobs:
           path: |
             app/build
             build
+            vnmanager-opener/build
           key: ${{ runner.os }}-build-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-build-
@@ -148,6 +149,8 @@ jobs:
           path: |
             app/build/reports/tests/**
             app/build/test-results/**
+            vnmanager-opener/build/reports/tests/**
+            vnmanager-opener/build/test-results/**
           retention-days: 30
 
       - name: Upload Debug APK
@@ -157,7 +160,17 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
+      # Upload vnmanager-opener debug APK as a separate artifact
+      - name: Upload VN Manager Opener Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: vnmanager-opener-debug
+          path: vnmanager-opener/build/outputs/apk/debug/vnmanager-opener-debug.apk
+          retention-days: 30
+
       - name: Build info
         run: |
           echo "APK built successfully!"
           ls -lh app/build/outputs/apk/debug/
+          echo "VN Manager Opener APK:"
+          ls -lh vnmanager-opener/build/outputs/apk/debug/
