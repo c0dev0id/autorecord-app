@@ -647,14 +647,8 @@ class RecordingAdapter(
         private val playButton: MaterialButton = view.findViewById(R.id.playButton)
 
         private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-        
-        // Track previous status to determine if we need transition animation
-        private var previousStatus: V2SStatus? = null
 
         fun bind(recording: Recording) {
-            // Reset previous status when binding new data to prevent incorrect animations
-            previousStatus = recording.v2sStatus
-            
             // Format date and time
             dateTimeText.text = dateFormat.format(Date(recording.timestamp))
 
@@ -761,9 +755,6 @@ class RecordingAdapter(
             if (config.isEnabled) {
                 transcribeButton.setOnClickListener { onTranscribeClick(recording) }
             }
-            
-            // Update previous status for next check
-            previousStatus = recording.v2sStatus
         }
     }
 }

@@ -704,29 +704,14 @@ class RecordingAdapter : RecyclerView.Adapter<RecordingAdapter.ViewHolder>() {
 </com.google.android.material.card.MaterialCardView>
 ```
 
-**Status color coding**:
-```kotlin
-when (recording.v2sStatus) {
-    V2SStatus.NOT_STARTED -> {
-        statusIcon.setColorFilter(Color.GRAY)
-        statusIcon.setImageResource(android.R.drawable.ic_menu_help)
-    }
-    V2SStatus.PROCESSING -> {
-        // Static orange icon - no animation
-        statusIcon.setColorFilter(Color.rgb(255, 165, 0))
-        statusIcon.setImageResource(R.drawable.ic_status_processing)
-        button.isEnabled = false
-    }
-    V2SStatus.COMPLETED -> {
-        statusIcon.setColorFilter(getColor(android.R.color.holo_green_dark))
-        statusIcon.setImageResource(android.R.drawable.checkbox_on_background)
-    }
-    V2SStatus.ERROR -> {
-        statusIcon.setColorFilter(Color.RED)
-        statusIcon.setImageResource(android.R.drawable.ic_dialog_alert)
-    }
-}
-```
+**Status indication**:
+Status is indicated through the transcribe button's drawable and text. The button displays the current status and appropriate action:
+- **NOT_STARTED**: Gray icon, "Transcribe" text
+- **PROCESSING**: Orange icon, "Processing" text, button disabled
+- **COMPLETED**: Green icon, "Retranscribe" text
+- **ERROR/FALLBACK**: Red icon, "Retry" text
+- **DISABLED**: Gray icon, "Disabled" text, button disabled
+
 
 ---
 
