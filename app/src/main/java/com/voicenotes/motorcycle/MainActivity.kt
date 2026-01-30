@@ -21,6 +21,20 @@ import androidx.lifecycle.lifecycleScope
 import com.voicenotes.motorcycle.database.RecordingMigration
 import kotlinx.coroutines.launch
 
+/**
+ * Main activity for Voice Notes app.
+ * 
+ * This activity has two distinct launch modes:
+ * 1. Normal Launch (Headless Mode): When launched from the app icon, immediately starts 
+ *    OverlayService in the background and finishes. No UI is shown.
+ * 2. Explicit UI Mode: When launched with EXTRA_SHOW_UI or fromSettings flag, shows UI for 
+ *    permission checks and configuration. This is triggered via long-press "Manage" or VN Manager app.
+ * 
+ * The activity is minimal and exists only to:
+ * - Handle normal app launch by starting background service
+ * - Provide UI for explicit settings/management requests
+ * - Check and request required permissions when needed
+ */
 class MainActivity : AppCompatActivity() {
 
     companion object {
