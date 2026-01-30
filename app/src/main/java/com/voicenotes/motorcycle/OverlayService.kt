@@ -52,8 +52,8 @@ import java.util.*
  * This service is responsible for:
  * 1. Configuration and Permission Validation: On startup, checks if the app is fully configured
  *    with all required permissions (overlay, microphone, location, Bluetooth) and settings 
- *    (recording duration, save directory). If not configured, displays a brief, non-intrusive
- *    overlay bubble message for ~3 seconds, then automatically stops the service.
+ *    (save directory). If not configured, displays a brief, non-intrusive overlay bubble 
+ *    message for ~3 seconds, then automatically stops the service.
  * 
  * 2. Recording Lifecycle: If fully configured, manages the complete recording lifecycle including:
  *    - GPS location acquisition
@@ -645,9 +645,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     /**
      * Checks if the app is fully configured with all necessary permissions and settings.
      * This includes:
-     * - All required permissions (overlay, microphone, location, Bluetooth)
+     * - All required runtime permissions (microphone, location, Bluetooth)
      * - Save directory configured in SharedPreferences
      * 
+     * Note: Overlay permission is already validated in onCreate() before this is called.
      * Note: Recording duration defaults to 10 seconds if not explicitly set, so we don't
      * check for it here.
      * 
@@ -656,13 +657,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun isAppFullyConfigured(): Boolean {
         Log.d("OverlayService", "Checking if app is fully configured")
         
-        // First check overlay permission (already verified in onCreate, but double-check)
-        if (!Settings.canDrawOverlays(this)) {
-            Log.w("OverlayService", "App not configured: Missing overlay permission")
-            return false
-        }
-        
-        // Check all other required permissions
+        // Check all required runtime permissions (overlay already verified in onCreate)
         if (!checkAllRequiredPermissions()) {
             Log.w("OverlayService", "App not configured: Missing required permissions")
             return false
