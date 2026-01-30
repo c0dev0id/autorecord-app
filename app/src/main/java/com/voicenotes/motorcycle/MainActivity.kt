@@ -81,21 +81,22 @@ class MainActivity : AppCompatActivity() {
         // Check if user is coming from settings or explicitly opening the app UI
         val fromSettings = intent?.getBooleanExtra("fromSettings", false) ?: false
 
-        // Check if app is configured
-        if (!isAppConfigured()) {
-            Log.d(TAG, "App not configured, showing unconfigured overlay and finishing")
-            startUnconfiguredOverlayAndFinish()
-            return
-        }
-
-        // If launched from launcher without explicit UI request, try background launch
-        if (!shouldShowUI && !fromSettings && checkPermissions() && Settings.canDrawOverlays(this)) {
-            Log.d(TAG, "Background launch mode - starting OverlayService directly")
-            startBackgroundRecording()
+        // Determine if this is an explicit UI request
+        val explicitUIRequest = shouldShowUI || fromSettings
+        
+        // For normal launch (not explicit UI request), start service immediately and finish
+        if (!explicitUIRequest) {
+            Log.d(TAG, "Normal launch (headless mode) - starting OverlayService and finishing")
+            val serviceIntent = Intent(this, OverlayService::class.java)
+            ContextCompat.startForegroundService(this, serviceIntent)
+            finish()
             return
         }
         
-        // Otherwise, show UI for setup/permissions
+        // Below this point: explicit UI request only (settings/manager flow)
+        Log.d(TAG, "Explicit UI request - showing configuration UI")
+        
+        // Show UI for setup/permissions
         setContentView(R.layout.activity_main)
         
         infoText = findViewById(R.id.infoText)
@@ -136,33 +137,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isAppConfigured(): Boolean {
-        Log.d(TAG, "isAppConfigured() called")
-
-        // Check if all required permissions are granted
-        val hasPermissions = checkPermissions()
-        Log.d(TAG, "Has permissions: $hasPermissions")
-
-        // Check if overlay permission is granted
-        val hasOverlay = Settings.canDrawOverlays(this)
-        Log.d(TAG, "Has overlay permission: $hasOverlay")
-        
-        // Check if VN Manager icon has been added
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val hasManagerIcon = prefs.getBoolean("managerIconPresent", false)
-        Log.d(TAG, "Has manager icon: $hasManagerIcon")
-
-        return hasPermissions && hasOverlay && hasManagerIcon
-    }
-
-    private fun startUnconfiguredOverlayAndFinish() {
-        Log.d(TAG, "Starting OverlayService to show unconfigured message")
-        val serviceIntent = Intent(this, OverlayService::class.java)
-        serviceIntent.putExtra("extra_show_unconfigured_overlay", true)
-        ContextCompat.startForegroundService(this, serviceIntent)
-        finish()
-    }
-    
     private fun checkOverlayPermission() {
         Log.d(TAG, "checkOverlayPermission() called")
         
@@ -256,31 +230,6 @@ class MainActivity : AppCompatActivity() {
 
         // Immediately finish - don't keep MainActivity around
         Log.d(TAG, "Finishing MainActivity immediately")
-        finish()
-    }
-    
-    private fun startBackgroundRecording() {
-        Log.d(TAG, "startBackgroundRecording() called - launching service without UI")
-        
-        // Check if already recording - if so, extend instead
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        if (prefs.getBoolean("isCurrentlyRecording", false)) {
-            Log.d(TAG, "Already recording, extending")
-            // Start service with extension request
-            val serviceIntent = Intent(this, OverlayService::class.java)
-            val configuredDuration = prefs.getInt("recordingDuration", 10)
-            serviceIntent.putExtra("additionalDuration", configuredDuration)
-            startService(serviceIntent)
-            finish()
-            return
-        }
-        
-        // Start overlay service
-        Log.d(TAG, "Starting OverlayService in background mode")
-        val serviceIntent = Intent(this, OverlayService::class.java)
-        startService(serviceIntent)
-        
-        // Immediately finish the activity - no UI flicker
         finish()
     }
     
