@@ -168,7 +168,14 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val resetDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (resetDuration > 0) {
-            // This is an extension request - reset timer to the duration from the intent
+            // This is an extension request - verify permissions are still valid
+            if (!checkAllRequiredPermissions()) {
+                Log.w("OverlayService", "Extension request but permissions missing - showing overlay and stopping")
+                handleOverlayMessage(getString(R.string.permissions_missing_overlay_message), 7000)
+                return START_NOT_STICKY
+            }
+            
+            // Permissions OK - reset timer to the duration from the intent
             extendRecordingDuration(resetDuration)
             return START_NOT_STICKY
         }
@@ -176,7 +183,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Normal startup flow - first check all required permissions
         if (!checkAllRequiredPermissions()) {
             // Permissions are missing - show informational overlay and quit
-            handleMissingPermissionsOverlay()
+            handleOverlayMessage(getString(R.string.permissions_missing_overlay_message), 7000)
             return START_NOT_STICKY
         }
         
@@ -581,11 +588,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun checkAllRequiredPermissions(): Boolean {
         Log.d("OverlayService", "Checking all required permissions")
         
-        // Check overlay permission
-        if (!Settings.canDrawOverlays(this)) {
-            Log.w("OverlayService", "Missing permission: Overlay")
-            return false
-        }
+        // Note: Overlay permission already checked in onCreate()
         
         // Check microphone permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
@@ -601,19 +604,21 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             return false
         }
         
-        // Check Bluetooth permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-            != PackageManager.PERMISSION_GRANTED) {
-            Log.w("OverlayService", "Missing permission: Bluetooth (BLUETOOTH_CONNECT)")
-            return false
+        // Check Bluetooth permission (only on Android 12+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+                Log.w("OverlayService", "Missing permission: Bluetooth (BLUETOOTH_CONNECT)")
+                return false
+            }
         }
         
         Log.d("OverlayService", "All required permissions are granted")
         return true
     }
     
-    private fun handleMissingPermissionsOverlay() {
-        Log.d("OverlayService", "Handling missing permissions overlay display")
+    private fun handleOverlayMessage(message: String, timeoutMs: Long) {
+        Log.d("OverlayService", "Handling overlay message display: $message (timeout: ${timeoutMs}ms)")
         
         // Set flag to prevent recording flow from starting
         isUnconfiguredMode = true
@@ -623,41 +628,17 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // Verify overlay was created successfully
         if (overlayView == null || bubbleLine1 == null) {
-            Log.e("OverlayService", "Overlay not created - cannot show missing permissions message")
+            Log.e("OverlayService", "Overlay not created - cannot show message")
             stopSelf()
             return
         }
         
-        // Show the missing permissions message in the overlay
-        updateOverlay(getString(R.string.permissions_missing_overlay_message))
+        // Show the message in the overlay
+        updateOverlay(message)
         
-        // Schedule service stop after 7 seconds
+        // Schedule service stop after specified timeout
         unconfiguredOverlayTimeoutRunnable = Runnable { stopSelfAndFinish() }
-        handler.postDelayed(unconfiguredOverlayTimeoutRunnable!!, 7000)
-    }
-
-    private fun handleUnconfiguredOverlay() {
-        Log.d("OverlayService", "Handling unconfigured overlay display")
-        
-        // Set flag to prevent recording flow from starting
-        isUnconfiguredMode = true
-        
-        // Cancel TTS timeout since we're not using TTS for this flow
-        ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
-        
-        // Verify overlay was created successfully
-        if (overlayView == null || bubbleLine1 == null) {
-            Log.e("OverlayService", "Overlay not created - cannot show unconfigured message")
-            stopSelf()
-            return
-        }
-        
-        // Show the unconfigured message in the overlay
-        updateOverlay(getString(R.string.app_unconfigured_overlay_message))
-        
-        // Schedule service stop after 10 seconds
-        unconfiguredOverlayTimeoutRunnable = Runnable { stopSelfAndFinish() }
-        handler.postDelayed(unconfiguredOverlayTimeoutRunnable!!, 10000)
+        handler.postDelayed(unconfiguredOverlayTimeoutRunnable!!, timeoutMs)
     }
 
     private fun stopRecording() {
