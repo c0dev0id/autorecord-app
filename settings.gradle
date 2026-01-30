@@ -1,2 +1,3 @@
 rootProject.name = "MotorcycleVoiceNotes"
 include ':app'
+include ':vnmanager-opener'

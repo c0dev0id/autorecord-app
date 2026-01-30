@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:translateX="10.8"
+        android:translateY="10.8">
+
+        <!-- Large prominent settings gear icon centered at (54, 44) -->
+        <!-- Outer gear teeth -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,28
+                             L58,30
+                             L60,26
+                             L66,26
+                             L68,30
+                             L72,28
+                             L76,32
+                             L74,36
+                             L78,38
+                             L78,44
+                             L74,46
+                             L76,50
+                             L72,54
+                             L68,52
+                             L66,56
+                             L60,56
+                             L58,52
+                             L54,54
+                             L50,50
+                             L52,46
+                             L48,44
+                             L48,38
+                             L52,36
+                             L50,32
+                             Z"/>
+
+        <!-- Inner gear circle (creates the gear teeth effect) -->
+        <path
+            android:fillColor="#2196F3"
+            android:pathData="M54,34
+                             C48.48,34 44,38.48 44,44
+                             C44,49.52 48.48,54 54,54
+                             C59.52,54 64,49.52 64,44
+                             C64,38.48 59.52,34 54,34
+                             Z"/>
+
+        <!-- Center hole of gear -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M54,39
+                             C51.24,39 49,41.24 49,44
+                             C49,46.76 51.24,49 54,49
+                             C56.76,49 59,46.76 59,44
+                             C59,41.24 56.76,39 54,39
+                             Z"/>
+
+        <!-- Small microphone icon in bottom-left corner -->
+        <!-- Microphone body (smaller) -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M40,62
+                             C38.34,62 37,63.34 37,65
+                             L37,70
+                             C37,71.66 38.34,73 40,73
+                             C41.66,73 43,71.66 43,70
+                             L43,65
+                             C43,63.34 41.66,62 40,62
+                             Z"/>
+
+        <!-- Microphone stand (smaller) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:pathData="M40,73 L40,78"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:pathData="M36,78 L44,78"/>
+
+        <!-- Microphone arc (smaller) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:fillColor="@android:color/transparent"
+            android:strokeLineCap="round"
+            android:pathData="M34,70 C34,74 36.5,77 40,77 C43.5,77 46,74 46,70"/>
+    </group>
+</vector>
