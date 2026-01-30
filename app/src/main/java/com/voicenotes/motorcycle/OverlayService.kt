@@ -646,8 +646,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
      * Checks if the app is fully configured with all necessary permissions and settings.
      * This includes:
      * - All required permissions (overlay, microphone, location, Bluetooth)
-     * - Recording duration configured in SharedPreferences
      * - Save directory configured in SharedPreferences
+     * 
+     * Note: Recording duration defaults to 10 seconds if not explicitly set, so we don't
+     * check for it here.
      * 
      * @return true if app is fully configured, false otherwise
      */
@@ -666,18 +668,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             return false
         }
         
-        // Check if recording duration is configured
-        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        val recordingDuration = prefs.getInt("recordingDuration", -1)
-        if (recordingDuration == -1) {
-            Log.w("OverlayService", "App not configured: Recording duration not set")
-            return false
-        }
-        
         // Check if save directory is configured
+        // Note: SettingsActivity auto-configures this when first opened, so if it's null
+        // the user has never opened the settings/manager UI
+        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
         if (saveDir.isNullOrEmpty()) {
-            Log.w("OverlayService", "App not configured: Save directory not set")
+            Log.w("OverlayService", "App not configured: Save directory not set (user has not opened settings)")
             return false
         }
         
