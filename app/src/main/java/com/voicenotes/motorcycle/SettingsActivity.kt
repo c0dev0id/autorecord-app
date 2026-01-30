@@ -231,8 +231,6 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Background recording may be interrupted", Toast.LENGTH_LONG).show()
             }
             updatePermissionStatusList()
-            // After battery optimization, check and request VN Manager icon
-            checkAndRequestVNManagerIcon()
         }
     }
 
@@ -298,22 +296,17 @@ class SettingsActivity : AppCompatActivity() {
                         startActivityForResult(intent, BATTERY_OPTIMIZATION_REQUEST_CODE)
                     } catch (e: Exception) {
                         Toast.makeText(this, "Unable to open battery settings", Toast.LENGTH_SHORT).show()
-                        // Still continue to VN Manager icon step
-                        checkAndRequestVNManagerIcon()
+                        updatePermissionStatusList()
                     }
                 }
                 .setNegativeButton("Skip") { _, _ ->
                     Toast.makeText(this, "Background recording may be interrupted", Toast.LENGTH_LONG).show()
                     updatePermissionStatusList()
-                    // Continue to VN Manager icon step
-                    checkAndRequestVNManagerIcon()
                 }
                 .show()
         } else {
             Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
             updatePermissionStatusList()
-            // Continue to VN Manager icon step
-            checkAndRequestVNManagerIcon()
         }
     }
 
@@ -337,150 +330,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
     
-    private fun checkAndRequestVNManagerIcon() {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val hasManagerIcon = prefs.getBoolean("managerIconPresent", false)
-        val iconDenied = prefs.getBoolean("managerIconDenied", false)
-        
-        // If already present or user explicitly denied, don't show dialog
-        if (hasManagerIcon || iconDenied) {
-            Log.d("SettingsActivity", "VN Manager icon: present=$hasManagerIcon, denied=$iconDenied")
-            return
-        }
-        
-        // Show dialog to add VN Manager icon
-        showVNManagerIconDialog()
-    }
-    
-    private fun showVNManagerIconDialog() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.add_vn_manager_permission_title)
-            .setMessage(R.string.add_vn_manager_permission_message)
-            .setPositiveButton(R.string.add_launcher_icon) { _, _ ->
-                addLauncherIcon()
-            }
-            .setNeutralButton(R.string.add_home_shortcut) { _, _ ->
-                addHomeShortcut()
-            }
-            .setNegativeButton(android.R.string.cancel) { _, _ ->
-                // Mark as denied
-                val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                prefs.edit().putBoolean("managerIconDenied", true).apply()
-                Log.d("SettingsActivity", "User declined VN Manager icon")
-            }
-            .setCancelable(false)
-            .show()
-    }
-    
-    private fun addLauncherIcon() {
-        try {
-            // Enable the VNManagerLauncherActivity component
-            val componentName = android.content.ComponentName(
-                this,
-                VNManagerLauncherActivity::class.java
-            )
-            
-            packageManager.setComponentEnabledSetting(
-                componentName,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                PackageManager.DONT_KILL_APP
-            )
-            
-            Log.d("SettingsActivity", "VNManagerLauncherActivity component enabled")
-            
-            // Show confirmation dialog
-            showIconConfirmationDialog()
-            
-        } catch (e: Exception) {
-            Log.e("SettingsActivity", "Failed to enable launcher icon", e)
-            Toast.makeText(
-                this,
-                getString(R.string.manager_icon_failed_to_add, e.message ?: "Unknown error"),
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
-    
-    private fun showIconConfirmationDialog() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.manager_icon_check_title)
-            .setMessage(R.string.manager_icon_check_message)
-            .setPositiveButton(android.R.string.yes) { _, _ ->
-                // User confirmed icon appeared
-                val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                prefs.edit().putBoolean("managerIconPresent", true).apply()
-                Toast.makeText(this, R.string.manager_icon_added_toast, Toast.LENGTH_SHORT).show()
-                Log.d("SettingsActivity", "managerIconPresent set to true via user confirmation")
-            }
-            .setNegativeButton(android.R.string.no) { _, _ ->
-                // Icon didn't appear, mark as denied to avoid re-prompting
-                val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                prefs.edit().putBoolean("managerIconDenied", true).apply()
-                // Show help message
-                Toast.makeText(this, R.string.may_need_launcher_refresh, Toast.LENGTH_LONG).show()
-                Log.d("SettingsActivity", "User indicated icon didn't appear, marked as denied")
-            }
-            .setCancelable(false)
-            .show()
-    }
-    
-    private fun addHomeShortcut() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Use ShortcutManager for API 26+
-                val shortcutManager = getSystemService(android.content.pm.ShortcutManager::class.java)
-                
-                if (shortcutManager?.isRequestPinShortcutSupported == true) {
-                    // Create intent for the shortcut
-                    val shortcutIntent = Intent(this, SettingsActivity::class.java)
-                    shortcutIntent.action = Intent.ACTION_VIEW
-                    
-                    // Create shortcut info
-                    val shortcutInfo = android.content.pm.ShortcutInfo.Builder(this, "vn_manager_shortcut")
-                        .setShortLabel(getString(R.string.settings_launcher_name))
-                        .setLongLabel(getString(R.string.settings_title))
-                        .setIcon(android.graphics.drawable.Icon.createWithResource(this, R.mipmap.ic_launcher_settings))
-                        .setIntent(shortcutIntent)
-                        .build()
-                    
-                    // Create callback intent for when shortcut is pinned
-                    val callbackIntent = Intent(this, VNManagerIconReceiver::class.java)
-                    val successCallback = android.app.PendingIntent.getBroadcast(
-                        this,
-                        0,
-                        callbackIntent,
-                        android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
-                    )
-                    
-                    // Request to pin shortcut
-                    shortcutManager.requestPinShortcut(shortcutInfo, successCallback.intentSender)
-                    
-                    Toast.makeText(this, R.string.manager_icon_requested_toast, Toast.LENGTH_LONG).show()
-                    Log.d("SettingsActivity", "Pinned shortcut request sent with callback")
-                } else {
-                    Toast.makeText(
-                        this,
-                        getString(R.string.manager_icon_failed_to_add, "Pinned shortcuts not supported"),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            } else {
-                Toast.makeText(
-                    this,
-                    getString(R.string.manager_icon_failed_to_add, "Requires Android 8.0+"),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        } catch (e: Exception) {
-            Log.e("SettingsActivity", "Failed to create pinned shortcut", e)
-            Toast.makeText(
-                this,
-                getString(R.string.manager_icon_failed_to_add, e.message ?: "Unknown error"),
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         loadCurrentSettings()

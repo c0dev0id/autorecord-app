@@ -58,47 +58,6 @@
             android:parentActivityName=".MainActivity">
         </activity>
         
-        <!-- VN Manager Launcher Activity - disabled by default, enabled after user consent
-             
-             This is different from SettingsLauncher below:
-             - VNManagerLauncherActivity: Disabled by default, enabled programmatically after user consent
-             - SettingsLauncher: Always enabled, provides persistent second launcher icon
-             
-             Both exist to give users flexibility in how they access the settings.
-        -->
-        <activity
-            android:name=".VNManagerLauncherActivity"
-            android:taskAffinity="com.voicenotes.motorcycle.manager"
-            android:enabled="false"
-            android:exported="true"
-            android:label="@string/settings_launcher_name"
-            android:icon="@mipmap/ic_launcher_settings"
-            android:roundIcon="@mipmap/ic_launcher_settings_round">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <!-- Activity alias for Settings launcher icon
-
-             This creates a second launcher icon labeled "Voice Notes Manager" that opens
-             SettingsActivity. It handles LAUNCHER intents only.
-        -->
-        <activity-alias
-            android:name=".SettingsLauncher"
-            android:targetActivity=".SettingsActivity"
-            android:taskAffinity="com.voicenotes.motorcycle.manager"
-            android:exported="true"
-            android:label="@string/settings_launcher_name"
-            android:icon="@mipmap/ic_launcher_settings"
-            android:roundIcon="@mipmap/ic_launcher_settings_round">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-        
         <activity
             android:name=".DebugLogActivity"
             android:exported="false"
@@ -119,11 +78,6 @@
         
         <service
             android:name=".BatchProcessingService"
-            android:exported="false" />
-        
-        <!-- Broadcast receiver for VN Manager icon pinned shortcut callbacks -->
-        <receiver
-            android:name=".VNManagerIconReceiver"
             android:exported="false" />
     </application>
 

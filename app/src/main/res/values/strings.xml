@@ -69,16 +69,4 @@
     <string name="playback_stopped">Playback stopped</string>
     <string name="playback_finished">Playback finished</string>
     <string name="playing_recording">Playing recording...</string>
-    
-    <!-- VN Manager Icon strings -->
-    <string name="add_vn_manager_permission_title">Add VN Manager</string>
-    <string name="add_vn_manager_permission_message">To access Settings in future, a second app icon (VN Manager) needs to be added to your home screen. Choose how you want to add it:</string>
-    <string name="add_launcher_icon">Add Launcher Icon</string>
-    <string name="add_home_shortcut">Add Home Shortcut</string>
-    <string name="manager_icon_check_title">Icon added?</string>
-    <string name="manager_icon_check_message">Did the VN Manager icon appear on your home screen?</string>
-    <string name="manager_icon_requested_toast">VN Manager: pin request sent. Please confirm the dialog to add the shortcut.</string>
-    <string name="manager_icon_added_toast">VN Manager icon added.</string>
-    <string name="manager_icon_failed_to_add">Failed to add VN Manager icon: %1$s</string>
-    <string name="may_need_launcher_refresh">If the icon doesn\'t appear, try refreshing your launcher or rebooting the device.</string>
 </resources>
