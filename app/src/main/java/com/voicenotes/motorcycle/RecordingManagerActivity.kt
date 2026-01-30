@@ -11,12 +11,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -24,6 +21,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import com.voicenotes.motorcycle.database.Recording
 import com.voicenotes.motorcycle.database.RecordingDatabase
 import com.voicenotes.motorcycle.database.V2SStatus
@@ -45,7 +45,7 @@ class RecordingManagerActivity : AppCompatActivity() {
     private lateinit var emptyView: TextView
     private lateinit var adapter: RecordingAdapter
     private var mediaPlayer: MediaPlayer? = null
-    private var currentlyPlayingButton: Button? = null
+    private var currentlyPlayingButton: MaterialButton? = null
     private var currentlyPlayingFilepath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,7 +107,7 @@ class RecordingManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun playRecording(recording: Recording, playButton: Button) {
+    private fun playRecording(recording: Recording, playButton: MaterialButton) {
         try {
             // If already playing this file, stop it
             if (mediaPlayer != null && currentlyPlayingFilepath == recording.filepath) {
@@ -226,8 +226,8 @@ class RecordingManagerActivity : AppCompatActivity() {
     }
 
     private fun changeTranscriptionText(recording: Recording) {
-        // Create an EditText for the dialog
-        val editText = EditText(this).apply {
+        // Create a TextInputEditText for the dialog
+        val editText = TextInputEditText(this).apply {
             setText(recording.v2sResult ?: "")
             hint = "Enter transcription text"
             setSingleLine(false)
@@ -235,7 +235,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             setPadding(50, 20, 50, 20)
         }
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Edit Transcription")
             .setMessage("Modify the transcribed text:")
             .setView(editText)
@@ -271,7 +271,7 @@ class RecordingManagerActivity : AppCompatActivity() {
     }
 
     private fun deleteRecording(recording: Recording) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Delete Recording")
             .setMessage("Are you sure you want to delete this recording?")
             .setPositiveButton("Delete") { _, _ ->
@@ -304,7 +304,7 @@ class RecordingManagerActivity : AppCompatActivity() {
 
     private fun downloadRecording(recording: Recording) {
         val options = arrayOf("Audio", "GPX", "CSV", "All")
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Export Format")
             .setItems(options) { _, which ->
                 when (which) {
@@ -331,7 +331,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             }
 
             val options = arrayOf("Audio (ZIP)", "GPX", "CSV", "All (ZIP)")
-            AlertDialog.Builder(this@RecordingManagerActivity)
+            MaterialAlertDialogBuilder(this@RecordingManagerActivity)
                 .setTitle("Export All - Select Format")
                 .setItems(options) { _, which ->
                     when (which) {
@@ -536,7 +536,7 @@ class RecordingManagerActivity : AppCompatActivity() {
 }
 
 class RecordingAdapter(
-    private val onPlayClick: (Recording, Button) -> Unit,
+    private val onPlayClick: (Recording, MaterialButton) -> Unit,
     private val onTranscribeClick: (Recording) -> Unit,
     private val onOpenMapsClick: (Recording) -> Unit,
     private val onDeleteClick: (Recording) -> Unit,
@@ -640,15 +640,15 @@ class RecordingAdapter(
         private val dateTimeText: TextView = view.findViewById(R.id.dateTimeText)
         private val locationText: TextView = view.findViewById(R.id.locationText)
 
-        private val transcriptionEditText: EditText = view.findViewById(R.id.transcriptionEditText)
-        private val saveTranscriptionButton: Button = view.findViewById(R.id.saveTranscriptionButton)
+        private val transcriptionEditText: TextInputEditText = view.findViewById(R.id.transcriptionEditText)
+        private val saveTranscriptionButton: MaterialButton = view.findViewById(R.id.saveTranscriptionButton)
         private val v2sStatusIcon: ImageView = view.findViewById(R.id.v2sStatusIcon)
-        private val transcribeButton: Button = view.findViewById(R.id.transcribeButton)
+        private val transcribeButton: MaterialButton = view.findViewById(R.id.transcribeButton)
 
-        private val deleteButton: Button = view.findViewById(R.id.deleteButton)
-        private val downloadButton: Button = view.findViewById(R.id.downloadButton)
-        private val openMapsButton: Button = view.findViewById(R.id.openMapsButton)
-        private val playButton: Button = view.findViewById(R.id.playButton)
+        private val deleteButton: MaterialButton = view.findViewById(R.id.deleteButton)
+        private val downloadButton: MaterialButton = view.findViewById(R.id.downloadButton)
+        private val openMapsButton: MaterialButton = view.findViewById(R.id.openMapsButton)
+        private val playButton: MaterialButton = view.findViewById(R.id.playButton)
 
         private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
         
