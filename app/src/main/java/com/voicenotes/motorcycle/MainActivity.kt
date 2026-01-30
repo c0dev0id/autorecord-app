@@ -13,7 +13,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -34,7 +33,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var infoText: TextView
     private lateinit var progressBar: ProgressBar
-    private lateinit var openManagerButton: Button
 
     private val PERMISSIONS_REQUEST_CODE = 100
     private val OVERLAY_PERMISSION_REQUEST_CODE = 101
@@ -85,8 +83,8 @@ class MainActivity : AppCompatActivity() {
 
         // Check if app is configured
         if (!isAppConfigured()) {
-            Log.d(TAG, "App not configured, showing unconfigured screen")
-            showUnconfiguredScreen()
+            Log.d(TAG, "App not configured, showing unconfigured overlay and finishing")
+            startUnconfiguredOverlayAndFinish()
             return
         }
 
@@ -157,44 +155,12 @@ class MainActivity : AppCompatActivity() {
         return hasPermissions && hasOverlay && hasManagerIcon
     }
 
-    private fun showUnconfiguredScreen() {
-        setContentView(R.layout.activity_main)
-
-        infoText = findViewById(R.id.infoText)
-        progressBar = findViewById(R.id.progressBar)
-        openManagerButton = findViewById(R.id.openManagerButton)
-
-        // Hide progress bar
-        progressBar.visibility = View.GONE
-
-        // Show the "Open Manager" button
-        openManagerButton.visibility = View.VISIBLE
-
-        // Set click listener for the button
-        openManagerButton.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
-        // Show unconfigured message
-        infoText.text = getString(R.string.app_unconfigured_message)
-
-        // Start countdown
-        var secondsRemaining = 10
-        val countdownHandler = Handler(Looper.getMainLooper())
-        val countdownRunnable = object : Runnable {
-            override fun run() {
-                if (secondsRemaining > 0) {
-                    infoText.text = "${getString(R.string.app_unconfigured_message)}\n\n${getString(R.string.closing_in, secondsRemaining)}"
-                    secondsRemaining--
-                    countdownHandler.postDelayed(this, 1000)
-                } else {
-                    finish()
-                }
-            }
-        }
-        countdownHandler.post(countdownRunnable)
+    private fun startUnconfiguredOverlayAndFinish() {
+        Log.d(TAG, "Starting OverlayService to show unconfigured message")
+        val serviceIntent = Intent(this, OverlayService::class.java)
+        serviceIntent.putExtra("extra_show_unconfigured_overlay", true)
+        ContextCompat.startForegroundService(this, serviceIntent)
+        finish()
     }
     
     private fun checkOverlayPermission() {

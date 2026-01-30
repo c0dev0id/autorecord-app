@@ -13,7 +13,6 @@
     <string name="save_directory">Storage Location</string>
     <string name="not_set">Not Configured</string>
     <string name="open_settings">Open Voice Notes Manager</string>
-    <string name="open_manager">Open Manager</string>
     <string name="grant_all_permissions">Grant Required Permissions</string>
     <string name="configuration_info">Configure recording storage location and duration</string>
     <string name="quit_app">Quit</string>
@@ -51,8 +50,7 @@
     <string name="processing_complete">Processing complete</string>
     <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
     <string name="app_unconfigured_title">App Not Configured</string>
-    <string name="app_unconfigured_message">Please use Voice Notes Manager to configure permissions and manage recordings.</string>
-    <string name="closing_in">Closing in %d seconds...</string>
+    <string name="app_unconfigured_overlay_message">The application is not yet configured. Configure it by long-pressing the app icon and choosing &apos;Manage&apos;, or install and open the &apos;VN Manager&apos; helper app if your launcher does not support long-press.</string>
     
     <!-- Transcription strings -->
     <string name="transcribe">Transcribe</string>

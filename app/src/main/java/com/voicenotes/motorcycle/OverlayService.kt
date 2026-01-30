@@ -157,6 +157,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        
+        // Check if this is a request to show unconfigured overlay
+        val showUnconfiguredOverlay = intent?.getBooleanExtra("extra_show_unconfigured_overlay", false) ?: false
+        
+        if (showUnconfiguredOverlay) {
+            // Handle unconfigured overlay display
+            handleUnconfiguredOverlay()
+            return START_NOT_STICKY
+        }
+        
         // Intent extra key "additionalDuration" kept for backward compatibility
         // Variable named resetDuration to reflect actual behavior (reset, not add)
         val resetDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
@@ -556,6 +566,26 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // Update bubble to show extension
         updateOverlay("Recording extended! ${remainingSeconds}s remaining")
+    }
+
+    private fun handleUnconfiguredOverlay() {
+        Log.d("OverlayService", "Handling unconfigured overlay display")
+        
+        // Check if overlay permission is granted
+        if (!Settings.canDrawOverlays(this)) {
+            Log.e("OverlayService", "Overlay permission not granted - cannot show unconfigured message")
+            stopSelf()
+            return
+        }
+        
+        // Cancel TTS timeout since we're not using TTS for this flow
+        ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
+        
+        // Show the unconfigured message in the overlay
+        updateOverlay(getString(R.string.app_unconfigured_overlay_message))
+        
+        // Schedule service stop after 10 seconds
+        handler.postDelayed({ stopSelfAndFinish() }, 10000)
     }
 
     private fun stopRecording() {
