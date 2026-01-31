@@ -66,6 +66,12 @@ class MainActivity : AppCompatActivity() {
     
     private var shouldShowUI = false
     private var countDownTimer: CountDownTimer? = null
+    
+    // Transient UI configuration
+    private companion object {
+        private const val UNCONFIGURED_UI_AUTO_CLOSE_DURATION_MS = 10000L
+        private const val COUNTDOWN_INTERVAL_MS = 1000L
+    }
 
     // Required runtime permissions for headless mode
     // Note: BLUETOOTH_CONNECT is only required on API 31+ (Android 12+)
@@ -144,7 +150,7 @@ class MainActivity : AppCompatActivity() {
                     val settingsButton = findViewById<Button>(R.id.openSettingsButton)
                     
                     // Start 10-second countdown timer
-                    countDownTimer = object : CountDownTimer(10000, 1000) {
+                    countDownTimer = object : CountDownTimer(UNCONFIGURED_UI_AUTO_CLOSE_DURATION_MS, COUNTDOWN_INTERVAL_MS) {
                         override fun onTick(millisUntilFinished: Long) {
                             val secondsLeft = (millisUntilFinished / 1000).toInt()
                             countdownTextView.text = "Auto-closing in $secondsLeft seconds..."
@@ -157,13 +163,13 @@ class MainActivity : AppCompatActivity() {
                     }.start()
                     
                     // Wire settings button to launch SettingsActivity
+                    // Note: Not using Intent.FLAG_ACTIVITY_NEW_TASK as we're launching from Activity context
                     settingsButton.setOnClickListener {
                         Log.d(TAG, "Settings button clicked, launching SettingsActivity")
                         countDownTimer?.cancel()
                         
                         val settingsIntent = Intent(this, SettingsActivity::class.java)
                         settingsIntent.putExtra(EXTRA_SHOW_UI, true)
-                        settingsIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(settingsIntent)
                         
                         finish()
