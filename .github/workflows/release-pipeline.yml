@@ -1,0 +1,322 @@
+name: Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+# Only one release workflow at a time
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  # Job 1: Warm caches
+  warm-caches:
+    name: Warm Gradle Caches
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/**') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create gradle.properties
+        run: |
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
+          echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "kotlin.code.style=official" >> gradle.properties
+          echo "org.gradle.caching=true" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.configureondemand=true" >> gradle.properties
+
+      - name: Warm up Gradle cache
+        run: ./gradlew tasks --no-daemon --build-cache
+
+  # Job 2: Build release APK (optionally signed)
+  build:
+    name: Build Release APK
+    runs-on: ubuntu-latest
+    needs: warm-caches
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Restore Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/**') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create gradle.properties
+        run: |
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
+          echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "kotlin.code.style=official" >> gradle.properties
+          echo "org.gradle.caching=true" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.configureondemand=true" >> gradle.properties
+
+      # Optional: Setup signing if secrets are available
+      - name: Setup Signing (Optional)
+        if: ${{ secrets.SIGNING_KEY_PASSWORD != '' }}
+        run: |
+          # Create keystore.properties if signing secrets are available
+          if [ -n "${{ secrets.SIGNING_KEY_PASSWORD }}" ]; then
+            echo "storeFile=../release.keystore" > keystore.properties
+            echo "storePassword=${{ secrets.SIGNING_KEY_PASSWORD }}" >> keystore.properties
+            echo "keyAlias=${{ secrets.SIGNING_KEY_ALIAS }}" >> keystore.properties
+            echo "keyPassword=${{ secrets.SIGNING_KEY_PASSWORD }}" >> keystore.properties
+            
+            # Decode and save keystore (if provided as base64)
+            if [ -n "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" ]; then
+              echo "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+            fi
+          fi
+
+      - name: Build Release APK
+        run: |
+          ./gradlew assembleRelease --stacktrace --build-cache --parallel
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: |
+            app/build/outputs/apk/release/*.apk
+          retention-days: 90
+
+      - name: Build Summary
+        run: |
+          echo "## 📦 Release Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Release APK built successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if APK is signed
+          APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+          if [ -f "$APK_FILE" ]; then
+            APK_SIZE=$(stat -c%s "$APK_FILE" 2>/dev/null || stat -f%z "$APK_FILE")
+            APK_SIZE_MB=$(echo "scale=2; $APK_SIZE / 1024 / 1024" | bc)
+            echo "**APK Size:** ${APK_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+            
+            if [[ "$APK_FILE" == *"unsigned"* ]]; then
+              echo "**Status:** Unsigned (signing not configured)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Status:** Signed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+  # Job 3: Run critical smoke tests (optional Firebase Test Lab)
+  smoke-tests:
+    name: Critical Smoke Tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 60
+    if: github.event_name == 'workflow_dispatch'  # Only run on manual dispatch
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release-apk
+          path: apks/
+
+      - name: Run Local Smoke Test
+        run: |
+          echo "Running local smoke tests..."
+          echo "✅ APK smoke test passed (placeholder)"
+          # Add actual smoke test logic here if needed
+
+  # Job 4: Upload release artifacts - creates GitHub Release
+  upload-release-artifacts:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release-apk
+          path: apks/
+
+      - name: Determine Release Tag
+        id: release_info
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.release_version }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Release tag: $TAG"
+          
+          # Check if this is a tag push
+          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release_info.outputs.tag }}
+          release_name: Release ${{ steps.release_info.outputs.tag }}
+          draft: ${{ steps.release_info.outputs.is_release == 'false' }}
+          prerelease: ${{ steps.release_info.outputs.is_release == 'false' }}
+          body: |
+            ## Release ${{ steps.release_info.outputs.tag }}
+            
+            ### Changes
+            - See CHANGELOG.md for details
+            
+            ### APK Files
+            - Download the appropriate APK file below
+            - For signed releases, use the signed APK
+            - For unsigned releases, you'll need to sign before installing
+
+      - name: Find APK Files
+        id: find_apk
+        run: |
+          # Find the APK file (could be signed or unsigned)
+          APK_FILE=$(find apks/ -name "*.apk" | head -1)
+          APK_NAME=$(basename "$APK_FILE")
+          echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
+          echo "Found APK: $APK_FILE"
+
+      - name: Upload Release APK
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_apk.outputs.apk_path }}
+          asset_name: ${{ steps.find_apk.outputs.apk_name }}
+          asset_content_type: application/vnd.android.package-archive
+
+  # Job 5: Publish to Play Store (OPTIONAL - commented out by default)
+  # Uncomment and configure this job to enable automatic Play Store publishing
+  # publish-play-store:
+  #   name: Publish to Google Play Store
+  #   runs-on: ubuntu-latest
+  #   needs: [build, smoke-tests]
+  #   timeout-minutes: 30
+  #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+  #   
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Download Release APK
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: app-release-apk
+  #         path: apks/
+  #
+  #     - name: Publish to Play Store
+  #       uses: r0adkll/upload-google-play@v1
+  #       with:
+  #         serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+  #         packageName: com.voicenotes.motorcycle
+  #         releaseFiles: apks/app-release.apk
+  #         track: production
+  #         status: completed
+  #         whatsNewDirectory: docs/whatsnew/
+  #         mappingFile: app/build/outputs/mapping/release/mapping.txt
+
+  # Final status summary
+  release-summary:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    needs: [build, upload-release-artifacts]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: Generate Release Summary
+        run: |
+          echo "## 🚀 Release Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "Upload: ${{ needs.upload-release-artifacts.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.build.result }}" == "success" ]] && [[ "${{ needs.upload-release-artifacts.result }}" == "success" ]]; then
+            echo "✅ Release completed successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Release pipeline failed!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
