@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#E0F0F0F0">
+
+    <TextView
+        android:id="@+id/unconfiguredInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Permissions required for background recording"
+        android:textSize="18sp"
+        android:textColor="#212121"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/unconfiguredCountdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Auto-closing in 10 seconds..."
+        android:textSize="16sp"
+        android:textColor="#757575"
+        android:gravity="center"
+        android:layout_marginBottom="32dp" />
+
+    <Button
+        android:id="@+id/openSettingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open app settings"
+        android:textAllCaps="false"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp" />
+
+</LinearLayout>

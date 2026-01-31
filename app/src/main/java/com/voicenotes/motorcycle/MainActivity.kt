@@ -8,10 +8,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-
+import android.os.CountDownTimer
 import android.provider.Settings
 import android.util.Log
-
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -64,6 +65,7 @@ class MainActivity : AppCompatActivity() {
     private var isReceiverRegistered = false
     
     private var shouldShowUI = false
+    private var countDownTimer: CountDownTimer? = null
 
     // Required runtime permissions for headless mode
     // Note: BLUETOOTH_CONNECT is only required on API 31+ (Android 12+)
@@ -120,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         
         // For normal launch (not explicit UI request), guard permissions and start service
         // IMPORTANT: We check required runtime permissions here as a guard. If any are missing,
-        // we log and finish immediately to avoid crashes or incomplete initialization.
+        // we show a transient UI that auto-closes after 10 seconds with option to open settings.
         // OverlayService owns all other configuration checks (overlay permission, save directory).
         if (!shouldShowUI) {
             Log.d(TAG, "Headless mode: Checking required runtime permissions")
@@ -132,8 +134,44 @@ class MainActivity : AppCompatActivity() {
             
             if (missingPermissions.isNotEmpty()) {
                 Log.w(TAG, "Headless mode blocked: Missing required permissions: ${missingPermissions.joinToString()}")
-                Log.w(TAG, "MainActivity finishing immediately without starting service or showing UI")
-                finish()
+                Log.w(TAG, "Showing transient unconfigured UI with 10-second auto-close")
+                
+                // Show transient UI with auto-close
+                try {
+                    setContentView(R.layout.activity_unconfigured)
+                    
+                    val countdownTextView = findViewById<TextView>(R.id.unconfiguredCountdown)
+                    val settingsButton = findViewById<Button>(R.id.openSettingsButton)
+                    
+                    // Start 10-second countdown timer
+                    countDownTimer = object : CountDownTimer(10000, 1000) {
+                        override fun onTick(millisUntilFinished: Long) {
+                            val secondsLeft = (millisUntilFinished / 1000).toInt()
+                            countdownTextView.text = "Auto-closing in $secondsLeft seconds..."
+                        }
+                        
+                        override fun onFinish() {
+                            Log.d(TAG, "Countdown finished, finishing MainActivity")
+                            finish()
+                        }
+                    }.start()
+                    
+                    // Wire settings button to launch SettingsActivity
+                    settingsButton.setOnClickListener {
+                        Log.d(TAG, "Settings button clicked, launching SettingsActivity")
+                        countDownTimer?.cancel()
+                        
+                        val settingsIntent = Intent(this, SettingsActivity::class.java)
+                        settingsIntent.putExtra(EXTRA_SHOW_UI, true)
+                        settingsIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        startActivity(settingsIntent)
+                        
+                        finish()
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to inflate transient UI, finishing immediately", e)
+                    finish()
+                }
                 return
             }
             
@@ -355,6 +393,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        countDownTimer?.cancel()
         if (isReceiverRegistered) {
             unregisterReceiver(finishReceiver)
             isReceiverRegistered = false
