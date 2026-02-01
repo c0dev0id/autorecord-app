@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">Não foi possível abrir as configurações de bateria</string>
     <string name="skip">Pular</string>
     <string name="all_permissions_granted">Todas as permissões concedidas</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">Usando última localização conhecida</string>
+    <string name="location_unavailable_enable_gps">Localização indisponível - por favor, ative o GPS</string>
+    <string name="location_not_available">Localização não disponível</string>
+    <string name="location_permission_not_granted">Permissão de localização não concedida</string>
+    <string name="recording_failed_invalid_state">Gravação falhou: Estado inválido</string>
+    <string name="recording_failed_mic_in_use">Gravação falhou: Microfone em uso</string>
+    <string name="recording_failed_audio_unavailable">Gravação falhou: Fonte de áudio indisponível</string>
+    <string name="recording_failed_generic">Gravação falhou: %s</string>
+    <string name="recording_extended">Gravação estendida! %ds restantes</string>
+    <string name="recording_saved">Gravação salva</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">Fechando automaticamente em %d segundos...</string>
+    <string name="migrated_recordings">%d gravação%s existente migrada</string>
+    <string name="ok">OK</string>
+    <string name="failed_to_initialize_ui">Falha ao inicializar UI: %s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">Registro de depuração</string>
+    <string name="log_refreshed">Registro atualizado</string>
+    <string name="log_copied">Registro copiado para a área de transferência</string>
+    <string name="debug_log_share_subject">Registro de depuração do Motorcycle Voice Notes</string>
+    <string name="share_log_via">Compartilhar registro via...</string>
+    <string name="unable_to_share_log">Não foi possível compartilhar o registro: %s</string>
+    <string name="log_cleared">Registro limpo</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">Permissões necessárias para gravação em segundo plano</string>
+    <string name="auto_closing_default">Fechando automaticamente em 10 segundos...</string>
+    <string name="open_app_settings">Abrir configurações do app</string>
 </resources>

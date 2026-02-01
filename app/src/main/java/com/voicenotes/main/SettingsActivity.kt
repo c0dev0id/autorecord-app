@@ -294,7 +294,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         intent.data = Uri.parse("package:$packageName")
                         batteryOptimizationLauncher.launch(intent)
                     } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "Unable to open battery settings", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.unable_to_open_battery_settings), Toast.LENGTH_SHORT).show()
                         updatePermissionStatus()
                     }
                 }

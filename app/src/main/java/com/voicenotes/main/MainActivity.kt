@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                     countDownTimer = object : CountDownTimer(UNCONFIGURED_UI_AUTO_CLOSE_DURATION_MS, COUNTDOWN_INTERVAL_MS) {
                         override fun onTick(millisUntilFinished: Long) {
                             val secondsLeft = (millisUntilFinished / 1000).toInt()
-                            countdownTextView.text = "Auto-closing in $secondsLeft seconds..."
+                            countdownTextView.text = getString(R.string.auto_closing_countdown, secondsLeft)
                         }
                         
                         override fun onFinish() {
@@ -223,7 +223,7 @@ class MainActivity : AppCompatActivity() {
             checkOverlayPermission()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to inflate UI or initialize activity", e)
-            Toast.makeText(this, "Failed to initialize UI: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.failed_to_initialize_ui, e.message), Toast.LENGTH_LONG).show()
             finish()
         }
     }
@@ -259,7 +259,7 @@ class MainActivity : AppCompatActivity() {
                         runOnUiThread {
                             Toast.makeText(
                                 this@MainActivity,
-                                "Migrated $count existing recording${if (count > 1) "s" else ""}",
+                                getString(R.string.migrated_recordings, count, if (count > 1) "s" else ""),
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -280,7 +280,7 @@ class MainActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle(R.string.overlay_permission_required)
                 .setMessage(R.string.overlay_permission_message)
-                .setPositiveButton("OK") { _, _ ->
+                .setPositiveButton(getString(R.string.ok)) { _, _ ->
                     Log.d(TAG, "User clicked OK, launching overlay permission screen")
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,

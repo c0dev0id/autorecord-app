@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">バッテリー設定を開けません</string>
     <string name="skip">スキップ</string>
     <string name="all_permissions_granted">すべての権限が付与されました</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">最後に確認された位置情報を使用</string>
+    <string name="location_unavailable_enable_gps">位置情報が利用できません - GPSを有効にしてください</string>
+    <string name="location_not_available">位置情報が利用できません</string>
+    <string name="location_permission_not_granted">位置情報の権限が付与されていません</string>
+    <string name="recording_failed_invalid_state">録音失敗：無効な状態</string>
+    <string name="recording_failed_mic_in_use">録音失敗：マイクが使用中</string>
+    <string name="recording_failed_audio_unavailable">録音失敗：オーディオソースが利用できません</string>
+    <string name="recording_failed_generic">録音失敗：%s</string>
+    <string name="recording_extended">録音延長！残り%d秒</string>
+    <string name="recording_saved">録音が保存されました</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">%d秒後に自動的に閉じます...</string>
+    <string name="migrated_recordings">%d件の既存の録音%sを移行しました</string>
+    <string name="ok">OK</string>
+    <string name="failed_to_initialize_ui">UIの初期化に失敗しました：%s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">デバッグログ</string>
+    <string name="log_refreshed">ログが更新されました</string>
+    <string name="log_copied">ログがクリップボードにコピーされました</string>
+    <string name="debug_log_share_subject">Motorcycle Voice Notesデバッグログ</string>
+    <string name="share_log_via">ログを共有...</string>
+    <string name="unable_to_share_log">ログを共有できません：%s</string>
+    <string name="log_cleared">ログがクリアされました</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">バックグラウンド録音に必要な権限</string>
+    <string name="auto_closing_default">10秒後に自動的に閉じます...</string>
+    <string name="open_app_settings">アプリ設定を開く</string>
 </resources>

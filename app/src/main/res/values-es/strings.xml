@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">No se puede abrir la configuración de batería</string>
     <string name="skip">Omitir</string>
     <string name="all_permissions_granted">Todos los permisos concedidos</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">Usando última ubicación conocida</string>
+    <string name="location_unavailable_enable_gps">Ubicación no disponible - por favor active el GPS</string>
+    <string name="location_not_available">Ubicación no disponible</string>
+    <string name="location_permission_not_granted">Permiso de ubicación no concedido</string>
+    <string name="recording_failed_invalid_state">Grabación falló: Estado inválido</string>
+    <string name="recording_failed_mic_in_use">Grabación falló: Micrófono en uso</string>
+    <string name="recording_failed_audio_unavailable">Grabación falló: Fuente de audio no disponible</string>
+    <string name="recording_failed_generic">Grabación falló: %s</string>
+    <string name="recording_extended">¡Grabación extendida! %ds restantes</string>
+    <string name="recording_saved">Grabación guardada</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">Cerrando automáticamente en %d segundos...</string>
+    <string name="migrated_recordings">%d grabación%s existente migrada</string>
+    <string name="ok">OK</string>
+    <string name="failed_to_initialize_ui">Error al inicializar UI: %s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">Registro de depuración</string>
+    <string name="log_refreshed">Registro actualizado</string>
+    <string name="log_copied">Registro copiado al portapapeles</string>
+    <string name="debug_log_share_subject">Registro de depuración de Motorcycle Voice Notes</string>
+    <string name="share_log_via">Compartir registro vía...</string>
+    <string name="unable_to_share_log">No se puede compartir el registro: %s</string>
+    <string name="log_cleared">Registro borrado</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">Permisos requeridos para grabación en segundo plano</string>
+    <string name="auto_closing_default">Cerrando automáticamente en 10 segundos...</string>
+    <string name="open_app_settings">Abrir configuración de la app</string>
 </resources>

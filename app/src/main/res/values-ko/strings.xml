@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">배터리 설정을 열 수 없습니다</string>
     <string name="skip">건너뛰기</string>
     <string name="all_permissions_granted">모든 권한이 허용되었습니다</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">마지막으로 알려진 위치 사용</string>
+    <string name="location_unavailable_enable_gps">위치를 사용할 수 없음 - GPS를 활성화하세요</string>
+    <string name="location_not_available">위치를 사용할 수 없음</string>
+    <string name="location_permission_not_granted">위치 권한이 허용되지 않음</string>
+    <string name="recording_failed_invalid_state">녹음 실패: 잘못된 상태</string>
+    <string name="recording_failed_mic_in_use">녹음 실패: 마이크 사용 중</string>
+    <string name="recording_failed_audio_unavailable">녹음 실패: 오디오 소스를 사용할 수 없음</string>
+    <string name="recording_failed_generic">녹음 실패: %s</string>
+    <string name="recording_extended">녹음 연장! %d초 남음</string>
+    <string name="recording_saved">녹음이 저장됨</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">%d초 후 자동으로 닫힙니다...</string>
+    <string name="migrated_recordings">%d개의 기존 녹음%s 마이그레이션됨</string>
+    <string name="ok">확인</string>
+    <string name="failed_to_initialize_ui">UI 초기화 실패: %s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">디버그 로그</string>
+    <string name="log_refreshed">로그 새로고침됨</string>
+    <string name="log_copied">로그가 클립보드에 복사됨</string>
+    <string name="debug_log_share_subject">Motorcycle Voice Notes 디버그 로그</string>
+    <string name="share_log_via">로그 공유...</string>
+    <string name="unable_to_share_log">로그를 공유할 수 없음: %s</string>
+    <string name="log_cleared">로그가 지워짐</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">백그라운드 녹음에 필요한 권한</string>
+    <string name="auto_closing_default">10초 후 자동으로 닫힙니다...</string>
+    <string name="open_app_settings">앱 설정 열기</string>
 </resources>

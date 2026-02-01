@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">无法打开电池设置</string>
     <string name="skip">跳过</string>
     <string name="all_permissions_granted">已授予所有权限</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">使用上次已知位置</string>
+    <string name="location_unavailable_enable_gps">位置不可用 - 请启用GPS</string>
+    <string name="location_not_available">位置不可用</string>
+    <string name="location_permission_not_granted">位置权限未授予</string>
+    <string name="recording_failed_invalid_state">录音失败：无效状态</string>
+    <string name="recording_failed_mic_in_use">录音失败：麦克风正在使用</string>
+    <string name="recording_failed_audio_unavailable">录音失败：音频源不可用</string>
+    <string name="recording_failed_generic">录音失败：%s</string>
+    <string name="recording_extended">录音已延长！剩余%d秒</string>
+    <string name="recording_saved">录音已保存</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">%d秒后自动关闭...</string>
+    <string name="migrated_recordings">已迁移%d条现有录音%s</string>
+    <string name="ok">确定</string>
+    <string name="failed_to_initialize_ui">UI初始化失败：%s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">调试日志</string>
+    <string name="log_refreshed">日志已刷新</string>
+    <string name="log_copied">日志已复制到剪贴板</string>
+    <string name="debug_log_share_subject">摩托车语音笔记调试日志</string>
+    <string name="share_log_via">分享日志通过...</string>
+    <string name="unable_to_share_log">无法分享日志：%s</string>
+    <string name="log_cleared">日志已清除</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">后台录音所需权限</string>
+    <string name="auto_closing_default">10秒后自动关闭...</string>
+    <string name="open_app_settings">打开应用设置</string>
 </resources>

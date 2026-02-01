@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">無法開啟電池設定</string>
     <string name="skip">略過</string>
     <string name="all_permissions_granted">已授予所有權限</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">使用上次已知位置</string>
+    <string name="location_unavailable_enable_gps">位置不可用 - 請啟用GPS</string>
+    <string name="location_not_available">位置不可用</string>
+    <string name="location_permission_not_granted">位置權限未授予</string>
+    <string name="recording_failed_invalid_state">錄音失敗：無效狀態</string>
+    <string name="recording_failed_mic_in_use">錄音失敗：麥克風正在使用</string>
+    <string name="recording_failed_audio_unavailable">錄音失敗：音訊來源不可用</string>
+    <string name="recording_failed_generic">錄音失敗：%s</string>
+    <string name="recording_extended">錄音已延長！剩餘%d秒</string>
+    <string name="recording_saved">錄音已儲存</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">%d秒後自動關閉...</string>
+    <string name="migrated_recordings">已遷移%d條現有錄音%s</string>
+    <string name="ok">確定</string>
+    <string name="failed_to_initialize_ui">UI初始化失敗：%s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">偵錯日誌</string>
+    <string name="log_refreshed">日誌已更新</string>
+    <string name="log_copied">日誌已複製到剪貼簿</string>
+    <string name="debug_log_share_subject">摩托車語音筆記偵錯日誌</string>
+    <string name="share_log_via">分享日誌透過...</string>
+    <string name="unable_to_share_log">無法分享日誌：%s</string>
+    <string name="log_cleared">日誌已清除</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">背景錄音所需權限</string>
+    <string name="auto_closing_default">10秒後自動關閉...</string>
+    <string name="open_app_settings">開啟應用程式設定</string>
 </resources>

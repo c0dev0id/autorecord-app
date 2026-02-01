@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">Impossible d\'ouvrir les paramètres de batterie</string>
     <string name="skip">Ignorer</string>
     <string name="all_permissions_granted">Toutes les autorisations accordées</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">Utilisation de la dernière position connue</string>
+    <string name="location_unavailable_enable_gps">Position non disponible - veuillez activer le GPS</string>
+    <string name="location_not_available">Position non disponible</string>
+    <string name="location_permission_not_granted">Autorisation de localisation non accordée</string>
+    <string name="recording_failed_invalid_state">Échec de l\'enregistrement : État invalide</string>
+    <string name="recording_failed_mic_in_use">Échec de l\'enregistrement : Microphone utilisé</string>
+    <string name="recording_failed_audio_unavailable">Échec de l\'enregistrement : Source audio non disponible</string>
+    <string name="recording_failed_generic">Échec de l\'enregistrement : %s</string>
+    <string name="recording_extended">Enregistrement prolongé ! %ds restantes</string>
+    <string name="recording_saved">Enregistrement sauvegardé</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">Fermeture automatique dans %d secondes...</string>
+    <string name="migrated_recordings">%d enregistrement%s existant migré</string>
+    <string name="ok">OK</string>
+    <string name="failed_to_initialize_ui">Échec de l\'initialisation de l\'UI : %s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">Journal de débogage</string>
+    <string name="log_refreshed">Journal actualisé</string>
+    <string name="log_copied">Journal copié dans le presse-papiers</string>
+    <string name="debug_log_share_subject">Journal de débogage de Motorcycle Voice Notes</string>
+    <string name="share_log_via">Partager le journal via...</string>
+    <string name="unable_to_share_log">Impossible de partager le journal : %s</string>
+    <string name="log_cleared">Journal effacé</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">Autorisations requises pour l\'enregistrement en arrière-plan</string>
+    <string name="auto_closing_default">Fermeture automatique dans 10 secondes...</string>
+    <string name="open_app_settings">Ouvrir les paramètres de l\'application</string>
 </resources>

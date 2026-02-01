@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">Akkueinstellungen können nicht geöffnet werden</string>
     <string name="skip">Überspringen</string>
     <string name="all_permissions_granted">Alle Berechtigungen erteilt</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">Letzter bekannter Standort wird verwendet</string>
+    <string name="location_unavailable_enable_gps">Standort nicht verfügbar - bitte GPS aktivieren</string>
+    <string name="location_not_available">Standort nicht verfügbar</string>
+    <string name="location_permission_not_granted">Standortberechtigung nicht erteilt</string>
+    <string name="recording_failed_invalid_state">Aufnahme fehlgeschlagen: Ungültiger Status</string>
+    <string name="recording_failed_mic_in_use">Aufnahme fehlgeschlagen: Mikrofon wird verwendet</string>
+    <string name="recording_failed_audio_unavailable">Aufnahme fehlgeschlagen: Audioquelle nicht verfügbar</string>
+    <string name="recording_failed_generic">Aufnahme fehlgeschlagen: %s</string>
+    <string name="recording_extended">Aufnahme verlängert! Noch %ds verbleibend</string>
+    <string name="recording_saved">Aufnahme gespeichert</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">Automatisches Schließen in %d Sekunden...</string>
+    <string name="migrated_recordings">%d vorhandene Aufnahme%s migriert</string>
+    <string name="ok">OK</string>
+    <string name="failed_to_initialize_ui">UI-Initialisierung fehlgeschlagen: %s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">Debug-Protokoll</string>
+    <string name="log_refreshed">Protokoll aktualisiert</string>
+    <string name="log_copied">Protokoll in Zwischenablage kopiert</string>
+    <string name="debug_log_share_subject">Motorrad-Sprachnotizen Debug-Protokoll</string>
+    <string name="share_log_via">Protokoll teilen über...</string>
+    <string name="unable_to_share_log">Protokoll kann nicht geteilt werden: %s</string>
+    <string name="log_cleared">Protokoll gelöscht</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">Berechtigungen für Hintergrundaufnahme erforderlich</string>
+    <string name="auto_closing_default">Automatisches Schließen in 10 Sekunden...</string>
+    <string name="open_app_settings">App-Einstellungen öffnen</string>
 </resources>

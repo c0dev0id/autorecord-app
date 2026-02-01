@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">Impossibile aprire le impostazioni della batteria</string>
     <string name="skip">Salta</string>
     <string name="all_permissions_granted">Tutte le autorizzazioni concesse</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">Utilizzo dell\'ultima posizione nota</string>
+    <string name="location_unavailable_enable_gps">Posizione non disponibile - si prega di attivare il GPS</string>
+    <string name="location_not_available">Posizione non disponibile</string>
+    <string name="location_permission_not_granted">Autorizzazione posizione non concessa</string>
+    <string name="recording_failed_invalid_state">Registrazione fallita: Stato non valido</string>
+    <string name="recording_failed_mic_in_use">Registrazione fallita: Microfono in uso</string>
+    <string name="recording_failed_audio_unavailable">Registrazione fallita: Sorgente audio non disponibile</string>
+    <string name="recording_failed_generic">Registrazione fallita: %s</string>
+    <string name="recording_extended">Registrazione estesa! %ds rimanenti</string>
+    <string name="recording_saved">Registrazione salvata</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">Chiusura automatica tra %d secondi...</string>
+    <string name="migrated_recordings">%d registrazione%s esistente migrata</string>
+    <string name="ok">OK</string>
+    <string name="failed_to_initialize_ui">Inizializzazione UI fallita: %s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">Registro di debug</string>
+    <string name="log_refreshed">Registro aggiornato</string>
+    <string name="log_copied">Registro copiato negli appunti</string>
+    <string name="debug_log_share_subject">Registro di debug di Motorcycle Voice Notes</string>
+    <string name="share_log_via">Condividi registro tramite...</string>
+    <string name="unable_to_share_log">Impossibile condividere il registro: %s</string>
+    <string name="log_cleared">Registro cancellato</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">Autorizzazioni richieste per la registrazione in background</string>
+    <string name="auto_closing_default">Chiusura automatica tra 10 secondi...</string>
+    <string name="open_app_settings">Apri impostazioni app</string>
 </resources>

@@ -137,4 +137,36 @@
     <string name="unable_to_open_battery_settings">Unable to open battery settings</string>
     <string name="skip">Skip</string>
     <string name="all_permissions_granted">All permissions granted</string>
+    
+    <!-- OverlayService strings -->
+    <string name="using_last_known_location">Using last known location</string>
+    <string name="location_unavailable_enable_gps">Location unavailable - please ensure GPS is enabled</string>
+    <string name="location_not_available">Location not available</string>
+    <string name="location_permission_not_granted">Location permission not granted</string>
+    <string name="recording_failed_invalid_state">Recording failed: Invalid state</string>
+    <string name="recording_failed_mic_in_use">Recording failed: Microphone in use</string>
+    <string name="recording_failed_audio_unavailable">Recording failed: Audio source unavailable</string>
+    <string name="recording_failed_generic">Recording failed: %s</string>
+    <string name="recording_extended">Recording extended! %ds remaining</string>
+    <string name="recording_saved">Recording saved</string>
+    
+    <!-- MainActivity strings -->
+    <string name="auto_closing_countdown">Auto-closing in %d seconds...</string>
+    <string name="migrated_recordings">Migrated %d existing recording%s</string>
+    <string name="ok">OK</string>
+    <string name="failed_to_initialize_ui">Failed to initialize UI: %s</string>
+    
+    <!-- DebugLogActivity strings -->
+    <string name="debug_log_title">Debug Log</string>
+    <string name="log_refreshed">Log refreshed</string>
+    <string name="log_copied">Log copied to clipboard</string>
+    <string name="debug_log_share_subject">Motorcycle Voice Notes Debug Log</string>
+    <string name="share_log_via">Share log via...</string>
+    <string name="unable_to_share_log">Unable to share log: %s</string>
+    <string name="log_cleared">Log cleared</string>
+    
+    <!-- Unconfigured Activity strings -->
+    <string name="permissions_required_for_recording">Permissions required for background recording</string>
+    <string name="auto_closing_default">Auto-closing in 10 seconds...</string>
+    <string name="open_app_settings">Open app settings</string>
 </resources>

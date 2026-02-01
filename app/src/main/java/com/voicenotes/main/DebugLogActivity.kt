@@ -26,7 +26,7 @@ class DebugLogActivity : AppCompatActivity() {
         
         // Enable back button in action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Debug Log"
+        supportActionBar?.title = getString(R.string.debug_log_title)
         
         // Initialize views
         buttonRefreshLog = findViewById(R.id.buttonRefreshLog)
@@ -39,7 +39,7 @@ class DebugLogActivity : AppCompatActivity() {
         // Set up refresh log button
         buttonRefreshLog.setOnClickListener {
             updateLogDisplay()
-            Toast.makeText(this, "Log refreshed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.log_refreshed), Toast.LENGTH_SHORT).show()
         }
         
         // Set up copy log button
@@ -48,7 +48,7 @@ class DebugLogActivity : AppCompatActivity() {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Debug Log", logContent)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "Log copied to clipboard", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.log_copied), Toast.LENGTH_SHORT).show()
         }
         
         // Set up share log button
@@ -57,12 +57,12 @@ class DebugLogActivity : AppCompatActivity() {
                 val logContent = DebugLogger.getLogContent(this)
                 val shareIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
-                    putExtra(Intent.EXTRA_SUBJECT, "Motorcycle Voice Notes Debug Log")
+                    putExtra(Intent.EXTRA_SUBJECT, getString(R.string.debug_log_share_subject))
                     putExtra(Intent.EXTRA_TEXT, logContent)
                 }
-                startActivity(Intent.createChooser(shareIntent, "Share log via..."))
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.share_log_via)))
             } catch (e: Exception) {
-                Toast.makeText(this, "Unable to share log: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.unable_to_share_log, e.message), Toast.LENGTH_SHORT).show()
             }
         }
         
@@ -70,7 +70,7 @@ class DebugLogActivity : AppCompatActivity() {
         buttonClearLog.setOnClickListener {
             DebugLogger.clearLog(this)
             updateLogDisplay()
-            Toast.makeText(this, "Log cleared", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.log_cleared), Toast.LENGTH_SHORT).show()
         }
         
         // Initial log display (scroll to top)
