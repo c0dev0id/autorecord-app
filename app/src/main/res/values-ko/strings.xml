@@ -96,4 +96,48 @@
     <string name="pref_enable_debug_logging_summary">상세한 API 호출 및 응답 로깅</string>
     <string name="pref_show_debug_log_title">디버그 로그 표시</string>
     <string name="pref_show_debug_log_summary">상세한 디버그 정보 보기</string>
+    
+    <!-- Recording Manager strings -->
+    <string name="recording_manager_title">녹음 관리자</string>
+    <string name="delete">삭제</string>
+    <string name="download">다운로드</string>
+    <string name="open_maps">지도 열기</string>
+    <string name="save">저장</string>
+    <string name="export_all_select_format">모두 내보내기 - 형식 선택</string>
+    <string name="export_format">내보내기 형식</string>
+    <string name="transcription_hint">변환된 텍스트가 여기에 표시됩니다…</string>
+    <string name="delete_recording_title">녹음 삭제</string>
+    <string name="delete_recording_message">이 녹음을 삭제하시겠습니까?</string>
+    <string name="cancel">취소</string>
+    <string name="recording_deleted">녹음이 삭제되었습니다</string>
+    <string name="transcription_cannot_be_empty">변환 텍스트는 비워둘 수 없습니다</string>
+    <string name="transcription_saved">변환 텍스트가 성공적으로 저장되었습니다</string>
+    <string name="no_recordings_to_export">내보낼 녹음이 없습니다</string>
+    <string name="exported_to_downloads">다운로드로 내보내기 완료/%s</string>
+    <string name="export_failed">내보내기 실패: %s</string>
+    <string name="error_playing_recording">녹음 재생 오류: %s</string>
+    <string name="error_opening_maps">지도 열기 오류: %s</string>
+    <string name="error_deleting">삭제 오류: %s</string>
+    <string name="error_saving">저장 오류: %s</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_disabled">배터리 최적화 비활성화됨</string>
+    <string name="battery_optimization_enabled">배터리 최적화 (활성화됨 - 녹음이 중단될 수 있음)</string>
+    <string name="battery_optimization_disabled_status">배터리 최적화 (비활성화됨)</string>
+    
+    <!-- Overlay permission strings -->
+    <string name="overlay_permission_granted">오버레이 권한이 부여되었습니다</string>
+    <string name="overlay_permission_required_for_app">앱이 작동하려면 오버레이 권한이 필요합니다</string>
+    <string name="overlay_permission_is_required">오버레이 권한이 필요합니다</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">오류: %s</string>
+    <string name="some_permissions_denied">일부 권한이 거부되었습니다</string>
+    <string name="background_recording_may_be_interrupted">백그라운드 녹음이 중단될 수 있습니다</string>
+    <string name="grant">허용</string>
+    <string name="battery_optimization_title">배터리 최적화</string>
+    <string name="battery_optimization_message">안정적인 백그라운드 녹음을 보장하려면 이 앱에 무제한 배터리 액세스 권한이 필요합니다.\n\n이렇게 하면 화면이 꺼져 있거나 앱이 백그라운드에 있을 때 Android가 녹음을 중지하는 것을 방지합니다.</string>
+    <string name="unable_to_open_battery_settings">배터리 설정을 열 수 없습니다</string>
+    <string name="skip">건너뛰기</string>
+    <string name="all_permissions_granted">모든 권한이 허용되었습니다</string>
 </resources>

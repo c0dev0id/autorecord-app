@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity() {
                 startRecordingProcess()
             } else {
                 Log.d(TAG, "Overlay permission still not granted")
-                Toast.makeText(this, "Overlay permission is required", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.overlay_permission_is_required), Toast.LENGTH_LONG).show()
                 finish()
             }
         }

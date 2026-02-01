@@ -96,4 +96,48 @@
     <string name="pref_enable_debug_logging_summary">詳細なAPI呼び出しと応答をログに記録</string>
     <string name="pref_show_debug_log_title">デバッグログを表示</string>
     <string name="pref_show_debug_log_summary">詳細なデバッグ情報を表示</string>
+    
+    <!-- Recording Manager strings -->
+    <string name="recording_manager_title">録音マネージャー</string>
+    <string name="delete">削除</string>
+    <string name="download">ダウンロード</string>
+    <string name="open_maps">地図を開く</string>
+    <string name="save">保存</string>
+    <string name="export_all_select_format">すべてエクスポート - 形式を選択</string>
+    <string name="export_format">エクスポート形式</string>
+    <string name="transcription_hint">文字起こしテキストがここに入ります…</string>
+    <string name="delete_recording_title">録音を削除</string>
+    <string name="delete_recording_message">この録音を削除してもよろしいですか？</string>
+    <string name="cancel">キャンセル</string>
+    <string name="recording_deleted">録音が削除されました</string>
+    <string name="transcription_cannot_be_empty">文字起こしを空にすることはできません</string>
+    <string name="transcription_saved">文字起こしが正常に保存されました</string>
+    <string name="no_recordings_to_export">エクスポートする録音がありません</string>
+    <string name="exported_to_downloads">ダウンロードフォルダにエクスポートされました/%s</string>
+    <string name="export_failed">エクスポートに失敗しました: %s</string>
+    <string name="error_playing_recording">録音の再生エラー: %s</string>
+    <string name="error_opening_maps">地図を開くエラー: %s</string>
+    <string name="error_deleting">削除エラー: %s</string>
+    <string name="error_saving">保存エラー: %s</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_disabled">バッテリー最適化が無効化されました</string>
+    <string name="battery_optimization_enabled">バッテリー最適化（有効 - 録音が中断される可能性があります）</string>
+    <string name="battery_optimization_disabled_status">バッテリー最適化（無効）</string>
+    
+    <!-- Overlay permission strings -->
+    <string name="overlay_permission_granted">オーバーレイ許可が付与されました</string>
+    <string name="overlay_permission_required_for_app">アプリが機能するにはオーバーレイ許可が必要です</string>
+    <string name="overlay_permission_is_required">オーバーレイ許可が必要です</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">エラー: %s</string>
+    <string name="some_permissions_denied">一部の権限が拒否されました</string>
+    <string name="background_recording_may_be_interrupted">バックグラウンド録音が中断される可能性があります</string>
+    <string name="grant">許可する</string>
+    <string name="battery_optimization_title">バッテリー最適化</string>
+    <string name="battery_optimization_message">信頼性の高いバックグラウンド録音を確保するため、このアプリは無制限のバッテリーアクセスが必要です。\n\nこれにより、画面がオフの場合やアプリがバックグラウンドにある場合にAndroidが録音を停止するのを防ぎます。</string>
+    <string name="unable_to_open_battery_settings">バッテリー設定を開けません</string>
+    <string name="skip">スキップ</string>
+    <string name="all_permissions_granted">すべての権限が付与されました</string>
 </resources>

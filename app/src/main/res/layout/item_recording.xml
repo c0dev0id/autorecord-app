@@ -113,7 +113,7 @@
                         android:id="@+id/transcriptionEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="No transcripton performed, yet"
+                        android:hint="@string/transcription_hint"
                         android:textSize="14sp"
                         android:textColor="#212121"
                         android:paddingStart="8dp"
@@ -132,7 +132,7 @@
                     style="@style/AppButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Save"
+                    android:text="@string/save"
                     android:textSize="13sp"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
@@ -146,11 +146,69 @@
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/deleteButton"
+                    style="@style/AppButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/delete"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp"
+                    app:backgroundTint="#D32F2F"
+                    android:textColor="#FFFFFF" />
                 android:scrollbars="none">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/download"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone"
+                    app:backgroundTint="#424242"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/transcribeButton"
+                    style="@style/AppButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Transcode"
+                    android:textSize="13sp"
+                    android:drawableEnd="@drawable/ic_status_not_started"
+                    android:drawablePadding="4dp"
+                    android:layout_marginEnd="8dp"
+                    app:backgroundTint="#424242"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/openMapsButton"
+                    style="@style/AppButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/open_maps"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp"
+                    app:backgroundTint="#4CAF50"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/playButton"
+                    style="@style/AppButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/play"
+                    android:textSize="13sp"
+                    app:backgroundTint="#1976D2"
+                    android:textColor="#FFFFFF" />
                     android:orientation="horizontal"
                     android:gravity="start|center_vertical">
 

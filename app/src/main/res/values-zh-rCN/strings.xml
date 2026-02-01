@@ -96,4 +96,48 @@
     <string name="pref_enable_debug_logging_summary">记录详细的API调用和响应</string>
     <string name="pref_show_debug_log_title">显示调试日志</string>
     <string name="pref_show_debug_log_summary">查看详细的调试信息</string>
+    
+    <!-- Recording Manager strings -->
+    <string name="recording_manager_title">录音管理器</string>
+    <string name="delete">删除</string>
+    <string name="download">下载</string>
+    <string name="open_maps">打开地图</string>
+    <string name="save">保存</string>
+    <string name="export_all_select_format">导出全部 - 选择格式</string>
+    <string name="export_format">导出格式</string>
+    <string name="transcription_hint">转录文本显示在这里…</string>
+    <string name="delete_recording_title">删除录音</string>
+    <string name="delete_recording_message">您确定要删除此录音吗？</string>
+    <string name="cancel">取消</string>
+    <string name="recording_deleted">录音已删除</string>
+    <string name="transcription_cannot_be_empty">转录内容不能为空</string>
+    <string name="transcription_saved">转录内容已成功保存</string>
+    <string name="no_recordings_to_export">没有录音可导出</string>
+    <string name="exported_to_downloads">已导出到下载/%s</string>
+    <string name="export_failed">导出失败: %s</string>
+    <string name="error_playing_recording">播放录音出错: %s</string>
+    <string name="error_opening_maps">打开地图出错: %s</string>
+    <string name="error_deleting">删除出错: %s</string>
+    <string name="error_saving">保存出错: %s</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_disabled">电池优化已禁用</string>
+    <string name="battery_optimization_enabled">电池优化（已启用 - 可能中断录音）</string>
+    <string name="battery_optimization_disabled_status">电池优化（已禁用）</string>
+    
+    <!-- Overlay permission strings -->
+    <string name="overlay_permission_granted">已授予悬浮窗权限</string>
+    <string name="overlay_permission_required_for_app">应用需要悬浮窗权限才能正常工作</string>
+    <string name="overlay_permission_is_required">需要悬浮窗权限</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">错误：%s</string>
+    <string name="some_permissions_denied">部分权限被拒绝</string>
+    <string name="background_recording_may_be_interrupted">后台录音可能会被中断</string>
+    <string name="grant">授予</string>
+    <string name="battery_optimization_title">电池优化</string>
+    <string name="battery_optimization_message">为确保可靠的后台录音，此应用需要不受限制的电池访问权限。\n\n这将防止Android在屏幕关闭或应用在后台运行时停止录音。</string>
+    <string name="unable_to_open_battery_settings">无法打开电池设置</string>
+    <string name="skip">跳过</string>
+    <string name="all_permissions_granted">已授予所有权限</string>
 </resources>

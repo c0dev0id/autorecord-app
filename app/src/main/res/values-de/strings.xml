@@ -96,4 +96,48 @@
     <string name="pref_enable_debug_logging_summary">Detaillierte API-Aufrufe und -Antworten protokollieren</string>
     <string name="pref_show_debug_log_title">Debug-Protokoll anzeigen</string>
     <string name="pref_show_debug_log_summary">Detaillierte Debug-Informationen anzeigen</string>
+    
+    <!-- Recording Manager strings -->
+    <string name="recording_manager_title">Aufnahmen-Manager</string>
+    <string name="delete">Löschen</string>
+    <string name="download">Download</string>
+    <string name="open_maps">Karten öffnen</string>
+    <string name="save">Speichern</string>
+    <string name="export_all_select_format">Alle exportieren - Format auswählen</string>
+    <string name="export_format">Exportformat</string>
+    <string name="transcription_hint">transkribierter Text kommt hier hin…</string>
+    <string name="delete_recording_title">Aufnahme löschen</string>
+    <string name="delete_recording_message">Möchten Sie diese Aufnahme wirklich löschen?</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="recording_deleted">Aufnahme gelöscht</string>
+    <string name="transcription_cannot_be_empty">Transkription darf nicht leer sein</string>
+    <string name="transcription_saved">Transkription erfolgreich gespeichert</string>
+    <string name="no_recordings_to_export">Keine Aufnahmen zum Exportieren</string>
+    <string name="exported_to_downloads">Exportiert nach Downloads/%s</string>
+    <string name="export_failed">Export fehlgeschlagen: %s</string>
+    <string name="error_playing_recording">Fehler beim Abspielen der Aufnahme: %s</string>
+    <string name="error_opening_maps">Fehler beim Öffnen der Karten: %s</string>
+    <string name="error_deleting">Fehler beim Löschen: %s</string>
+    <string name="error_saving">Fehler beim Speichern: %s</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_disabled">Akkuoptimierung deaktiviert</string>
+    <string name="battery_optimization_enabled">Akkuoptimierung (aktiviert - kann Aufnahme unterbrechen)</string>
+    <string name="battery_optimization_disabled_status">Akkuoptimierung (deaktiviert)</string>
+    
+    <!-- Overlay permission strings -->
+    <string name="overlay_permission_granted">Overlay-Berechtigung erteilt</string>
+    <string name="overlay_permission_required_for_app">Overlay-Berechtigung ist für die App erforderlich</string>
+    <string name="overlay_permission_is_required">Overlay-Berechtigung ist erforderlich</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">Fehler: %s</string>
+    <string name="some_permissions_denied">Einige Berechtigungen wurden verweigert</string>
+    <string name="background_recording_may_be_interrupted">Hintergrundaufnahme kann unterbrochen werden</string>
+    <string name="grant">Erteilen</string>
+    <string name="battery_optimization_title">Akkuoptimierung</string>
+    <string name="battery_optimization_message">Um eine zuverlässige Hintergrundaufnahme zu gewährleisten, benötigt diese App uneingeschränkten Akkuzugriff.\n\nDies verhindert, dass Android die Aufnahme stoppt, wenn der Bildschirm ausgeschaltet ist oder die App im Hintergrund läuft.</string>
+    <string name="unable_to_open_battery_settings">Akkueinstellungen können nicht geöffnet werden</string>
+    <string name="skip">Überspringen</string>
+    <string name="all_permissions_granted">Alle Berechtigungen erteilt</string>
 </resources>

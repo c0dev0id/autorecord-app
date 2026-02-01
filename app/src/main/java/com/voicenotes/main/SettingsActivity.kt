@@ -78,7 +78,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         if (allGranted) {
             checkAndRequestOverlayPermission()
         } else {
-            Toast.makeText(requireContext(), "Some permissions were denied", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.some_permissions_denied), Toast.LENGTH_LONG).show()
             updatePermissionStatus()
         }
     }
@@ -88,10 +88,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     ) {
         updatePermissionStatus()
         if (Settings.canDrawOverlays(requireContext())) {
-            Toast.makeText(requireContext(), "Overlay permission granted", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.overlay_permission_granted), Toast.LENGTH_SHORT).show()
             checkAndRequestBatteryOptimization()
         } else {
-            Toast.makeText(requireContext(), "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.overlay_permission_required_for_app), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -100,9 +100,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
     ) {
         val powerManager = requireContext().getSystemService(Context.POWER_SERVICE) as PowerManager
         if (powerManager.isIgnoringBatteryOptimizations(requireContext().packageName)) {
-            Toast.makeText(requireContext(), "Battery optimization disabled", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.battery_optimization_disabled), Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(requireContext(), "Background recording may be interrupted", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.background_recording_may_be_interrupted), Toast.LENGTH_LONG).show()
         }
         updatePermissionStatus()
     }
@@ -236,9 +236,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val powerManager = requireContext().getSystemService(Context.POWER_SERVICE) as PowerManager
         val hasBatteryExemption = powerManager.isIgnoringBatteryOptimizations(requireContext().packageName)
         statusLines.add(if (hasBatteryExemption) {
-            "✓ Battery optimization (disabled)"
+            getString(R.string.battery_optimization_disabled_status)
         } else {
-            "✗ Battery optimization (enabled - may interrupt recording)"
+            getString(R.string.battery_optimization_enabled)
         })
 
         findPreference<Preference>("permission_status")?.summary = statusLines.joinToString("\n")
@@ -261,14 +261,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.overlay_permission_required)
                 .setMessage(R.string.overlay_permission_message)
-                .setPositiveButton("Grant") { _, _ ->
+                .setPositiveButton(getString(R.string.grant)) { _, _ ->
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:${requireContext().packageName}")
                     )
                     overlayPermissionLauncher.launch(intent)
                 }
-                .setNegativeButton("Cancel") { _, _ ->
+                .setNegativeButton(getString(R.string.cancel)) { _, _ ->
                     updatePermissionStatus()
                 }
                 .show()
@@ -283,10 +283,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
             MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Battery Optimization")
-                .setMessage("To ensure reliable background recording, this app needs unrestricted battery access.\n\n" +
-                        "This will prevent Android from stopping the recording when the screen is off or the app is in the background.")
-                .setPositiveButton("Grant") { _, _ ->
+                .setTitle(getString(R.string.battery_optimization_title))
+                .setMessage(getString(R.string.battery_optimization_message))
+                .setPositiveButton(getString(R.string.grant)) { _, _ ->
                     try {
                         val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
                         intent.data = Uri.parse("package:$packageName")
@@ -296,13 +295,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         updatePermissionStatus()
                     }
                 }
-                .setNegativeButton("Skip") { _, _ ->
-                    Toast.makeText(requireContext(), "Background recording may be interrupted", Toast.LENGTH_LONG).show()
+                .setNegativeButton(getString(R.string.skip)) { _, _ ->
+                    Toast.makeText(requireContext(), getString(R.string.background_recording_may_be_interrupted), Toast.LENGTH_LONG).show()
                     updatePermissionStatus()
                 }
                 .show()
         } else {
-            Toast.makeText(requireContext(), "All permissions granted", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.all_permissions_granted), Toast.LENGTH_SHORT).show()
             updatePermissionStatus()
         }
     }

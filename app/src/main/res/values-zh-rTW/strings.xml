@@ -96,4 +96,48 @@
     <string name="pref_enable_debug_logging_summary">記錄詳細的API呼叫和回應</string>
     <string name="pref_show_debug_log_title">顯示偵錯日誌</string>
     <string name="pref_show_debug_log_summary">檢視詳細的偵錯資訊</string>
+    
+    <!-- Recording Manager strings -->
+    <string name="recording_manager_title">錄音管理器</string>
+    <string name="delete">刪除</string>
+    <string name="download">下載</string>
+    <string name="open_maps">開啟地圖</string>
+    <string name="save">儲存</string>
+    <string name="export_all_select_format">匯出全部 - 選擇格式</string>
+    <string name="export_format">匯出格式</string>
+    <string name="transcription_hint">轉錄文字顯示在這裡…</string>
+    <string name="delete_recording_title">刪除錄音</string>
+    <string name="delete_recording_message">您確定要刪除此錄音嗎？</string>
+    <string name="cancel">取消</string>
+    <string name="recording_deleted">錄音已刪除</string>
+    <string name="transcription_cannot_be_empty">轉錄內容不能為空</string>
+    <string name="transcription_saved">轉錄內容已成功儲存</string>
+    <string name="no_recordings_to_export">沒有錄音可匯出</string>
+    <string name="exported_to_downloads">已匯出到下載/%s</string>
+    <string name="export_failed">匯出失敗: %s</string>
+    <string name="error_playing_recording">播放錄音出錯: %s</string>
+    <string name="error_opening_maps">開啟地圖出錯: %s</string>
+    <string name="error_deleting">刪除出錯: %s</string>
+    <string name="error_saving">儲存出錯: %s</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_disabled">電池優化已停用</string>
+    <string name="battery_optimization_enabled">電池優化（已啟用 - 可能中斷錄音）</string>
+    <string name="battery_optimization_disabled_status">電池優化（已停用）</string>
+    
+    <!-- Overlay permission strings -->
+    <string name="overlay_permission_granted">已授予懸浮窗權限</string>
+    <string name="overlay_permission_required_for_app">應用程式需要懸浮窗權限才能正常工作</string>
+    <string name="overlay_permission_is_required">需要懸浮窗權限</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">錯誤：%s</string>
+    <string name="some_permissions_denied">部分權限被拒絕</string>
+    <string name="background_recording_may_be_interrupted">背景錄音可能會被中斷</string>
+    <string name="grant">授予</string>
+    <string name="battery_optimization_title">電池優化</string>
+    <string name="battery_optimization_message">為確保可靠的背景錄音，此應用程式需要不受限制的電池存取權限。\n\n這將防止Android在螢幕關閉或應用程式在背景執行時停止錄音。</string>
+    <string name="unable_to_open_battery_settings">無法開啟電池設定</string>
+    <string name="skip">略過</string>
+    <string name="all_permissions_granted">已授予所有權限</string>
 </resources>

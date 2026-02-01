@@ -96,4 +96,48 @@
     <string name="pref_enable_debug_logging_summary">Log detailed API calls and responses</string>
     <string name="pref_show_debug_log_title">Show Debug Log</string>
     <string name="pref_show_debug_log_summary">View detailed debug information</string>
+    
+    <!-- Recording Manager strings -->
+    <string name="recording_manager_title">Recording Manager</string>
+    <string name="delete">Delete</string>
+    <string name="download">Download</string>
+    <string name="open_maps">Open Maps</string>
+    <string name="save">Save</string>
+    <string name="export_all_select_format">Export All - Select Format</string>
+    <string name="export_format">Export Format</string>
+    <string name="transcription_hint">transcribed text goes here…</string>
+    <string name="delete_recording_title">Delete Recording</string>
+    <string name="delete_recording_message">Are you sure you want to delete this recording?</string>
+    <string name="cancel">Cancel</string>
+    <string name="recording_deleted">Recording deleted</string>
+    <string name="transcription_cannot_be_empty">Transcription cannot be empty</string>
+    <string name="transcription_saved">Transcription saved successfully</string>
+    <string name="no_recordings_to_export">No recordings to export</string>
+    <string name="exported_to_downloads">Exported to Downloads/%s</string>
+    <string name="export_failed">Export failed: %s</string>
+    <string name="error_playing_recording">Error playing recording: %s</string>
+    <string name="error_opening_maps">Error opening maps: %s</string>
+    <string name="error_deleting">Error deleting: %s</string>
+    <string name="error_saving">Error saving: %s</string>
+    <string name="error_starting_transcription">Error: %s</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_disabled">Battery optimization disabled</string>
+    <string name="battery_optimization_enabled">Battery optimization (enabled - may interrupt recording)</string>
+    <string name="battery_optimization_disabled_status">Battery optimization (disabled)</string>
+    
+    <!-- Overlay permission strings -->
+    <string name="overlay_permission_granted">Overlay permission granted</string>
+    <string name="overlay_permission_required_for_app">Overlay permission is required for the app to work</string>
+    <string name="overlay_permission_is_required">Overlay permission is required</string>
+    
+    <!-- Settings Activity strings -->
+    <string name="some_permissions_denied">Some permissions were denied</string>
+    <string name="background_recording_may_be_interrupted">Background recording may be interrupted</string>
+    <string name="grant">Grant</string>
+    <string name="battery_optimization_title">Battery Optimization</string>
+    <string name="battery_optimization_message">To ensure reliable background recording, this app needs unrestricted battery access.\n\nThis will prevent Android from stopping the recording when the screen is off or the app is in the background.</string>
+    <string name="unable_to_open_battery_settings">Unable to open battery settings</string>
+    <string name="skip">Skip</string>
+    <string name="all_permissions_granted">All permissions granted</string>
 </resources>

@@ -96,4 +96,48 @@
     <string name="pref_enable_debug_logging_summary">Registrar llamadas y respuestas de API detalladas</string>
     <string name="pref_show_debug_log_title">Mostrar registro de depuración</string>
     <string name="pref_show_debug_log_summary">Ver información de depuración detallada</string>
+    
+    <!-- Recording Manager strings -->
+    <string name="recording_manager_title">Administrador de Grabaciones</string>
+    <string name="delete">Eliminar</string>
+    <string name="download">Descargar</string>
+    <string name="open_maps">Abrir Mapas</string>
+    <string name="save">Guardar</string>
+    <string name="export_all_select_format">Exportar Todo - Seleccionar Formato</string>
+    <string name="export_format">Formato de Exportación</string>
+    <string name="transcription_hint">el texto transcrito va aquí…</string>
+    <string name="delete_recording_title">Eliminar Grabación</string>
+    <string name="delete_recording_message">¿Está seguro de que desea eliminar esta grabación?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="recording_deleted">Grabación eliminada</string>
+    <string name="transcription_cannot_be_empty">La transcripción no puede estar vacía</string>
+    <string name="transcription_saved">Transcripción guardada exitosamente</string>
+    <string name="no_recordings_to_export">No hay grabaciones para exportar</string>
+    <string name="exported_to_downloads">Exportado a Descargas/%s</string>
+    <string name="export_failed">Exportación fallida: %s</string>
+    <string name="error_playing_recording">Error al reproducir grabación: %s</string>
+    <string name="error_opening_maps">Error al abrir mapas: %s</string>
+    <string name="error_deleting">Error al eliminar: %s</string>
+    <string name="error_saving">Error al guardar: %s</string>
+    
+    <!-- Battery optimization strings -->
+    <string name="battery_optimization_disabled">Optimización de batería desactivada</string>
+    <string name="battery_optimization_enabled">Optimización de batería (activada - puede interrumpir la grabación)</string>
+    <string name="battery_optimization_disabled_status">Optimización de batería (desactivada)</string>
+    
+    <!-- Overlay permission strings -->
+    <string name="overlay_permission_granted">Permiso de superposición concedido</string>
+    <string name="overlay_permission_required_for_app">Se requiere el permiso de superposición para que funcione la aplicación</string>
+    <string name="overlay_permission_is_required">Se requiere el permiso de superposición</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">Error: %s</string>
+    <string name="some_permissions_denied">Algunos permisos fueron denegados</string>
+    <string name="background_recording_may_be_interrupted">La grabación en segundo plano puede interrumpirse</string>
+    <string name="grant">Conceder</string>
+    <string name="battery_optimization_title">Optimización de batería</string>
+    <string name="battery_optimization_message">Para garantizar una grabación confiable en segundo plano, esta aplicación necesita acceso sin restricciones a la batería.\n\nEsto evitará que Android detenga la grabación cuando la pantalla esté apagada o la aplicación esté en segundo plano.</string>
+    <string name="unable_to_open_battery_settings">No se puede abrir la configuración de batería</string>
+    <string name="skip">Omitir</string>
+    <string name="all_permissions_granted">Todos los permisos concedidos</string>
 </resources>
