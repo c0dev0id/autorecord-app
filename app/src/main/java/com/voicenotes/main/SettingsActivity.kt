@@ -314,8 +314,4 @@ class SettingsFragment : PreferenceFragmentCompat() {
         updateRecordingsCount()
         updatePermissionStatus()
     }
-
-    override fun onPause() {
-        super.onPause()
-    }
 }

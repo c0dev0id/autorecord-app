@@ -575,11 +575,6 @@ class RecordingAdapter(
     }
 
     override fun getItemCount() = recordings.size
-    
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-        // No additional cleanup needed
-    }
 
     // Data class to hold status configuration
     private data class StatusConfig(
@@ -637,8 +632,7 @@ class RecordingAdapter(
             openMapsButton.setOnClickListener { onOpenMapsClick(recording) }
             playButton.setOnClickListener { onPlayClick(recording, playButton) }
             
-            // Download button visibility: show if recording has been transcoded or has data
-            // For now, keeping it hidden by default as per spec (conditionally visible)
+            // Download button is visible only when the recording file exists
             downloadButton.visibility = if (shouldShowDownloadButton(recording)) View.VISIBLE else View.GONE
         }
         

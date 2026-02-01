@@ -14,11 +14,11 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.voicenotes.main.database.RecordingMigration
 import kotlinx.coroutines.launch
 
@@ -277,7 +277,7 @@ class MainActivity : AppCompatActivity() {
         
         if (!Settings.canDrawOverlays(this)) {
             Log.d(TAG, "Overlay permission NOT granted, showing dialog")
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.overlay_permission_required)
                 .setMessage(R.string.overlay_permission_message)
                 .setPositiveButton(getString(R.string.ok)) { _, _ ->
@@ -387,10 +387,10 @@ class MainActivity : AppCompatActivity() {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 startRecordingProcess()
             } else {
-                AlertDialog.Builder(this)
+                MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.permission_required)
                     .setMessage(R.string.grant_permissions)
-                    .setPositiveButton("OK") { _, _ -> finish() }
+                    .setPositiveButton(getString(R.string.ok)) { _, _ -> finish() }
                     .show()
             }
         }
@@ -408,10 +408,5 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume() called")
-
-        if (Settings.canDrawOverlays(this)) {
-            Log.d(TAG, "Ready to record in onResume")
-            // Don't auto-start, just update UI
-        }
     }
 }
