@@ -197,8 +197,35 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
         
         if (status == TextToSpeech.SUCCESS) {
-            textToSpeech?.language = Locale.US
-            isTtsInitialized = true
+            // Minimal change: prefer app language preference stored in SharedPreferences ("AppPrefs" -> "app_language"),
+            // fall back to app/system locale when preference == "system", and finally fall back to device default / Locale.US.
+            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            val appLangPref = prefs.getString("app_language", "system") ?: "system"
+
+            val desiredLocale: Locale = if (appLangPref == "system" || appLangPref.isBlank()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) resources.configuration.locales.get(0)
+                else @Suppress("DEPRECATION") resources.configuration.locale
+            } else {
+                Locale.forLanguageTag(appLangPref)
+            }
+
+            Log.d("OverlayService", "TTS: requested locale from prefs: $appLangPref -> $desiredLocale")
+
+            val setResult = textToSpeech?.setLanguage(desiredLocale) ?: TextToSpeech.LANG_NOT_SUPPORTED
+            isTtsInitialized = (setResult != TextToSpeech.LANG_MISSING_DATA && setResult != TextToSpeech.LANG_NOT_SUPPORTED)
+
+            if (!isTtsInitialized) {
+                // Try device default then Locale.US as minimal fallbacks
+                val deviceResult = textToSpeech?.setLanguage(Locale.getDefault()) ?: TextToSpeech.LANG_NOT_SUPPORTED
+                if (deviceResult != TextToSpeech.LANG_MISSING_DATA && deviceResult != TextToSpeech.LANG_NOT_SUPPORTED) {
+                    isTtsInitialized = true
+                    Log.w("OverlayService", "TTS: falling back to device locale")
+                } else {
+                    val finalResult = textToSpeech?.setLanguage(Locale.US) ?: TextToSpeech.LANG_NOT_SUPPORTED
+                    isTtsInitialized = (finalResult != TextToSpeech.LANG_MISSING_DATA && finalResult != TextToSpeech.LANG_NOT_SUPPORTED)
+                    if (isTtsInitialized) Log.w("OverlayService", "TTS: falling back to Locale.US")
+                }
+            }
         } else {
             isTtsInitialized = false
             Log.w("OverlayService", "TTS initialization failed")
