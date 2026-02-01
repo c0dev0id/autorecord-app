@@ -303,22 +303,61 @@ jobs:
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
 
+      # Optional: Setup signing if secrets are available
+      - name: Setup Signing (Optional)
+        env:
+          SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS:    ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+      
+          if [ -n "${SIGNING_KEYSTORE_PASSWORD:-}" ]; then
+            echo "storeFile=../release.keystore" > keystore.properties
+            echo "storePassword=${SIGNING_KEYSTORE_PASSWORD}" >> keystore.properties
+            echo "keyAlias=${SIGNING_KEY_ALIAS:-release}" >> keystore.properties
+            echo "keyPassword=${SIGNING_KEYSTORE_PASSWORD}" >> keystore.properties
+      
+            # If keystore provided as base64 secret, decode it
+            if [ -n "${SIGNING_KEYSTORE_BASE64:-}" ]; then
+              echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > release.keystore
+            fi
+      
+            echo "Signing configuration written to keystore.properties"
+          else
+            echo "Signing secrets not provided; will build unsigned release APKs."
+          fi
+
       - name: Build APKs
         run: |
           ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace --build-cache --parallel
 
-      - name: Upload Debug APK
+      - name: Upload Voice Notes Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: voice-notes-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
           retention-days: 7
 
-      - name: Upload Release APK
+      - name: Upload Voice Notes Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          name: voice-notes-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 7
+
+      - name: Upload VN Manager Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: vnmanager-opener-debug-apk
+          path: vnmanager-opener/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+      - name: Upload VN Manager Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: vnmanager-opener-release-apk
+          path: vnmanager-opener/build/outputs/apk/release/*.apk
           retention-days: 7
 
       - name: Upload Android Test APK
@@ -334,11 +373,46 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ All APKs built successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Voice Notes Debug APK
           if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
             DEBUG_SIZE=$(stat -c%s "app/build/outputs/apk/debug/app-debug.apk" 2>/dev/null || stat -f%z "app/build/outputs/apk/debug/app-debug.apk")
             DEBUG_SIZE_MB=$(echo "scale=2; $DEBUG_SIZE / 1024 / 1024" | bc)
-            echo "**Debug APK:** ${DEBUG_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+            echo "**Voice Notes Debug APK:** ${DEBUG_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
           fi
+          
+          # Voice Notes Release APK
+          VOICE_NOTES_RELEASE=$(find app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VOICE_NOTES_RELEASE" ]; then
+            RELEASE_SIZE=$(stat -c%s "$VOICE_NOTES_RELEASE" 2>/dev/null || stat -f%z "$VOICE_NOTES_RELEASE")
+            RELEASE_SIZE_MB=$(echo "scale=2; $RELEASE_SIZE / 1024 / 1024" | bc)
+            if [[ "$VOICE_NOTES_RELEASE" == *"unsigned"* ]]; then
+              echo "**Voice Notes Release APK:** ${RELEASE_SIZE_MB} MB (unsigned)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Voice Notes Release APK:** ${RELEASE_SIZE_MB} MB (signed)" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          # VN Manager Debug APK
+          VNMANAGER_DEBUG=$(find vnmanager-opener/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VNMANAGER_DEBUG" ]; then
+            VNMANAGER_DEBUG_SIZE=$(stat -c%s "$VNMANAGER_DEBUG" 2>/dev/null || stat -f%z "$VNMANAGER_DEBUG")
+            VNMANAGER_DEBUG_SIZE_MB=$(echo "scale=2; $VNMANAGER_DEBUG_SIZE / 1024 / 1024" | bc)
+            echo "**VN Manager Debug APK:** ${VNMANAGER_DEBUG_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # VN Manager Release APK
+          VNMANAGER_RELEASE=$(find vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VNMANAGER_RELEASE" ]; then
+            VNMANAGER_RELEASE_SIZE=$(stat -c%s "$VNMANAGER_RELEASE" 2>/dev/null || stat -f%z "$VNMANAGER_RELEASE")
+            VNMANAGER_RELEASE_SIZE_MB=$(echo "scale=2; $VNMANAGER_RELEASE_SIZE / 1024 / 1024" | bc)
+            if [[ "$VNMANAGER_RELEASE" == *"unsigned"* ]]; then
+              echo "**VN Manager Release APK:** ${VNMANAGER_RELEASE_SIZE_MB} MB (unsigned)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**VN Manager Release APK:** ${VNMANAGER_RELEASE_SIZE_MB} MB (signed)" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
 
