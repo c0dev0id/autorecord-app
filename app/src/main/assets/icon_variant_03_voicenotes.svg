@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 3: Forest Green - Voice Notes -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#43A047"/>
+      <stop offset="100%" style="stop-color:#2E7D32"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg3)"/>
+  
+  <!-- Circular background accent -->
+  <circle cx="54" cy="50" r="36" fill="#FFFFFF" opacity="0.15"/>
+  
+  <!-- Microphone body -->
+  <rect x="42" y="26" width="24" height="36" rx="12" fill="#FFFFFF"/>
+  
+  <!-- Microphone mesh lines -->
+  <line x1="42" y1="34" x2="66" y2="34" stroke="#2E7D32" stroke-width="1.5" opacity="0.4"/>
+  <line x1="42" y1="40" x2="66" y2="40" stroke="#2E7D32" stroke-width="1.5" opacity="0.4"/>
+  <line x1="42" y1="46" x2="66" y2="46" stroke="#2E7D32" stroke-width="1.5" opacity="0.4"/>
+  <line x1="42" y1="52" x2="66" y2="52" stroke="#2E7D32" stroke-width="1.5" opacity="0.4"/>
+  
+  <!-- Microphone stand -->
+  <line x1="54" y1="62" x2="54" y2="76" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <line x1="40" y1="76" x2="68" y2="76" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  
+  <!-- Microphone arc -->
+  <path d="M34 54 Q34 72 54 72 Q74 72 74 54" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 6: Coral Pink - VN Manager -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E91E63"/>
+      <stop offset="100%" style="stop-color:#F06292"/>
+    </linearGradient>
+    <radialGradient id="glow6" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg6)"/>
+  
+  <!-- Glow effect -->
+  <circle cx="48" cy="44" r="35" fill="url(#glow6)"/>
+  
+  <!-- Gear with floral pattern -->
+  <circle cx="48" cy="40" r="26" fill="#FFFFFF"/>
+  <circle cx="48" cy="40" r="18" fill="#E91E63"/>
+  <circle cx="48" cy="40" r="10" fill="#FFFFFF"/>
+  
+  <!-- Gear teeth - petal style -->
+  <ellipse cx="48" cy="10" rx="6" ry="8" fill="#FFFFFF"/>
+  <ellipse cx="48" cy="70" rx="6" ry="8" fill="#FFFFFF"/>
+  <ellipse cx="18" cy="40" rx="8" ry="6" fill="#FFFFFF"/>
+  <ellipse cx="78" cy="40" rx="8" ry="6" fill="#FFFFFF"/>
+  <ellipse cx="26" cy="18" rx="6" ry="6" transform="rotate(-45 26 18)" fill="#FFFFFF"/>
+  <ellipse cx="70" cy="18" rx="6" ry="6" transform="rotate(45 70 18)" fill="#FFFFFF"/>
+  <ellipse cx="26" cy="62" rx="6" ry="6" transform="rotate(45 26 62)" fill="#FFFFFF"/>
+  <ellipse cx="70" cy="62" rx="6" ry="6" transform="rotate(-45 70 62)" fill="#FFFFFF"/>
+  
+  <!-- Small microphone -->
+  <ellipse cx="80" cy="78" rx="10" ry="14" fill="#FFFFFF"/>
+  <line x1="80" y1="92" x2="80" y2="100" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <line x1="70" y1="100" x2="90" y2="100" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M66 86 Q66 98 80 98 Q94 98 94 86" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+</svg>

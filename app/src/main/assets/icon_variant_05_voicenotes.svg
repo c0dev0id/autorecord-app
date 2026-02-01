@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 5: Teal Wave - Voice Notes -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg5" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00796B"/>
+      <stop offset="100%" style="stop-color:#009688"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg5)"/>
+  
+  <!-- Wave pattern background -->
+  <path d="M0 70 Q27 60 54 70 Q81 80 108 70 L108 108 L0 108 Z" fill="#FFFFFF" opacity="0.1"/>
+  <path d="M0 80 Q27 70 54 80 Q81 90 108 80 L108 108 L0 108 Z" fill="#FFFFFF" opacity="0.15"/>
+  
+  <!-- Microphone body - modern capsule design -->
+  <rect x="38" y="22" width="32" height="44" rx="16" fill="#FFFFFF"/>
+  
+  <!-- Microphone grille -->
+  <rect x="44" y="28" width="20" height="32" rx="10" fill="none" stroke="#009688" stroke-width="2" opacity="0.3"/>
+  <line x1="38" y1="38" x2="70" y2="38" stroke="#009688" stroke-width="1.5" opacity="0.3"/>
+  <line x1="38" y1="48" x2="70" y2="48" stroke="#009688" stroke-width="1.5" opacity="0.3"/>
+  
+  <!-- Microphone stand -->
+  <line x1="54" y1="66" x2="54" y2="78" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <line x1="40" y1="78" x2="68" y2="78" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Arc holder -->
+  <path d="M30 56 Q30 78 54 78 Q78 78 78 56" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 5: Teal Wave - VN Manager -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg5" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00796B"/>
+      <stop offset="100%" style="stop-color:#009688"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg5)"/>
+  
+  <!-- Wave pattern background -->
+  <path d="M0 70 Q27 60 54 70 Q81 80 108 70 L108 108 L0 108 Z" fill="#FFFFFF" opacity="0.1"/>
+  <path d="M0 80 Q27 70 54 80 Q81 90 108 80 L108 108 L0 108 Z" fill="#FFFFFF" opacity="0.15"/>
+  
+  <!-- Gear - hexagonal style -->
+  <polygon points="50,16 70,28 70,52 50,64 30,52 30,28" fill="#FFFFFF"/>
+  <circle cx="50" cy="40" r="16" fill="#009688"/>
+  <circle cx="50" cy="40" r="8" fill="#FFFFFF"/>
+  
+  <!-- Gear extensions -->
+  <rect x="46" y="8" width="8" height="12" fill="#FFFFFF"/>
+  <rect x="46" y="60" width="8" height="12" fill="#FFFFFF"/>
+  <rect x="22" y="36" width="12" height="8" fill="#FFFFFF"/>
+  <rect x="66" y="36" width="12" height="8" fill="#FFFFFF"/>
+  
+  <!-- Small microphone -->
+  <rect x="68" y="66" width="18" height="26" rx="9" fill="#FFFFFF"/>
+  <line x1="77" y1="92" x2="77" y2="100" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <line x1="66" y1="100" x2="88" y2="100" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M62 86 Q62 100 77 100 Q92 100 92 86" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 2: Sunset Orange - Voice Notes -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF7043"/>
+      <stop offset="100%" style="stop-color:#FF5722"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg2)"/>
+  
+  <!-- Microphone body with rounded design -->
+  <ellipse cx="54" cy="44" rx="14" ry="20" fill="#FFFFFF"/>
+  
+  <!-- Microphone details -->
+  <line x1="46" y1="40" x2="62" y2="40" stroke="#FF5722" stroke-width="2" opacity="0.5"/>
+  <line x1="46" y1="46" x2="62" y2="46" stroke="#FF5722" stroke-width="2" opacity="0.5"/>
+  <line x1="46" y1="52" x2="62" y2="52" stroke="#FF5722" stroke-width="2" opacity="0.5"/>
+  
+  <!-- Microphone stand -->
+  <line x1="54" y1="64" x2="54" y2="76" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <line x1="42" y1="76" x2="66" y2="76" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Microphone arc -->
+  <path d="M36 54 Q36 74 54 74 Q72 74 72 54" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+</svg>

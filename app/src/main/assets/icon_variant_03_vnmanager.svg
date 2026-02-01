@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 3: Forest Green - VN Manager -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#43A047"/>
+      <stop offset="100%" style="stop-color:#2E7D32"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg3)"/>
+  
+  <!-- Circular background accent -->
+  <circle cx="50" cy="46" r="30" fill="#FFFFFF" opacity="0.15"/>
+  
+  <!-- Gear outer ring -->
+  <circle cx="50" cy="44" r="26" fill="#FFFFFF"/>
+  <circle cx="50" cy="44" r="18" fill="#2E7D32"/>
+  <circle cx="50" cy="44" r="10" fill="#FFFFFF"/>
+  
+  <!-- Gear teeth - 8 teeth -->
+  <rect x="46" y="14" width="8" height="10" rx="2" fill="#FFFFFF"/>
+  <rect x="46" y="64" width="8" height="10" rx="2" fill="#FFFFFF"/>
+  <rect x="20" y="40" width="10" height="8" rx="2" fill="#FFFFFF"/>
+  <rect x="70" y="40" width="10" height="8" rx="2" fill="#FFFFFF"/>
+  <rect x="26" y="22" width="8" height="8" rx="2" transform="rotate(-45 30 26)" fill="#FFFFFF"/>
+  <rect x="66" y="22" width="8" height="8" rx="2" transform="rotate(45 70 26)" fill="#FFFFFF"/>
+  <rect x="26" y="58" width="8" height="8" rx="2" transform="rotate(45 30 62)" fill="#FFFFFF"/>
+  <rect x="66" y="58" width="8" height="8" rx="2" transform="rotate(-45 70 62)" fill="#FFFFFF"/>
+  
+  <!-- Small microphone icon -->
+  <rect x="70" y="68" width="14" height="20" rx="7" fill="#FFFFFF"/>
+  <line x1="77" y1="88" x2="77" y2="96" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <line x1="69" y1="96" x2="85" y2="96" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M65 82 Q65 92 77 92 Q89 92 89 82" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+</svg>

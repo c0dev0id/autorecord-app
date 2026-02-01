@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 1: Classic Blue - Voice Notes -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976D2"/>
+      <stop offset="100%" style="stop-color:#2196F3"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg1)"/>
+  
+  <!-- Microphone body -->
+  <rect x="44" y="28" width="20" height="32" rx="10" fill="#FFFFFF"/>
+  
+  <!-- Microphone stand -->
+  <line x1="54" y1="60" x2="54" y2="72" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <line x1="42" y1="72" x2="66" y2="72" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Microphone arc -->
+  <path d="M38 50 Q38 68 54 68 Q70 68 70 50" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Sound waves -->
+  <path d="M32 44 Q28 54 32 64" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  <path d="M76 44 Q80 54 76 64" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+</svg>

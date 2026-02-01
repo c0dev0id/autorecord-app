@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon Variant 1: Classic Blue - VN Manager -->
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976D2"/>
+      <stop offset="100%" style="stop-color:#2196F3"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg1)"/>
+  
+  <!-- Gear icon -->
+  <path d="M54 24 L58 28 L62 26 L66 30 L62 34 L66 38 L70 36 L72 42 L68 44 L68 50 L72 52 L70 58 L66 56 L62 58 L58 62 L54 58 L50 62 L46 58 L42 56 L38 58 L36 52 L40 50 L40 44 L36 42 L38 36 L42 38 L46 34 L42 30 L46 26 L50 28 Z" fill="#FFFFFF"/>
+  <circle cx="54" cy="44" r="10" fill="#2196F3"/>
+  <circle cx="54" cy="44" r="5" fill="#FFFFFF"/>
+  
+  <!-- Small microphone icon -->
+  <rect x="68" y="64" width="12" height="18" rx="6" fill="#FFFFFF"/>
+  <line x1="74" y1="82" x2="74" y2="88" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="68" y1="88" x2="80" y2="88" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M65 76 Q65 84 74 84 Q83 84 83 76" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
