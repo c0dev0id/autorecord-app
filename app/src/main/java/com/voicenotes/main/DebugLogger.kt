@@ -22,7 +22,7 @@ object DebugLogger {
      */
     fun isLoggingEnabled(context: Context): Boolean {
         val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        return prefs.getBoolean("debug_logging_enabled", false)
+        return prefs.getBoolean("enable_debug_logging", false)
     }
     
     /**

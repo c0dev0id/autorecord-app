@@ -47,12 +47,12 @@ class DebugLogActivity : AppCompatActivity() {
         
         // Load current logging preference
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val loggingEnabled = prefs.getBoolean("debug_logging_enabled", false)
+        val loggingEnabled = prefs.getBoolean("enable_debug_logging", false)
         switchEnableLogging.isChecked = loggingEnabled
         
         // Set up switch listener
         switchEnableLogging.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("debug_logging_enabled", isChecked).apply()
+            prefs.edit().putBoolean("enable_debug_logging", isChecked).apply()
             Toast.makeText(
                 this, 
                 if (isChecked) "Debug logging enabled" else "Debug logging disabled", 
