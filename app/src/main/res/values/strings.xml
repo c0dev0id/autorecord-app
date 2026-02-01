@@ -120,8 +120,8 @@
     
     <!-- Battery optimization strings -->
     <string name="battery_optimization_disabled">Battery optimization disabled</string>
-    <string name="battery_optimization_enabled">Battery optimization (enabled - may interrupt recording)</string>
-    <string name="battery_optimization_disabled_status">Battery optimization (disabled)</string>
+    <string name="battery_optimization_enabled">✗ Battery optimization (enabled - may interrupt recording)</string>
+    <string name="battery_optimization_disabled_status">✓ Battery optimization (disabled)</string>
     
     <!-- Overlay permission strings -->
     <string name="overlay_permission_granted">Overlay permission granted</string>

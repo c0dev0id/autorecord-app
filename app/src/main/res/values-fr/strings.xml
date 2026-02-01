@@ -119,8 +119,8 @@
     
     <!-- Battery optimization strings -->
     <string name="battery_optimization_disabled">Optimisation de la batterie désactivée</string>
-    <string name="battery_optimization_enabled">Optimisation de la batterie (activée - peut interrompre l\'enregistrement)</string>
-    <string name="battery_optimization_disabled_status">Optimisation de la batterie (désactivée)</string>
+    <string name="battery_optimization_enabled">✗ Optimisation de la batterie (activée - peut interrompre l\'enregistrement)</string>
+    <string name="battery_optimization_disabled_status">✓ Optimisation de la batterie (désactivée)</string>
     
     <!-- Overlay permission strings -->
     <string name="overlay_permission_granted">Permission de superposition accordée</string>

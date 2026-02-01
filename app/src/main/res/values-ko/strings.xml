@@ -119,8 +119,8 @@
     
     <!-- Battery optimization strings -->
     <string name="battery_optimization_disabled">배터리 최적화 비활성화됨</string>
-    <string name="battery_optimization_enabled">배터리 최적화 (활성화됨 - 녹음이 중단될 수 있음)</string>
-    <string name="battery_optimization_disabled_status">배터리 최적화 (비활성화됨)</string>
+    <string name="battery_optimization_enabled">✗ 배터리 최적화 (활성화됨 - 녹음이 중단될 수 있음)</string>
+    <string name="battery_optimization_disabled_status">✓ 배터리 최적화 (비활성화됨)</string>
     
     <!-- Overlay permission strings -->
     <string name="overlay_permission_granted">오버레이 권한이 부여되었습니다</string>

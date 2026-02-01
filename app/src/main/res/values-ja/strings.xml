@@ -119,8 +119,8 @@
     
     <!-- Battery optimization strings -->
     <string name="battery_optimization_disabled">バッテリー最適化が無効化されました</string>
-    <string name="battery_optimization_enabled">バッテリー最適化（有効 - 録音が中断される可能性があります）</string>
-    <string name="battery_optimization_disabled_status">バッテリー最適化（無効）</string>
+    <string name="battery_optimization_enabled">✗ バッテリー最適化（有効 - 録音が中断される可能性があります）</string>
+    <string name="battery_optimization_disabled_status">✓ バッテリー最適化（無効）</string>
     
     <!-- Overlay permission strings -->
     <string name="overlay_permission_granted">オーバーレイ許可が付与されました</string>

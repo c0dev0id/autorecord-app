@@ -119,8 +119,8 @@
     
     <!-- Battery optimization strings -->
     <string name="battery_optimization_disabled">電池優化已停用</string>
-    <string name="battery_optimization_enabled">電池優化（已啟用 - 可能中斷錄音）</string>
-    <string name="battery_optimization_disabled_status">電池優化（已停用）</string>
+    <string name="battery_optimization_enabled">✗ 電池優化（已啟用 - 可能中斷錄音）</string>
+    <string name="battery_optimization_disabled_status">✓ 電池優化（已停用）</string>
     
     <!-- Overlay permission strings -->
     <string name="overlay_permission_granted">已授予懸浮窗權限</string>

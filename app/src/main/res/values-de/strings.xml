@@ -119,8 +119,8 @@
     
     <!-- Battery optimization strings -->
     <string name="battery_optimization_disabled">Akkuoptimierung deaktiviert</string>
-    <string name="battery_optimization_enabled">Akkuoptimierung (aktiviert - kann Aufnahme unterbrechen)</string>
-    <string name="battery_optimization_disabled_status">Akkuoptimierung (deaktiviert)</string>
+    <string name="battery_optimization_enabled">✗ Akkuoptimierung (aktiviert - kann Aufnahme unterbrechen)</string>
+    <string name="battery_optimization_disabled_status">✓ Akkuoptimierung (deaktiviert)</string>
     
     <!-- Overlay permission strings -->
     <string name="overlay_permission_granted">Overlay-Berechtigung erteilt</string>
