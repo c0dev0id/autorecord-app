@@ -123,16 +123,16 @@ jobs:
         run: |
           set -euo pipefail
       
-          if [ -n "${SIGNING_KEYSTORE_PASSWORD:-}" ]; then
+          if [ -n "${SIGNING_KEYSTORE_PASSWORD:-}" ] && [ -n "${SIGNING_KEYSTORE_BASE64:-}" ]; then
             echo "storeFile=../release.keystore" > keystore.properties
             echo "storePassword=${SIGNING_KEYSTORE_PASSWORD}" >> keystore.properties
             echo "keyAlias=${SIGNING_KEY_ALIAS:-release}" >> keystore.properties
             echo "keyPassword=${SIGNING_KEYSTORE_PASSWORD}" >> keystore.properties
+            chmod 600 keystore.properties
       
-            # If keystore provided as base64 secret, decode it
-            if [ -n "${SIGNING_KEYSTORE_BASE64:-}" ]; then
-              echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > release.keystore
-            fi
+            # Decode the keystore
+            echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > release.keystore
+            chmod 600 release.keystore
       
             echo "Signing configuration written to keystore.properties"
           else
