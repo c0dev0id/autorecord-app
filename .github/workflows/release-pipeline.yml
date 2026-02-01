@@ -146,22 +146,24 @@ jobs:
               run: |
                 ./gradlew assembleRelease --stacktrace --build-cache --parallel
       
-            - name: Upload Release APK
+            - name: Upload Release APKs
               uses: actions/upload-artifact@v4
               with:
                 name: app-release-apk
                 path: |
                   app/build/outputs/apk/release/*.apk
+                  vnmanager-opener/build/outputs/apk/release/*.apk
                 retention-days: 90
       
             - name: Build Summary
               run: |
                 echo "## 📦 Release Build Summary" >> $GITHUB_STEP_SUMMARY
                 echo "" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Release APK built successfully!" >> $GITHUB_STEP_SUMMARY
+                echo "✅ Release APKs built successfully!" >> $GITHUB_STEP_SUMMARY
                 echo "" >> $GITHUB_STEP_SUMMARY
                 
-                # Check if APK is signed
+                # Check Voice Notes app APK
+                echo "### Voice Notes App" >> $GITHUB_STEP_SUMMARY
                 APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
                 if [ -f "$APK_FILE" ]; then
                   APK_SIZE=$(stat -c%s "$APK_FILE" 2>/dev/null || stat -f%z "$APK_FILE")
@@ -169,6 +171,22 @@ jobs:
                   echo "**APK Size:** ${APK_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
                   
                   if [[ "$APK_FILE" == *"unsigned"* ]]; then
+                    echo "**Status:** Unsigned (signing not configured)" >> $GITHUB_STEP_SUMMARY
+                  else
+                    echo "**Status:** Signed" >> $GITHUB_STEP_SUMMARY
+                  fi
+                fi
+                
+                # Check VN Manager Opener APK
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "### VN Manager Opener" >> $GITHUB_STEP_SUMMARY
+                OPENER_APK=$(find vnmanager-opener/build/outputs/apk/release -name "*.apk" | head -1)
+                if [ -f "$OPENER_APK" ]; then
+                  OPENER_SIZE=$(stat -c%s "$OPENER_APK" 2>/dev/null || stat -f%z "$OPENER_APK")
+                  OPENER_SIZE_MB=$(echo "scale=2; $OPENER_SIZE / 1024 / 1024" | bc)
+                  echo "**APK Size:** ${OPENER_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+                  
+                  if [[ "$OPENER_APK" == *"unsigned"* ]]; then
                     echo "**Status:** Unsigned (signing not configured)" >> $GITHUB_STEP_SUMMARY
                   else
                     echo "**Status:** Signed" >> $GITHUB_STEP_SUMMARY
@@ -279,28 +297,61 @@ jobs:
             - See CHANGELOG.md for details
             
             ### APK Files
-            - Download the appropriate APK file below
-            - For signed releases, use the signed APK
-            - For unsigned releases, you'll need to sign before installing
+            This release includes two Android applications:
+            
+            **1. Voice Notes App** (`voice-notes-release.apk`)
+            - Main motorcycle voice notes recording application
+            - Package: com.voicenotes.motorcycle
+            
+            **2. VN Manager Opener** (`vnmanager-opener-release.apk`)
+            - Companion utility for managing voice notes
+            - Package: com.vnmanager.opener
+            
+            Download the appropriate APK file(s) below. For signed releases, you can install directly. For unsigned releases, you'll need to sign before installing.
 
-      - name: Find APK Files
-        id: find_apk
+      - name: Find and Prepare APK Files
+        id: find_apks
         run: |
-          # Find the APK file (could be signed or unsigned)
-          APK_FILE=$(find apks/ -name "*.apk" | head -1)
-          APK_NAME=$(basename "$APK_FILE")
-          echo "apk_path=$APK_FILE" >> $GITHUB_OUTPUT
-          echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
-          echo "Found APK: $APK_FILE"
+          # Find Voice Notes app APK
+          APP_APK=$(find apks/app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APP_APK" ]; then
+            echo "app_apk_path=$APP_APK" >> $GITHUB_OUTPUT
+            echo "app_apk_name=voice-notes-release.apk" >> $GITHUB_OUTPUT
+            echo "Found Voice Notes APK: $APP_APK"
+          else
+            echo "Warning: Voice Notes APK not found!"
+          fi
+          
+          # Find VN Manager Opener APK
+          OPENER_APK=$(find apks/vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$OPENER_APK" ]; then
+            echo "opener_apk_path=$OPENER_APK" >> $GITHUB_OUTPUT
+            echo "opener_apk_name=vnmanager-opener-release.apk" >> $GITHUB_OUTPUT
+            echo "Found VN Manager Opener APK: $OPENER_APK"
+          else
+            echo "Warning: VN Manager Opener APK not found!"
+          fi
 
-      - name: Upload Release APK
+      - name: Upload Voice Notes Release APK
+        if: steps.find_apks.outputs.app_apk_path != ''
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apk.outputs.apk_path }}
-          asset_name: ${{ steps.find_apk.outputs.apk_name }}
+          asset_path: ${{ steps.find_apks.outputs.app_apk_path }}
+          asset_name: ${{ steps.find_apks.outputs.app_apk_name }}
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload VN Manager Opener Release APK
+        if: steps.find_apks.outputs.opener_apk_path != ''
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_apks.outputs.opener_apk_path }}
+          asset_name: ${{ steps.find_apks.outputs.opener_apk_name }}
           asset_content_type: application/vnd.android.package-archive
 
   # Job 5: Publish to Play Store (OPTIONAL - commented out by default)
