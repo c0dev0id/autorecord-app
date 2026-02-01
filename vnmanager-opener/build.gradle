@@ -3,6 +3,85 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+def getVersionName() {
+    try {
+        // Try to get version from git describe (includes tag and distance from tag)
+        def process = 'git describe --tags --always --dirty'.execute()
+        process.waitFor()
+        
+        if (process.exitValue() == 0) {
+            def version = process.text.trim()
+            if (version && !version.isEmpty()) {
+                // Strip 'v' prefix if present (v1.0.0 -> 1.0.0)
+                if (version.startsWith('v')) {
+                    version = version.substring(1)
+                }
+                
+                // Check if the result is just a commit hash (no tags exist)
+                def isDirty = version.endsWith('-dirty')
+                def versionWithoutDirty = version.replace('-dirty', '')
+                if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
+                    // No tags exist - use default version
+                    return "1.0.0"
+                }
+                
+                return version
+            }
+        }
+        
+        // If git describe failed, try fetching tags once
+        def fetchProcess = 'git fetch --tags --quiet'.execute()
+        fetchProcess.waitFor()
+        
+        // Retry git describe after fetching tags
+        def retryProcess = 'git describe --tags --always --dirty'.execute()
+        retryProcess.waitFor()
+        
+        if (retryProcess.exitValue() == 0) {
+            def version = retryProcess.text.trim()
+            if (version && !version.isEmpty()) {
+                // Strip 'v' prefix if present
+                if (version.startsWith('v')) {
+                    version = version.substring(1)
+                }
+                
+                // Check again if result is just a commit hash (no tags)
+                def isDirty = version.endsWith('-dirty')
+                def versionWithoutDirty = version.replace('-dirty', '')
+                if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
+                    return "1.0.0"
+                }
+                
+                return version
+            }
+        }
+    } catch (Exception ignored) {
+        // Git not available
+    }
+
+    // Fallback version
+    return "1.0.0"
+}
+
+def getVersionCode() {
+    try {
+        // Count commits in current branch
+        def process = 'git rev-list --count HEAD'.execute()
+        process.waitFor()
+        if (process.exitValue() == 0) {
+            def count = process.text.trim()
+            if (count && !count.isEmpty()) {
+                return count.toInteger()
+            }
+        }
+    } catch (Exception ignored) {
+        // Git not available
+    }
+
+    // Fallback version code
+    return 1
+}
+
 android {
     namespace 'com.vnmanager.opener'
     compileSdk 34
@@ -11,14 +90,35 @@ android {
         applicationId "com.vnmanager.opener"
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode getVersionCode()
+        versionName getVersionName()
+    }
+
+    signingConfigs {
+        release {
+            // Load keystore properties from keystore.properties file (if it exists)
+            def keystorePropertiesFile = rootProject.file("keystore.properties")
+            if (keystorePropertiesFile.exists()) {
+                def keystoreProperties = new Properties()
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // Sign the release APK if keystore is configured
+            if (rootProject.file("keystore.properties").exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 

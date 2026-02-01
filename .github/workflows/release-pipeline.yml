@@ -120,17 +120,17 @@ jobs:
         # Avoid using secrets in the step-level expression to prevent linter issues;
         # instead provide them as env vars and handle checks in the shell.
         env:
-          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
           SIGNING_KEY_ALIAS:    ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
         run: |
           set -euo pipefail
       
-          if [ -n "${SIGNING_KEY_PASSWORD:-}" ]; then
+          if [ -n "${SIGNING_KEYSTORE_PASSWORD:-}" ]; then
             echo "storeFile=../release.keystore" > keystore.properties
-            echo "storePassword=${SIGNING_KEY_PASSWORD}" >> keystore.properties
+            echo "storePassword=${SIGNING_KEYSTORE_PASSWORD}" >> keystore.properties
             echo "keyAlias=${SIGNING_KEY_ALIAS:-release}" >> keystore.properties
-            echo "keyPassword=${SIGNING_KEY_PASSWORD}" >> keystore.properties
+            echo "keyPassword=${SIGNING_KEYSTORE_PASSWORD}" >> keystore.properties
       
             # If keystore provided as base64 secret, decode it
             if [ -n "${SIGNING_KEYSTORE_BASE64:-}" ]; then
@@ -350,14 +350,48 @@ jobs:
             echo "is_release=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Find and Prepare APK Files
+        id: find_apks
+        run: |
+          # Find Debug APKs (mandatory)
+          APP_DEBUG_APK=$(find apks/debug/app/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APP_DEBUG_APK" ]; then
+            cp "$APP_DEBUG_APK" voice-notes-debug.apk
+            echo "Found Voice Notes Debug APK: $APP_DEBUG_APK"
+          else
+            echo "Warning: Voice Notes Debug APK not found!"
+          fi
+          
+          OPENER_DEBUG_APK=$(find apks/debug/vnmanager-opener/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$OPENER_DEBUG_APK" ]; then
+            cp "$OPENER_DEBUG_APK" vnmanager-opener-debug.apk
+            echo "Found VN Manager Opener Debug APK: $OPENER_DEBUG_APK"
+          else
+            echo "Warning: VN Manager Opener Debug APK not found!"
+          fi
+          
+          # Find Release APKs (optional)
+          APP_RELEASE_APK=$(find apks/release/app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APP_RELEASE_APK" ]; then
+            cp "$APP_RELEASE_APK" voice-notes-release.apk
+            echo "Found Voice Notes Release APK: $APP_RELEASE_APK"
+          else
+            echo "Info: Voice Notes Release APK not available (signing not configured)"
+          fi
+          
+          OPENER_RELEASE_APK=$(find apks/release/vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$OPENER_RELEASE_APK" ]; then
+            cp "$OPENER_RELEASE_APK" vnmanager-opener-release.apk
+            echo "Found VN Manager Opener Release APK: $OPENER_RELEASE_APK"
+          else
+            echo "Info: VN Manager Opener Release APK not available (signing not configured)"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.release_info.outputs.tag }}
-          release_name: Release ${{ steps.release_info.outputs.tag }}
+          name: Release ${{ steps.release_info.outputs.tag }}
           draft: ${{ steps.release_info.outputs.is_release == 'false' }}
           prerelease: ${{ steps.release_info.outputs.is_release == 'false' }}
           body: |
@@ -378,93 +412,12 @@ jobs:
             - `vnmanager-opener-release.apk` - Signed companion utility (Package: com.vnmanager.opener)
             
             Debug APKs are suitable for testing and development. Release APKs are production-ready and signed for distribution.
-
-      - name: Find and Prepare APK Files
-        id: find_apks
-        run: |
-          # Find Debug APKs (mandatory)
-          APP_DEBUG_APK=$(find apks/debug/app/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
-          if [ -n "$APP_DEBUG_APK" ]; then
-            echo "app_debug_apk_path=$APP_DEBUG_APK" >> $GITHUB_OUTPUT
-            echo "app_debug_apk_name=voice-notes-debug.apk" >> $GITHUB_OUTPUT
-            echo "Found Voice Notes Debug APK: $APP_DEBUG_APK"
-          else
-            echo "Warning: Voice Notes Debug APK not found!"
-          fi
-          
-          OPENER_DEBUG_APK=$(find apks/debug/vnmanager-opener/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
-          if [ -n "$OPENER_DEBUG_APK" ]; then
-            echo "opener_debug_apk_path=$OPENER_DEBUG_APK" >> $GITHUB_OUTPUT
-            echo "opener_debug_apk_name=vnmanager-opener-debug.apk" >> $GITHUB_OUTPUT
-            echo "Found VN Manager Opener Debug APK: $OPENER_DEBUG_APK"
-          else
-            echo "Warning: VN Manager Opener Debug APK not found!"
-          fi
-          
-          # Find Release APKs (optional)
-          APP_RELEASE_APK=$(find apks/release/app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
-          if [ -n "$APP_RELEASE_APK" ]; then
-            echo "app_release_apk_path=$APP_RELEASE_APK" >> $GITHUB_OUTPUT
-            echo "app_release_apk_name=voice-notes-release.apk" >> $GITHUB_OUTPUT
-            echo "Found Voice Notes Release APK: $APP_RELEASE_APK"
-          else
-            echo "Info: Voice Notes Release APK not available (signing not configured)"
-          fi
-          
-          OPENER_RELEASE_APK=$(find apks/release/vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
-          if [ -n "$OPENER_RELEASE_APK" ]; then
-            echo "opener_release_apk_path=$OPENER_RELEASE_APK" >> $GITHUB_OUTPUT
-            echo "opener_release_apk_name=vnmanager-opener-release.apk" >> $GITHUB_OUTPUT
-            echo "Found VN Manager Opener Release APK: $OPENER_RELEASE_APK"
-          else
-            echo "Info: VN Manager Opener Release APK not available (signing not configured)"
-          fi
-
-      # Upload Debug APKs (mandatory)
-      - name: Upload Voice Notes Debug APK
-        if: steps.find_apks.outputs.app_debug_apk_path != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apks.outputs.app_debug_apk_path }}
-          asset_name: ${{ steps.find_apks.outputs.app_debug_apk_name }}
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload VN Manager Opener Debug APK
-        if: steps.find_apks.outputs.opener_debug_apk_path != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apks.outputs.opener_debug_apk_path }}
-          asset_name: ${{ steps.find_apks.outputs.opener_debug_apk_name }}
-          asset_content_type: application/vnd.android.package-archive
-
-      # Upload Release APKs (optional - only if available)
-      - name: Upload Voice Notes Release APK
-        if: steps.find_apks.outputs.app_release_apk_path != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apks.outputs.app_release_apk_path }}
-          asset_name: ${{ steps.find_apks.outputs.app_release_apk_name }}
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload VN Manager Opener Release APK
-        if: steps.find_apks.outputs.opener_release_apk_path != ''
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apks.outputs.opener_release_apk_path }}
-          asset_name: ${{ steps.find_apks.outputs.opener_release_apk_name }}
-          asset_content_type: application/vnd.android.package-archive
+          files: |
+            voice-notes-debug.apk
+            vnmanager-opener-debug.apk
+            voice-notes-release.apk
+            vnmanager-opener-release.apk
+          fail_on_unmatched_files: false
 
   # Job 5: Publish to Play Store (OPTIONAL - commented out by default)
   # Uncomment and configure this job to enable automatic Play Store publishing
