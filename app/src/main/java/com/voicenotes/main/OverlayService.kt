@@ -407,7 +407,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 handler.post { onComplete() }
             }
 
-            // Use the newer onError with errorCode (API 21+) instead of deprecated onError(utteranceId)
+            @Deprecated("Deprecated in Java")
+            override fun onError(utteranceId: String?) {
+                Log.e("OverlayService", "TTS: onError (deprecated) for: '$text'")
+                handler.post { onComplete() }
+            }
+
+            // Use the newer onError with errorCode (API 21+) for detailed error information
             override fun onError(utteranceId: String?, errorCode: Int) {
                 Log.e("OverlayService", "TTS: onError for: '$text', errorCode: $errorCode")
                 handler.post { onComplete() }
