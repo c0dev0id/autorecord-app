@@ -41,6 +41,35 @@ class TranscriptionService(private val context: Context) {
                    serviceAccountJson.contains("\"private_key\"")
         }
     }
+    
+    /**
+     * Get device language code for speech recognition
+     * Returns a BCP-47 language code based on device locale
+     */
+    private fun getDeviceLanguageCode(): String {
+        val locale = java.util.Locale.getDefault()
+        val language = locale.language
+        val country = locale.country
+        
+        // Return language-COUNTRY format (e.g., en-US, de-DE) or just language if no country
+        return if (country.isNotEmpty()) {
+            "$language-$country"
+        } else {
+            // Default to US for English, otherwise use language only
+            when (language) {
+                "en" -> "en-US"
+                "de" -> "de-DE"
+                "es" -> "es-ES"
+                "fr" -> "fr-FR"
+                "it" -> "it-IT"
+                "pt" -> "pt-BR"
+                "ja" -> "ja-JP"
+                "ko" -> "ko-KR"
+                "zh" -> "zh-CN"
+                else -> "en-US" // Fallback to English US
+            }
+        }
+    }
 
     /**
      * Transcribes an audio file using Google Cloud Speech-to-Text API
@@ -146,8 +175,26 @@ class TranscriptionService(private val context: Context) {
             try {
                 // Read language preferences from SharedPreferences
                 val sharedPrefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-                val primaryLanguage = sharedPrefs.getString("stt_primary_language", "en-US") ?: "en-US"
-                val secondaryLanguage = sharedPrefs.getString("stt_secondary_language", "") ?: ""
+                val rawPrimaryLanguage = sharedPrefs.getString("stt_primary_language", "system") ?: "system"
+                val rawSecondaryLanguage = sharedPrefs.getString("stt_secondary_language", "") ?: ""
+                
+                // Convert "system" to device locale language code
+                val primaryLanguage = if (rawPrimaryLanguage == "system") {
+                    getDeviceLanguageCode()
+                } else {
+                    rawPrimaryLanguage
+                }
+                
+                val secondaryLanguage = if (rawSecondaryLanguage == "system") {
+                    getDeviceLanguageCode()
+                } else {
+                    rawSecondaryLanguage
+                }
+                
+                DebugLogger.logInfo(
+                    service = "Google Cloud Speech-to-Text",
+                    message = "Using language codes - Primary: $primaryLanguage, Secondary: $secondaryLanguage"
+                )
                 
                 // Detect audio format from file extension
                 val isOggOpus = filePath.endsWith(".ogg", ignoreCase = true)

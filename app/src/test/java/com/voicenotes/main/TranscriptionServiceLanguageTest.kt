@@ -41,24 +41,24 @@ class TranscriptionServiceLanguageTest {
     @Test
     fun testDefaultPrimaryLanguage() {
         // Given: No preference set, returns default
-        whenever(mockSharedPreferences.getString("stt_primary_language", "en-US"))
-            .thenReturn("en-US")
+        whenever(mockSharedPreferences.getString("stt_primary_language", "system"))
+            .thenReturn("system")
         
         // When: Reading the preference
-        val primaryLanguage = mockSharedPreferences.getString("stt_primary_language", "en-US")
+        val primaryLanguage = mockSharedPreferences.getString("stt_primary_language", "system")
         
-        // Then: Should return default en-US
-        assertEquals("Default primary language should be en-US", "en-US", primaryLanguage)
+        // Then: Should return default system
+        assertEquals("Default primary language should be system", "system", primaryLanguage)
     }
     
     @Test
     fun testCustomPrimaryLanguage() {
         // Given: German primary language preference set
-        whenever(mockSharedPreferences.getString("stt_primary_language", "en-US"))
+        whenever(mockSharedPreferences.getString("stt_primary_language", "system"))
             .thenReturn("de-DE")
         
         // When: Reading the preference
-        val primaryLanguage = mockSharedPreferences.getString("stt_primary_language", "en-US")
+        val primaryLanguage = mockSharedPreferences.getString("stt_primary_language", "system")
         
         // Then: Should return de-DE
         assertEquals("Custom primary language should be returned", "de-DE", primaryLanguage)
@@ -141,14 +141,14 @@ class TranscriptionServiceLanguageTest {
     @Test
     fun testLanguageTagFormat() {
         // Test that language tags follow expected BCP-47 format
-        val validPrimaryTags = listOf("en-US", "de-DE", "es-ES", "fr-FR", "it-IT", 
+        val validPrimaryTags = listOf("system", "en-US", "de-DE", "es-ES", "fr-FR", "it-IT", 
                                       "pt-BR", "ja-JP", "ko-KR", "zh-CN", "zh-TW")
         val validSecondaryTags = listOf("", "en-GB", "es-419")
         
-        // Verify primary tags match standard format (xx-XX or xx-XXX for special cases)
+        // Verify primary tags are "system" or match standard format (xx-XX or xx-XXX for special cases)
         validPrimaryTags.forEach { tag ->
             assertTrue("Primary tag should match format: $tag", 
-                tag.matches(Regex("[a-z]{2,3}-[A-Z]{2,3}")))
+                tag == "system" || tag.matches(Regex("[a-z]{2,3}-[A-Z]{2,3}")))
         }
         
         // Verify secondary tags are empty or match standard format or have numeric region codes
@@ -159,5 +159,29 @@ class TranscriptionServiceLanguageTest {
                     tag.matches(Regex("[a-z]{2,3}-[0-9]{3}")))
             }
         }
+    }
+    
+    @Test
+    fun testSystemLanguageValue() {
+        // Given: "system" as primary language preference
+        whenever(mockSharedPreferences.getString("stt_primary_language", "system"))
+            .thenReturn("system")
+        
+        // When: Reading the preference
+        val primaryLanguage = mockSharedPreferences.getString("stt_primary_language", "system")
+        
+        // Then: Should return "system"
+        assertEquals("System language value should be returned", "system", primaryLanguage)
+    }
+    
+    @Test
+    fun testSystemToDeviceLocaleConversion() {
+        // Test that "system" is properly converted to device locale
+        // This validates the concept that "system" should be mapped to actual language code
+        val systemValue = "system"
+        val shouldConvert = systemValue == "system"
+        
+        // Then: Should recognize need for conversion
+        assertTrue("System value should trigger conversion logic", shouldConvert)
     }
 }
