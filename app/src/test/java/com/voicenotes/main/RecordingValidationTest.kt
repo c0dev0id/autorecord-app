@@ -17,7 +17,7 @@ class RecordingValidationTest {
         val recording = Recording(
             id = 1L,
             filename = "37.774929,-122.419416_20240126_120000.ogg",
-            filepath = "/data/data/com.voicenotes.motorcycle/files/recordings/37.774929,-122.419416_20240126_120000.ogg",
+            filepath = "/data/data/com.voicenotes.main/files/recordings/37.774929,-122.419416_20240126_120000.ogg",
             timestamp = System.currentTimeMillis(),
             latitude = 37.774929,
             longitude = -122.419416,

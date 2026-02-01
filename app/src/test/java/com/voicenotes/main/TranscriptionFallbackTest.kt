@@ -315,7 +315,7 @@ class TranscriptionFallbackTest {
         return Recording(
             id = 1L,
             filename = "test_recording.ogg",
-            filepath = "/data/data/com.voicenotes.motorcycle/files/recordings/test_recording.ogg",
+            filepath = "/data/data/com.voicenotes.main/files/recordings/test_recording.ogg",
             timestamp = System.currentTimeMillis(),
             latitude = 37.774929,
             longitude = -122.419416,

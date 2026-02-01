@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity() {
 
             // Register broadcast receiver
             finishReceiver = FinishActivityReceiver(this)
-            val filter = IntentFilter("com.voicenotes.motorcycle.FINISH_ACTIVITY")
+            val filter = IntentFilter("com.voicenotes.main.FINISH_ACTIVITY")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
             } else {

@@ -179,7 +179,7 @@ class BatchProcessingService : LifecycleService() {
      * Helper function to broadcast batch processing progress
      */
     private fun broadcastProgress(filename: String, status: String, current: Int, total: Int) {
-        val progressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+        val progressIntent = Intent("com.voicenotes.main.BATCH_PROGRESS")
         progressIntent.putExtra("filename", filename)
         progressIntent.putExtra("status", status)
         progressIntent.putExtra("current", current)

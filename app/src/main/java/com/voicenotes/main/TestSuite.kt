@@ -1316,7 +1316,7 @@ class TestSuite(private val context: Context) {
         
         runTest("OverlayService Class Exists") {
             try {
-                val className = "com.voicenotes.motorcycle.OverlayService"
+                val className = "com.voicenotes.main.OverlayService"
                 Class.forName(className)
                 TestResult("OverlayService Class Exists", true, "OverlayService class found")
             } catch (e: Exception) {
@@ -1326,7 +1326,7 @@ class TestSuite(private val context: Context) {
         
         runTest("BatchProcessingService Class Exists") {
             try {
-                val className = "com.voicenotes.motorcycle.BatchProcessingService"
+                val className = "com.voicenotes.main.BatchProcessingService"
                 Class.forName(className)
                 TestResult("BatchProcessingService Class Exists", true, "BatchProcessingService class found")
             } catch (e: Exception) {
