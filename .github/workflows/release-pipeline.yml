@@ -359,7 +359,8 @@ jobs:
             cp "$APP_DEBUG_APK" voice-notes-debug.apk
             echo "Found Voice Notes Debug APK: $APP_DEBUG_APK"
           else
-            echo "Warning: Voice Notes Debug APK not found!"
+            echo "Error: Voice Notes Debug APK not found!"
+            exit 1
           fi
           
           OPENER_DEBUG_APK=$(find apks/debug/vnmanager-opener/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
@@ -367,7 +368,8 @@ jobs:
             cp "$OPENER_DEBUG_APK" vnmanager-opener-debug.apk
             echo "Found VN Manager Opener Debug APK: $OPENER_DEBUG_APK"
           else
-            echo "Warning: VN Manager Opener Debug APK not found!"
+            echo "Error: VN Manager Opener Debug APK not found!"
+            exit 1
           fi
           
           # Find Release APKs (optional)
@@ -375,16 +377,20 @@ jobs:
           if [ -n "$APP_RELEASE_APK" ]; then
             cp "$APP_RELEASE_APK" voice-notes-release.apk
             echo "Found Voice Notes Release APK: $APP_RELEASE_APK"
+            echo "has_voice_notes_release=true" >> $GITHUB_OUTPUT
           else
             echo "Info: Voice Notes Release APK not available (signing not configured)"
+            echo "has_voice_notes_release=false" >> $GITHUB_OUTPUT
           fi
           
           OPENER_RELEASE_APK=$(find apks/release/vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
           if [ -n "$OPENER_RELEASE_APK" ]; then
             cp "$OPENER_RELEASE_APK" vnmanager-opener-release.apk
             echo "Found VN Manager Opener Release APK: $OPENER_RELEASE_APK"
+            echo "has_opener_release=true" >> $GITHUB_OUTPUT
           else
             echo "Info: VN Manager Opener Release APK not available (signing not configured)"
+            echo "has_opener_release=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Create GitHub Release

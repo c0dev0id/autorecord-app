@@ -68,10 +68,10 @@ The old actions are deprecated and no longer maintained. The new `softprops/acti
    - Otherwise → auto-increment from the latest tag
 
 2. **APK Preparation**: The workflow finds and copies APKs to standardized names:
-   - `voice-notes-debug.apk`
-   - `vnmanager-opener-debug.apk`
-   - `voice-notes-release.apk` (if signed)
-   - `vnmanager-opener-release.apk` (if signed)
+   - `voice-notes-debug.apk` (mandatory - fails if not found)
+   - `vnmanager-opener-debug.apk` (mandatory - fails if not found)
+   - `voice-notes-release.apk` (optional - only if signed)
+   - `vnmanager-opener-release.apk` (optional - only if signed)
 
 3. **Release Creation**: Using `softprops/action-gh-release@v1`:
    - Creates a GitHub release with the determined tag
