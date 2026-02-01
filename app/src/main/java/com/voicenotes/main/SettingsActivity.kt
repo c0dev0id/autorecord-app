@@ -145,14 +145,27 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         // App Language Change
-        findPreference<ListPreference>("app_language")?.setOnPreferenceChangeListener { _, newValue ->
-            val languageTag = newValue as String
-            if (languageTag == "system") {
-                AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
-            } else {
-                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageTag))
+        findPreference<ListPreference>("app_language")?.apply {
+            summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+            setOnPreferenceChangeListener { _, newValue ->
+                val languageTag = newValue as String
+                if (languageTag == "system") {
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+                } else {
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageTag))
+                }
+                true
             }
-            true
+        }
+
+        // Primary STT Language
+        findPreference<ListPreference>("stt_primary_language")?.apply {
+            summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+        }
+
+        // Secondary STT Language
+        findPreference<ListPreference>("stt_secondary_language")?.apply {
+            summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         }
 
         // Recording Duration Validation

@@ -101,10 +101,10 @@ class SettingsPreferenceTest {
     @Test
     fun testDefaultPrimarySTTLanguage() {
         // When: No preference is set
-        val language = sharedPreferences.getString("stt_primary_language", "en-US")
+        val language = sharedPreferences.getString("stt_primary_language", "system")
         
-        // Then: Default should be "en-US"
-        assertEquals("Default STT primary language should be 'en-US'", "en-US", language)
+        // Then: Default should be "system"
+        assertEquals("Default STT primary language should be 'system'", "system", language)
     }
     
     @Test
@@ -116,7 +116,7 @@ class SettingsPreferenceTest {
         sharedPreferences.edit().putString("stt_primary_language", testLanguage).commit()
         
         // Then: Value should be persisted
-        val retrievedLanguage = sharedPreferences.getString("stt_primary_language", "en-US")
+        val retrievedLanguage = sharedPreferences.getString("stt_primary_language", "system")
         assertEquals("Primary STT language should persist", testLanguage, retrievedLanguage)
     }
     
@@ -175,7 +175,7 @@ class SettingsPreferenceTest {
     fun testValidLanguageTags() {
         // Test valid BCP-47 language tags
         val validAppLanguages = listOf("system", "en", "de", "es", "fr", "it", "pt", "ja", "ko", "zh-CN", "zh-TW")
-        val validSTTLanguages = listOf("en-US", "en-GB", "de-DE", "es-ES", "es-419", "fr-FR", "it-IT", 
+        val validSTTLanguages = listOf("system", "en-US", "en-GB", "de-DE", "es-ES", "es-419", "fr-FR", "it-IT", 
                                        "pt-BR", "pt-PT", "ja-JP", "ko-KR", "zh-CN", "zh-TW")
         
         // Verify all tags are strings

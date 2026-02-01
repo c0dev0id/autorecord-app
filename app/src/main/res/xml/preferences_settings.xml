@@ -50,7 +50,7 @@
             android:summary="@string/pref_stt_primary_language_summary"
             android:entries="@array/stt_primary_language_entries"
             android:entryValues="@array/stt_primary_language_values"
-            android:defaultValue="en-US" />
+            android:defaultValue="system" />
 
         <ListPreference
             android:key="stt_secondary_language"
