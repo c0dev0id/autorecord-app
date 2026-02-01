@@ -119,18 +119,10 @@ class MainActivity : AppCompatActivity() {
         val categories = intent.categories?.joinToString(", ") ?: "none"
         val extras = intent.extras?.let { bundle ->
             bundle.keySet().joinToString(", ") { key ->
-                // Use type-specific getters to avoid deprecated Bundle.get(String)
-                val value = when {
-                    bundle.containsKey(key) -> {
-                        // Try common types in order of likelihood for this app
-                        bundle.getString(key)
-                            ?: bundle.getBoolean(key, false).takeIf { bundle.containsKey(key) && it }?.toString()
-                            ?: bundle.getInt(key, Int.MIN_VALUE).takeIf { it != Int.MIN_VALUE }?.toString()
-                            ?: bundle.getLong(key, Long.MIN_VALUE).takeIf { it != Long.MIN_VALUE }?.toString()
-                            ?: "(value)"
-                    }
-                    else -> "null"
-                }
+                // For debug logging, handle the types this app commonly uses in intents
+                // getString returns null for non-string types, so we check boolean explicitly
+                val value = bundle.getString(key) 
+                    ?: if (bundle.containsKey(key)) bundle.getBoolean(key).toString() else "(unknown)"
                 "$key=$value"
             }
         } ?: "none"
