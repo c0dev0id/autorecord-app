@@ -1,26 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Two-pane settings layout for landscape mode on tablets -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Single-pane settings layout for landscape mode -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settings_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:baselineAligned="false">
-
-    <FrameLayout
-        android:id="@+id/settings_container_left"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
-
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="?android:attr/listDivider" />
-
-    <FrameLayout
-        android:id="@+id/settings_container_right"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
-
-</LinearLayout>
+    android:layout_height="match_parent" />
