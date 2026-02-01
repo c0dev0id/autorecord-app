@@ -191,10 +191,9 @@ class TranscriptionServiceLanguageTest {
         // When locale has both language and country
         if (deviceLocale.country.isNotEmpty()) {
             val bcp47Tag = deviceLocale.toLanguageTag()
-            // Should match format like "en-US", "de-DE", "pt-PT", etc.
+            // Should match format like "en-US", "de-DE", "pt-PT", or "zh-Hans" (script subtag)
             assertTrue("Device locale should produce valid BCP-47 format", 
-                bcp47Tag.matches(Regex("[a-z]{2,3}-[A-Z]{2,3}")) || 
-                bcp47Tag.matches(Regex("[a-z]{2,3}-[A-Z][a-z]{3}")))
+                bcp47Tag.matches(Regex("[a-z]{2,3}-([A-Z]{2,3}|[A-Z][a-z]{3})")))
         } else {
             // When only language is available, fallback logic applies
             val language = deviceLocale.language

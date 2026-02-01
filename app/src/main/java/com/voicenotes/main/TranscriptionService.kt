@@ -53,7 +53,8 @@ class TranscriptionService(private val context: Context) {
      * - Spanish -> es-ES (Spain)
      * - French -> fr-FR (France)
      * - Italian -> it-IT (Italy)
-     * - Portuguese -> pt-BR (Brazil - largest Portuguese-speaking population)
+     * - Portuguese -> pt-BR (Brazil - largest Portuguese-speaking population; users in 
+     *                Portugal should manually select pt-PT for European Portuguese)
      * - Japanese -> ja-JP (Japan)
      * - Korean -> ko-KR (South Korea)
      * - Chinese -> zh-CN (Mainland China - Simplified)
