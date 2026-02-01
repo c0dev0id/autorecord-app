@@ -134,7 +134,7 @@ jobs:
       
             # If keystore provided as base64 secret, decode it
             if [ -n "${SIGNING_KEYSTORE_BASE64:-}" ]; then
-              echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > ../release.keystore
+              echo "$SIGNING_KEYSTORE_BASE64" | base64 -d > release.keystore
             fi
       
             echo "Signing configuration written to keystore.properties"
@@ -341,13 +341,13 @@ jobs:
             fi
           fi
 
-          echo "tag=${TAG}" > "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "Release tag: ${TAG}"
 
           if printf '%s' "${TAG}" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "is_release=true" > "$GITHUB_OUTPUT"
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
           else
-            echo "is_release=false" > "$GITHUB_OUTPUT"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create Release
