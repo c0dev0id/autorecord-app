@@ -43,14 +43,27 @@ class SettingsActivity : AppCompatActivity() {
         // Enable Up navigation
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         
-        // For single-pane mode (portrait and small screens)
         setContentView(R.layout.activity_settings)
         
         if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings_container, SettingsFragment())
-                .commit()
+            // Check if we're in two-pane landscape mode
+            val isLandscape = findViewById<View>(R.id.settings_container_left) != null
+            
+            if (isLandscape) {
+                // Two-pane landscape mode: Load settings in left pane
+                // The preference list will be displayed in the left pane with scrolling
+                // Right pane can be used for future detail views or remain empty
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.settings_container_left, SettingsFragment())
+                    .commit()
+            } else {
+                // Single-pane portrait mode
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.settings_container, SettingsFragment())
+                    .commit()
+            }
         }
     }
     
