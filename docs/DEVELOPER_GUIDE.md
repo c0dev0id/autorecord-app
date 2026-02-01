@@ -358,26 +358,6 @@ The TranscriptionService reads `stt_primary_language` and `stt_secondary_languag
 
 This allows users to configure which languages the speech recognizer should attempt to detect and transcribe.
 
-**Speech Context Hints for Translators**:
-The app provides localized speech context hints to improve transcription accuracy for domain-specific terms (motorcycle navigation, road features, etc.). These hints are stored in array resources:
-
-- **English hints**: `app/src/main/res/values/arrays_stt_hints.xml`
-- **German hints**: `app/src/main/res/values-de/arrays_stt_hints.xml`
-
-To add hints for a new language:
-1. Create a new `values-{lang}/` directory (e.g., `values-es/` for Spanish)
-2. Create `arrays_stt_hints.xml` in that directory
-3. Define a `<string-array name="stt_speech_context_hints">` with localized terms
-4. Include common motorcycle, navigation, and road-related vocabulary
-
-Example terms to include:
-- Navigation: "turn left", "turn right", "intersection", "roundabout"
-- Road features: "bridge", "tunnel", "exit", "highway"
-- Motorcycle: "motorcycle", "bike", "helmet"
-- Services: "gas station", "parking", "rest area"
-
-These hints help the Google Cloud Speech-to-Text API better recognize domain-specific terminology in voice notes.
-
 ---
 
 ## Configuration
