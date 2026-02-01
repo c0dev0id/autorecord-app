@@ -141,57 +141,113 @@ jobs:
           else
             echo "Signing secrets not provided; skipping signing setup."
           fi
+
+      # Build Debug APKs (mandatory - always required for release)
+      - name: Build Debug APKs
+        run: |
+          ./gradlew assembleDebug --stacktrace --build-cache --parallel
+
+      # Build Release APKs (optional - only if signing is configured)
+      - name: Build Release APKs
+        id: build_release
+        continue-on-error: true
+        run: |
+          ./gradlew assembleRelease --stacktrace --build-cache --parallel
+
+      # Upload Debug APKs (mandatory)
+      - name: Upload Debug APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            vnmanager-opener/build/outputs/apk/debug/*.apk
+          retention-days: 90
+
+      # Upload Release APKs (optional - only if build succeeded)
+      - name: Upload Release APKs
+        if: steps.build_release.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: |
+            app/build/outputs/apk/release/*.apk
+            vnmanager-opener/build/outputs/apk/release/*.apk
+          retention-days: 90
       
-            - name: Build Release APK
-              run: |
-                ./gradlew assembleRelease --stacktrace --build-cache --parallel
-      
-            - name: Upload Release APKs
-              uses: actions/upload-artifact@v4
-              with:
-                name: app-release-apk
-                path: |
-                  app/build/outputs/apk/release/*.apk
-                  vnmanager-opener/build/outputs/apk/release/*.apk
-                retention-days: 90
-      
-            - name: Build Summary
-              run: |
-                echo "## 📦 Release Build Summary" >> $GITHUB_STEP_SUMMARY
-                echo "" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Release APKs built successfully!" >> $GITHUB_STEP_SUMMARY
-                echo "" >> $GITHUB_STEP_SUMMARY
-                
-                # Check Voice Notes app APK
-                echo "### Voice Notes App" >> $GITHUB_STEP_SUMMARY
-                APK_FILE=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
-                if [ -f "$APK_FILE" ]; then
-                  APK_SIZE=$(stat -c%s "$APK_FILE" 2>/dev/null || stat -f%z "$APK_FILE")
-                  APK_SIZE_MB=$(echo "scale=2; $APK_SIZE / 1024 / 1024" | bc)
-                  echo "**APK Size:** ${APK_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
-                  
-                  if [[ "$APK_FILE" == *"unsigned"* ]]; then
-                    echo "**Status:** Unsigned (signing not configured)" >> $GITHUB_STEP_SUMMARY
-                  else
-                    echo "**Status:** Signed" >> $GITHUB_STEP_SUMMARY
-                  fi
-                fi
-                
-                # Check VN Manager Opener APK
-                echo "" >> $GITHUB_STEP_SUMMARY
-                echo "### VN Manager Opener" >> $GITHUB_STEP_SUMMARY
-                OPENER_APK=$(find vnmanager-opener/build/outputs/apk/release -name "*.apk" | head -1)
-                if [ -f "$OPENER_APK" ]; then
-                  OPENER_SIZE=$(stat -c%s "$OPENER_APK" 2>/dev/null || stat -f%z "$OPENER_APK")
-                  OPENER_SIZE_MB=$(echo "scale=2; $OPENER_SIZE / 1024 / 1024" | bc)
-                  echo "**APK Size:** ${OPENER_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
-                  
-                  if [[ "$OPENER_APK" == *"unsigned"* ]]; then
-                    echo "**Status:** Unsigned (signing not configured)" >> $GITHUB_STEP_SUMMARY
-                  else
-                    echo "**Status:** Signed" >> $GITHUB_STEP_SUMMARY
-                  fi
-                fi
+      - name: Build Summary
+        run: |
+          echo "## 📦 Release Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Debug APKs (mandatory)
+          echo "### Debug APKs (Mandatory)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check Voice Notes debug APK
+          echo "**Voice Notes App (Debug)**" >> $GITHUB_STEP_SUMMARY
+          DEBUG_APK=$(find app/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -f "$DEBUG_APK" ]; then
+            DEBUG_SIZE=$(stat -c%s "$DEBUG_APK" 2>/dev/null || stat -f%z "$DEBUG_APK")
+            DEBUG_SIZE_MB=$(echo "scale=2; $DEBUG_SIZE / 1024 / 1024" | bc)
+            echo "- APK Size: ${DEBUG_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+            echo "- Status: ✅ Built successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Status: ❌ Not found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check VN Manager Opener debug APK
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**VN Manager Opener (Debug)**" >> $GITHUB_STEP_SUMMARY
+          OPENER_DEBUG=$(find vnmanager-opener/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -f "$OPENER_DEBUG" ]; then
+            OPENER_DEBUG_SIZE=$(stat -c%s "$OPENER_DEBUG" 2>/dev/null || stat -f%z "$OPENER_DEBUG")
+            OPENER_DEBUG_SIZE_MB=$(echo "scale=2; $OPENER_DEBUG_SIZE / 1024 / 1024" | bc)
+            echo "- APK Size: ${OPENER_DEBUG_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+            echo "- Status: ✅ Built successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Status: ❌ Not found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Release APKs (optional)
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Release APKs (Optional - requires signing)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check Voice Notes release APK
+          echo "**Voice Notes App (Release)**" >> $GITHUB_STEP_SUMMARY
+          RELEASE_APK=$(find app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -f "$RELEASE_APK" ]; then
+            RELEASE_SIZE=$(stat -c%s "$RELEASE_APK" 2>/dev/null || stat -f%z "$RELEASE_APK")
+            RELEASE_SIZE_MB=$(echo "scale=2; $RELEASE_SIZE / 1024 / 1024" | bc)
+            echo "- APK Size: ${RELEASE_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+            
+            if [[ "$RELEASE_APK" == *"unsigned"* ]]; then
+              echo "- Status: ⚠️ Unsigned (signing not configured)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- Status: ✅ Signed" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- Status: ⚠️ Not available (signing not configured)" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check VN Manager Opener release APK
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**VN Manager Opener (Release)**" >> $GITHUB_STEP_SUMMARY
+          OPENER_RELEASE=$(find vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -f "$OPENER_RELEASE" ]; then
+            OPENER_RELEASE_SIZE=$(stat -c%s "$OPENER_RELEASE" 2>/dev/null || stat -f%z "$OPENER_RELEASE")
+            OPENER_RELEASE_SIZE_MB=$(echo "scale=2; $OPENER_RELEASE_SIZE / 1024 / 1024" | bc)
+            echo "- APK Size: ${OPENER_RELEASE_SIZE_MB} MB" >> $GITHUB_STEP_SUMMARY
+            
+            if [[ "$OPENER_RELEASE" == *"unsigned"* ]]; then
+              echo "- Status: ⚠️ Unsigned (signing not configured)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- Status: ✅ Signed" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- Status: ⚠️ Not available (signing not configured)" >> $GITHUB_STEP_SUMMARY
+          fi
 
   # Job 3: Run critical smoke tests (optional Firebase Test Lab)
   smoke-tests:
@@ -205,11 +261,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Release APK
+      - name: Download Debug APKs
         uses: actions/download-artifact@v4
         with:
+          name: app-debug-apk
+          path: apks/debug/
+
+      - name: Download Release APKs
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
           name: app-release-apk
-          path: apks/
+          path: apks/release/
 
       - name: Run Local Smoke Test
         run: |
@@ -230,11 +293,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Release APK
+      - name: Download Debug APKs
         uses: actions/download-artifact@v4
         with:
+          name: app-debug-apk
+          path: apks/debug/
+
+      - name: Download Release APKs
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
           name: app-release-apk
-          path: apks/
+          path: apks/release/
 
       - name: Determine Release Tag
         id: release_info
@@ -297,61 +367,103 @@ jobs:
             - See CHANGELOG.md for details
             
             ### APK Files
-            This release includes two Android applications:
+            This release includes Android applications in both debug and release variants:
             
-            **1. Voice Notes App** (`voice-notes-release.apk`)
-            - Main motorcycle voice notes recording application
-            - Package: com.voicenotes.motorcycle
+            **Debug APKs (Always included):**
+            - `voice-notes-debug.apk` - Main motorcycle voice notes recording application
+            - `vnmanager-opener-debug.apk` - Companion utility for managing voice notes
             
-            **2. VN Manager Opener** (`vnmanager-opener-release.apk`)
-            - Companion utility for managing voice notes
-            - Package: com.vnmanager.opener
+            **Release APKs (Included when signing is configured):**
+            - `voice-notes-release.apk` - Signed production-ready app (Package: com.voicenotes.motorcycle)
+            - `vnmanager-opener-release.apk` - Signed companion utility (Package: com.vnmanager.opener)
             
-            Download the appropriate APK file(s) below. For signed releases, you can install directly. For unsigned releases, you'll need to sign before installing.
+            Debug APKs are suitable for testing and development. Release APKs are production-ready and signed for distribution.
 
       - name: Find and Prepare APK Files
         id: find_apks
         run: |
-          # Find Voice Notes app APK
-          APP_APK=$(find apks/app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
-          if [ -n "$APP_APK" ]; then
-            echo "app_apk_path=$APP_APK" >> $GITHUB_OUTPUT
-            echo "app_apk_name=voice-notes-release.apk" >> $GITHUB_OUTPUT
-            echo "Found Voice Notes APK: $APP_APK"
+          # Find Debug APKs (mandatory)
+          APP_DEBUG_APK=$(find apks/debug/app/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APP_DEBUG_APK" ]; then
+            echo "app_debug_apk_path=$APP_DEBUG_APK" >> $GITHUB_OUTPUT
+            echo "app_debug_apk_name=voice-notes-debug.apk" >> $GITHUB_OUTPUT
+            echo "Found Voice Notes Debug APK: $APP_DEBUG_APK"
           else
-            echo "Warning: Voice Notes APK not found!"
+            echo "Warning: Voice Notes Debug APK not found!"
           fi
           
-          # Find VN Manager Opener APK
-          OPENER_APK=$(find apks/vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
-          if [ -n "$OPENER_APK" ]; then
-            echo "opener_apk_path=$OPENER_APK" >> $GITHUB_OUTPUT
-            echo "opener_apk_name=vnmanager-opener-release.apk" >> $GITHUB_OUTPUT
-            echo "Found VN Manager Opener APK: $OPENER_APK"
+          OPENER_DEBUG_APK=$(find apks/debug/vnmanager-opener/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$OPENER_DEBUG_APK" ]; then
+            echo "opener_debug_apk_path=$OPENER_DEBUG_APK" >> $GITHUB_OUTPUT
+            echo "opener_debug_apk_name=vnmanager-opener-debug.apk" >> $GITHUB_OUTPUT
+            echo "Found VN Manager Opener Debug APK: $OPENER_DEBUG_APK"
           else
-            echo "Warning: VN Manager Opener APK not found!"
+            echo "Warning: VN Manager Opener Debug APK not found!"
+          fi
+          
+          # Find Release APKs (optional)
+          APP_RELEASE_APK=$(find apks/release/app/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$APP_RELEASE_APK" ]; then
+            echo "app_release_apk_path=$APP_RELEASE_APK" >> $GITHUB_OUTPUT
+            echo "app_release_apk_name=voice-notes-release.apk" >> $GITHUB_OUTPUT
+            echo "Found Voice Notes Release APK: $APP_RELEASE_APK"
+          else
+            echo "Info: Voice Notes Release APK not available (signing not configured)"
+          fi
+          
+          OPENER_RELEASE_APK=$(find apks/release/vnmanager-opener/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$OPENER_RELEASE_APK" ]; then
+            echo "opener_release_apk_path=$OPENER_RELEASE_APK" >> $GITHUB_OUTPUT
+            echo "opener_release_apk_name=vnmanager-opener-release.apk" >> $GITHUB_OUTPUT
+            echo "Found VN Manager Opener Release APK: $OPENER_RELEASE_APK"
+          else
+            echo "Info: VN Manager Opener Release APK not available (signing not configured)"
           fi
 
-      - name: Upload Voice Notes Release APK
-        if: steps.find_apks.outputs.app_apk_path != ''
+      # Upload Debug APKs (mandatory)
+      - name: Upload Voice Notes Debug APK
+        if: steps.find_apks.outputs.app_debug_apk_path != ''
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apks.outputs.app_apk_path }}
-          asset_name: ${{ steps.find_apks.outputs.app_apk_name }}
+          asset_path: ${{ steps.find_apks.outputs.app_debug_apk_path }}
+          asset_name: ${{ steps.find_apks.outputs.app_debug_apk_name }}
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload VN Manager Opener Debug APK
+        if: steps.find_apks.outputs.opener_debug_apk_path != ''
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_apks.outputs.opener_debug_apk_path }}
+          asset_name: ${{ steps.find_apks.outputs.opener_debug_apk_name }}
+          asset_content_type: application/vnd.android.package-archive
+
+      # Upload Release APKs (optional - only if available)
+      - name: Upload Voice Notes Release APK
+        if: steps.find_apks.outputs.app_release_apk_path != ''
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.find_apks.outputs.app_release_apk_path }}
+          asset_name: ${{ steps.find_apks.outputs.app_release_apk_name }}
           asset_content_type: application/vnd.android.package-archive
 
       - name: Upload VN Manager Opener Release APK
-        if: steps.find_apks.outputs.opener_apk_path != ''
+        if: steps.find_apks.outputs.opener_release_apk_path != ''
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_apks.outputs.opener_apk_path }}
-          asset_name: ${{ steps.find_apks.outputs.opener_apk_name }}
+          asset_path: ${{ steps.find_apks.outputs.opener_release_apk_path }}
+          asset_name: ${{ steps.find_apks.outputs.opener_release_apk_name }}
           asset_content_type: application/vnd.android.package-archive
 
   # Job 5: Publish to Play Store (OPTIONAL - commented out by default)
