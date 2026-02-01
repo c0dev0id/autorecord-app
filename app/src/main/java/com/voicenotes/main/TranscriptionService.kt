@@ -45,29 +45,41 @@ class TranscriptionService(private val context: Context) {
     /**
      * Get device language code for speech recognition
      * Returns a BCP-47 language code based on device locale
+     * 
+     * When the device has a complete locale (language + country), uses that directly.
+     * When only language is available, defaults to common regions for Google Cloud STT support:
+     * - English -> en-US (most widely supported)
+     * - German -> de-DE (Germany)
+     * - Spanish -> es-ES (Spain)
+     * - French -> fr-FR (France)
+     * - Italian -> it-IT (Italy)
+     * - Portuguese -> pt-BR (Brazil - largest Portuguese-speaking population)
+     * - Japanese -> ja-JP (Japan)
+     * - Korean -> ko-KR (South Korea)
+     * - Chinese -> zh-CN (Mainland China - Simplified)
+     * - Others -> en-US (fallback)
      */
     private fun getDeviceLanguageCode(): String {
         val locale = java.util.Locale.getDefault()
-        val language = locale.language
-        val country = locale.country
         
-        // Return language-COUNTRY format (e.g., en-US, de-DE) or just language if no country
-        return if (country.isNotEmpty()) {
-            "$language-$country"
-        } else {
-            // Default to US for English, otherwise use language only
-            when (language) {
-                "en" -> "en-US"
-                "de" -> "de-DE"
-                "es" -> "es-ES"
-                "fr" -> "fr-FR"
-                "it" -> "it-IT"
-                "pt" -> "pt-BR"
-                "ja" -> "ja-JP"
-                "ko" -> "ko-KR"
-                "zh" -> "zh-CN"
-                else -> "en-US" // Fallback to English US
-            }
+        // If locale has both language and country, use the properly formatted BCP-47 tag
+        if (locale.country.isNotEmpty()) {
+            return locale.toLanguageTag()
+        }
+        
+        // Otherwise, provide sensible defaults for common languages
+        // These defaults prioritize the most populous or widely-supported variants
+        return when (locale.language) {
+            "en" -> "en-US"
+            "de" -> "de-DE"
+            "es" -> "es-ES"
+            "fr" -> "fr-FR"
+            "it" -> "it-IT"
+            "pt" -> "pt-BR"
+            "ja" -> "ja-JP"
+            "ko" -> "ko-KR"
+            "zh" -> "zh-CN"
+            else -> "en-US" // Fallback to English US
         }
     }
 

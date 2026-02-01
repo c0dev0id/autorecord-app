@@ -185,20 +185,21 @@ class TranscriptionServiceLanguageTest {
         assertTrue("System value should trigger device locale conversion", needsConversion)
         
         // The actual device locale will vary, but it should produce a valid BCP-47 code
-        // Examples of valid outputs: en-US, de-DE, ja-JP, etc.
+        // Using toLanguageTag() ensures proper BCP-47 formatting
         val deviceLocale = java.util.Locale.getDefault()
-        val language = deviceLocale.language
-        val country = deviceLocale.country
         
-        val expectedFormat = if (country.isNotEmpty()) {
-            "$language-$country"
+        // When locale has both language and country
+        if (deviceLocale.country.isNotEmpty()) {
+            val bcp47Tag = deviceLocale.toLanguageTag()
+            // Should match format like "en-US", "de-DE", "pt-PT", etc.
+            assertTrue("Device locale should produce valid BCP-47 format", 
+                bcp47Tag.matches(Regex("[a-z]{2,3}-[A-Z]{2,3}")) || 
+                bcp47Tag.matches(Regex("[a-z]{2,3}-[A-Z][a-z]{3}")))
         } else {
-            language
+            // When only language is available, fallback logic applies
+            val language = deviceLocale.language
+            assertTrue("Language code should be valid", language.isNotEmpty() && language.length >= 2)
         }
-        
-        // Verify the format would be valid
-        assertTrue("Device locale should produce valid format", 
-            expectedFormat.isNotEmpty() && expectedFormat.length >= 2)
     }
     
     @Test
