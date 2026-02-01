@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
