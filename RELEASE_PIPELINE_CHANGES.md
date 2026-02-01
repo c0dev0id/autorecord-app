@@ -73,11 +73,18 @@ The old actions are deprecated and no longer maintained. The new `softprops/acti
    - `voice-notes-release.apk` (optional - only if signed)
    - `vnmanager-opener-release.apk` (optional - only if signed)
 
-3. **Release Creation**: Using `softprops/action-gh-release@v1`:
+3. **Git Tag Creation**: The workflow explicitly creates and pushes a git tag:
+   - Checks if the tag already exists to avoid conflicts
+   - Creates an annotated tag on the current commit
+   - Pushes the tag to the repository
+   - This ensures the tag exists before creating the release
+
+4. **Release Creation**: Using `softprops/action-gh-release@v1`:
    - Creates a GitHub release with the determined tag
+   - Always creates the release as a draft for manual review
    - Uploads all found APK files
    - Includes a descriptive release body
-   - Marks as draft/prerelease if not a semantic version
+   - Marks as prerelease if not a semantic version
 
 ## Verification
 
