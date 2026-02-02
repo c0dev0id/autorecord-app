@@ -2,13 +2,33 @@
 
 This file contains instructions for AI assistants (GitHub Copilot, Claude, etc.) working on this repository.
 
+## Commit Message Style
+
+Follow the project's established commit message conventions:
+
+**Subject Line:**
+- Use area prefix when applicable: `area: description` (e.g., `workflows:`, `recording manager:`, `settings:`, `translation:`, `stt-api:`)
+- Keep subject line to 50-72 characters
+- Use imperative mood ("add" not "added" or "adds")
+- No period at end of subject line
+- Lowercase after the colon
+- Use a brief an professional tone
+- Don't use emojis
+
+**Body (when needed):**
+- Separate subject from body with blank line
+- Wrap body at 72 characters
+- Explain what and why, not how
+- Include technical details when relevant
+- Reference issues with `Fixes:` or `Link:` tags
+- Use proper formatting for multi-paragraph explanations
+- Use a brief an professional tone
+- Don't use emojis
+
 ### Workflow Verification
 
 Before marking a PR as ready:
 - ✅ Lint checks must pass
-- ✅ Build must complete successfully
-- ✅ All automated tests must pass (unit tests and instrumented tests)
-- ✅ Test coverage meets requirements for new code
 - ✅ No merge conflicts
 - ✅ Code follows repository conventions
 
