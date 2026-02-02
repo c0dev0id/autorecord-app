@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- App Store Feature Graphic Style -->
+  
+  <defs>
+    <linearGradient id="storeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976D2"/>
+      <stop offset="100%" style="stop-color:#0D47A1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#storeGrad)"/>
+  
+  <!-- Abstract decorations -->
+  <circle cx="100" cy="100" r="200" fill="#FFFFFF" opacity="0.05"/>
+  <circle cx="1100" cy="530" r="250" fill="#FFFFFF" opacity="0.05"/>
+  
+  <!-- Phone mockup -->
+  <g transform="translate(100, 50)">
+    <rect x="0" y="0" width="280" height="530" rx="30" fill="#1A1A2E"/>
+    <rect x="10" y="10" width="260" height="510" rx="25" fill="#F5F5F5"/>
+    
+    <!-- Screen content -->
+    <rect x="10" y="10" width="260" height="60" rx="25" fill="#1976D2"/>
+    <rect x="10" y="45" width="260" height="25" fill="#1976D2"/>
+    <text x="140" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF">Voice Notes</text>
+    
+    <!-- Recording interface -->
+    <circle cx="140" cy="200" r="70" fill="#1976D2" opacity="0.1"/>
+    <circle cx="140" cy="200" r="50" fill="#1976D2"/>
+    <rect x="120" y="170" width="40" height="55" rx="20" fill="#FFFFFF"/>
+    <path d="M140 225 L140 250" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+    
+    <!-- Timer -->
+    <text x="140" y="300" text-anchor="middle" font-family="monospace" font-size="24" fill="#212121">00:15</text>
+    
+    <!-- GPS info -->
+    <rect x="30" y="330" width="220" height="50" rx="10" fill="#FFFFFF"/>
+    <circle cx="60" cy="355" r="15" fill="#FF6F00"/>
+    <text x="85" y="360" font-family="Arial, sans-serif" font-size="14" fill="#212121">📍 Highway 101, CA</text>
+    
+    <!-- Recording list preview -->
+    <rect x="30" y="400" width="220" height="40" rx="8" fill="#FFFFFF"/>
+    <rect x="30" y="450" width="220" height="40" rx="8" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Main content -->
+  <g transform="translate(450, 80)">
+    <text x="0" y="80" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#FFFFFF">Voice Notes</text>
+    <text x="0" y="140" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF" opacity="0.9">GPS-Tagged Voice Recording</text>
+    <text x="0" y="185" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF" opacity="0.9">for Motorcycle Riders</text>
+    
+    <!-- Feature list -->
+    <g transform="translate(0, 230)">
+      <circle cx="20" cy="15" r="20" fill="#FF6F00"/>
+      <text x="20" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="55" y="22" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">One-tap quick recording</text>
+    </g>
+    
+    <g transform="translate(0, 290)">
+      <circle cx="20" cy="15" r="20" fill="#FF6F00"/>
+      <text x="20" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="55" y="22" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Automatic GPS location tagging</text>
+    </g>
+    
+    <g transform="translate(0, 350)">
+      <circle cx="20" cy="15" r="20" fill="#FF6F00"/>
+      <text x="20" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="55" y="22" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Cloud transcription to text</text>
+    </g>
+    
+    <g transform="translate(0, 410)">
+      <circle cx="20" cy="15" r="20" fill="#FF6F00"/>
+      <text x="20" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="55" y="22" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Export to GPX, CSV, Audio</text>
+    </g>
+  </g>
+  
+  <!-- Download badge -->
+  <g transform="translate(950, 450)">
+    <rect x="0" y="0" width="200" height="70" rx="10" fill="#FFFFFF"/>
+    <text x="100" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#757575">Available on</text>
+    <text x="100" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#43A047">Android</text>
+  </g>
+  
+  <!-- Free badge -->
+  <g transform="translate(950, 380)">
+    <rect x="0" y="0" width="200" height="50" rx="25" fill="#FF6F00"/>
+    <text x="100" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#FFFFFF">FREE & OPEN SOURCE</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="600" y="600" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF" opacity="0.7">github.com/c0dev0id/autorecord-app • CC BY-NC 4.0</text>
+</svg>

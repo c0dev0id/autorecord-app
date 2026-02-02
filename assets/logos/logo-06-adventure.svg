@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="sunsetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6F00"/>
+      <stop offset="50%" style="stop-color:#FF9800"/>
+      <stop offset="100%" style="stop-color:#FFC107"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Sunset background -->
+  <rect width="400" height="400" fill="url(#sunsetGrad)"/>
+  
+  <!-- Mountains silhouette -->
+  <path d="M0 280 L80 180 L140 240 L200 140 L260 200 L320 160 L400 250 L400 400 L0 400 Z" fill="#1A1A2E" opacity="0.9"/>
+  
+  <!-- Road silhouette -->
+  <path d="M160 400 L190 280 L210 280 L240 400" fill="#2D2D44"/>
+  <path d="M195 400 L198 290 L202 290 L205 400" fill="#FFA726"/>
+  
+  <!-- Microphone icon -->
+  <rect x="170" y="50" width="60" height="90" rx="30" fill="#FFFFFF"/>
+  <path d="M200 140 L200 175" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M165 175 L235 175" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M145 110 C145 155 170 175 200 175 C230 175 255 155 255 110" 
+        stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- Sound waves -->
+  <circle cx="200" cy="95" r="70" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.3"/>
+  <circle cx="200" cy="95" r="90" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.2"/>
+  <circle cx="200" cy="95" r="110" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.1"/>
+  
+  <!-- Location pin on mountain -->
+  <circle cx="290" cy="180" r="15" fill="#1976D2"/>
+  <circle cx="290" cy="180" r="5" fill="#FFFFFF"/>
+  
+  <!-- Brand text -->
+  <text x="200" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#FFFFFF">Voice Notes</text>
+  <text x="200" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#FFFFFF" opacity="0.9">Adventure Recording</text>
+</svg>

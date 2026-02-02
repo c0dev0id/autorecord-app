@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <!-- Export Formats Comparison -->
+  
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#FFFFFF"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="1200" height="120" fill="#1976D2"/>
+  <text x="600" y="75" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">Export Format Options</text>
+  
+  <!-- Format cards -->
+  
+  <!-- GPX Format -->
+  <g transform="translate(50, 160)">
+    <rect x="0" y="0" width="350" height="550" rx="20" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+    
+    <rect x="0" y="0" width="350" height="100" rx="20" fill="#43A047"/>
+    <rect x="0" y="50" width="350" height="50" fill="#43A047"/>
+    <text x="175" y="65" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">GPX</text>
+    
+    <text x="175" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#212121">GPS Exchange</text>
+    
+    <g transform="translate(30, 180)">
+      <circle cx="15" cy="15" r="15" fill="#43A047"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Waypoints with names</text>
+    </g>
+    
+    <g transform="translate(30, 230)">
+      <circle cx="15" cy="15" r="15" fill="#43A047"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">GPS coordinates</text>
+    </g>
+    
+    <g transform="translate(30, 280)">
+      <circle cx="15" cy="15" r="15" fill="#43A047"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Timestamp data</text>
+    </g>
+    
+    <g transform="translate(30, 330)">
+      <circle cx="15" cy="15" r="15" fill="#43A047"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Transcription text</text>
+    </g>
+    
+    <text x="175" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Best for:</text>
+    <text x="175" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#212121">Navigation Apps</text>
+    <text x="175" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Google Maps, Garmin,</text>
+    <text x="175" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Calimoto, OsmAnd</text>
+  </g>
+  
+  <!-- CSV Format -->
+  <g transform="translate(425, 160)">
+    <rect x="0" y="0" width="350" height="550" rx="20" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+    
+    <rect x="0" y="0" width="350" height="100" rx="20" fill="#FF6F00"/>
+    <rect x="0" y="50" width="350" height="50" fill="#FF6F00"/>
+    <text x="175" y="65" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">CSV</text>
+    
+    <text x="175" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#212121">Spreadsheet</text>
+    
+    <g transform="translate(30, 180)">
+      <circle cx="15" cy="15" r="15" fill="#FF6F00"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Structured data</text>
+    </g>
+    
+    <g transform="translate(30, 230)">
+      <circle cx="15" cy="15" r="15" fill="#FF6F00"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Full transcriptions</text>
+    </g>
+    
+    <g transform="translate(30, 280)">
+      <circle cx="15" cy="15" r="15" fill="#FF6F00"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Sortable columns</text>
+    </g>
+    
+    <g transform="translate(30, 330)">
+      <circle cx="15" cy="15" r="15" fill="#FF6F00"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Easy to edit</text>
+    </g>
+    
+    <text x="175" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Best for:</text>
+    <text x="175" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#212121">Data Analysis</text>
+    <text x="175" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Excel, Google Sheets,</text>
+    <text x="175" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Trip reports</text>
+  </g>
+  
+  <!-- Audio Format -->
+  <g transform="translate(800, 160)">
+    <rect x="0" y="0" width="350" height="550" rx="20" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="2"/>
+    
+    <rect x="0" y="0" width="350" height="100" rx="20" fill="#1976D2"/>
+    <rect x="0" y="50" width="350" height="50" fill="#1976D2"/>
+    <text x="175" y="65" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">Audio</text>
+    
+    <text x="175" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#212121">Original Recording</text>
+    
+    <g transform="translate(30, 180)">
+      <circle cx="15" cy="15" r="15" fill="#1976D2"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Original voice</text>
+    </g>
+    
+    <g transform="translate(30, 230)">
+      <circle cx="15" cy="15" r="15" fill="#1976D2"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">High quality audio</text>
+    </g>
+    
+    <g transform="translate(30, 280)">
+      <circle cx="15" cy="15" r="15" fill="#1976D2"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Share via any app</text>
+    </g>
+    
+    <g transform="translate(30, 330)">
+      <circle cx="15" cy="15" r="15" fill="#1976D2"/>
+      <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">✓</text>
+      <text x="45" y="22" font-family="Arial, sans-serif" font-size="20" fill="#212121">Backup recordings</text>
+    </g>
+    
+    <text x="175" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Best for:</text>
+    <text x="175" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#212121">Archiving</text>
+    <text x="175" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Cloud storage, sharing,</text>
+    <text x="175" y="505" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">re-transcription</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="600" y="760" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">Voice Notes • Export all your recordings with one tap</text>
+</svg>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Solid blue background -->
+  <rect width="400" height="400" fill="#1976D2"/>
+  
+  <!-- Horizontal stripes pattern -->
+  <rect x="0" y="0" width="400" height="20" fill="#1565C0"/>
+  <rect x="0" y="40" width="400" height="20" fill="#1565C0"/>
+  <rect x="0" y="80" width="400" height="20" fill="#1565C0"/>
+  <rect x="0" y="320" width="400" height="20" fill="#1565C0"/>
+  <rect x="0" y="360" width="400" height="20" fill="#1565C0"/>
+  
+  <!-- Central icon container -->
+  <circle cx="200" cy="200" r="100" fill="#FFFFFF"/>
+  
+  <!-- Microphone outline style -->
+  <rect x="175" y="150" width="50" height="70" rx="25" fill="none" stroke="#1976D2" stroke-width="6"/>
+  
+  <!-- Stand -->
+  <path d="M200 220 L200 250" stroke="#1976D2" stroke-width="6" stroke-linecap="round"/>
+  <path d="M175 250 L225 250" stroke="#1976D2" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Arc -->
+  <path d="M160 190 C160 225 178 250 200 250 C222 250 240 225 240 190" 
+        stroke="#1976D2" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- GPS marker integrated -->
+  <path d="M230 155 C230 155 248 180 248 195 C248 205 240 212 230 212 C220 212 212 205 212 195 C212 180 230 155 230 155 Z" 
+        fill="#FF6F00"/>
+  <circle cx="230" cy="193" r="5" fill="#FFFFFF"/>
+  
+  <!-- Brand name outside circle -->
+  <text x="200" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">VOICE NOTES</text>
+  <text x="200" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="4" fill="#FFFFFF" opacity="0.8">GPS RECORDER</text>
+</svg>

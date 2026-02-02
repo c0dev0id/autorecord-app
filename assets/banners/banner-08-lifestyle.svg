@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 628" width="1200" height="628">
+  <!-- Rider lifestyle banner -->
+  
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6F00"/>
+      <stop offset="40%" style="stop-color:#FF9800"/>
+      <stop offset="100%" style="stop-color:#1976D2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Sunset sky background -->
+  <rect width="1200" height="628" fill="url(#skyGrad)"/>
+  
+  <!-- Sun -->
+  <circle cx="900" cy="250" r="80" fill="#FFF176" opacity="0.8"/>
+  <circle cx="900" cy="250" r="100" fill="#FFFFFF" opacity="0.2"/>
+  
+  <!-- Mountain range -->
+  <path d="M0 450 L150 320 L280 400 L420 280 L560 380 L720 250 L880 350 L1020 280 L1200 380 L1200 628 L0 628 Z" fill="#1A1A2E"/>
+  
+  <!-- Road -->
+  <path d="M0 628 L400 450 L500 450 L1200 628 Z" fill="#2D2D44"/>
+  <path d="M0 628 L420 460 L440 460 L1200 628 Z" fill="#3D3D54"/>
+  
+  <!-- Road markings -->
+  <path d="M200 628 L445 510" stroke="#FFA726" stroke-width="8" stroke-dasharray="30 20"/>
+  
+  <!-- Motorcycle silhouette -->
+  <g transform="translate(300, 480)">
+    <!-- Body -->
+    <ellipse cx="0" cy="30" rx="60" ry="25" fill="#1A1A2E"/>
+    <!-- Wheels -->
+    <circle cx="-40" cy="50" r="30" fill="#1A1A2E"/>
+    <circle cx="40" cy="50" r="25" fill="#1A1A2E"/>
+    <!-- Rider silhouette -->
+    <ellipse cx="0" cy="-10" rx="20" ry="35" fill="#1A1A2E"/>
+    <circle cx="0" cy="-50" r="18" fill="#1A1A2E"/>
+    <!-- Helmet -->
+    <ellipse cx="0" cy="-52" rx="22" ry="20" fill="#1A1A2E"/>
+  </g>
+  
+  <!-- App promo overlay -->
+  <rect x="600" y="100" width="550" height="300" rx="20" fill="#FFFFFF" opacity="0.95"/>
+  
+  <!-- App icon in overlay -->
+  <circle cx="700" cy="200" r="60" fill="#1976D2"/>
+  <rect x="675" y="165" width="50" height="70" rx="25" fill="#FFFFFF"/>
+  <path d="M700 235 L700 260" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M675 260 L725 260" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M660 200 C660 235 678 260 700 260 C722 260 740 235 740 200" stroke="#FFFFFF" stroke-width="6" fill="none"/>
+  
+  <!-- GPS pin on app icon -->
+  <path d="M740 160 C740 160 760 190 760 205 C760 218 750 227 740 227 C730 227 720 218 720 205 C720 190 740 160 740 160 Z" fill="#FF6F00"/>
+  <circle cx="740" cy="203" r="7" fill="#FFFFFF"/>
+  
+  <!-- Text content -->
+  <text x="800" y="170" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#1976D2">Voice Notes</text>
+  <text x="800" y="220" font-family="Arial, sans-serif" font-size="24" fill="#757575">Your Riding Companion</text>
+  
+  <text x="800" y="280" font-family="Arial, sans-serif" font-size="18" fill="#212121">• Record thoughts on the go</text>
+  <text x="800" y="310" font-family="Arial, sans-serif" font-size="18" fill="#212121">• Auto GPS location tagging</text>
+  <text x="800" y="340" font-family="Arial, sans-serif" font-size="18" fill="#212121">• Bluetooth headset support</text>
+  
+  <!-- Download button -->
+  <rect x="800" y="360" width="200" height="45" rx="22" fill="#FF6F00"/>
+  <text x="900" y="392" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#FFFFFF">Download</text>
+  
+  <!-- Tagline at bottom -->
+  <text x="100" y="580" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">Never Forget a Great Spot</text>
+</svg>

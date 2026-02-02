@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1584 396" width="1584" height="396">
+  <!-- LinkedIn banner dimensions -->
+  
+  <!-- Dark professional background -->
+  <rect width="1584" height="396" fill="#1A1A2E"/>
+  
+  <!-- Subtle pattern -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#2196F3" stroke-width="0.5" opacity="0.1"/>
+  </pattern>
+  <rect width="1584" height="396" fill="url(#grid)"/>
+  
+  <!-- Blue accent bar -->
+  <rect x="0" y="0" width="1584" height="8" fill="#1976D2"/>
+  
+  <!-- Left icon section -->
+  <circle cx="200" cy="198" r="120" fill="#1976D2" opacity="0.2"/>
+  <circle cx="200" cy="198" r="90" fill="#1976D2"/>
+  
+  <!-- Microphone icon -->
+  <rect x="170" y="145" width="60" height="85" rx="30" fill="#FFFFFF"/>
+  <path d="M200 230 L200 265" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M165 265 L235 265" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M145 195 C145 240 170 265 200 265 C230 265 255 240 255 195" stroke="#FFFFFF" stroke-width="8" fill="none"/>
+  
+  <!-- GPS marker -->
+  <path d="M270 180 C270 180 295 215 295 235 C295 250 283 260 270 260 C257 260 245 250 245 235 C245 215 270 180 270 180 Z" fill="#FF6F00"/>
+  <circle cx="270" cy="233" r="8" fill="#FFFFFF"/>
+  
+  <!-- Main content -->
+  <text x="400" y="160" font-family="Arial, sans-serif" font-size="64" font-weight="bold" fill="#FFFFFF">Voice Notes</text>
+  <text x="400" y="220" font-family="Arial, sans-serif" font-size="28" fill="#2196F3">GPS-Tagged Voice Recording App for Professionals</text>
+  
+  <!-- Features in line -->
+  <g transform="translate(400, 260)">
+    <circle cx="10" cy="15" r="6" fill="#FF6F00"/>
+    <text x="30" y="22" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF">Auto GPS Tagging</text>
+    
+    <circle cx="230" cy="15" r="6" fill="#FF6F00"/>
+    <text x="250" y="22" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF">Voice Transcription</text>
+    
+    <circle cx="470" cy="15" r="6" fill="#FF6F00"/>
+    <text x="490" y="22" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF">GPX/CSV Export</text>
+    
+    <circle cx="680" cy="15" r="6" fill="#FF6F00"/>
+    <text x="700" y="22" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF">Bluetooth Ready</text>
+  </g>
+  
+  <!-- Right side badges -->
+  <rect x="1300" y="140" width="220" height="55" rx="5" fill="#1976D2"/>
+  <text x="1410" y="178" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFFFFF">Open Source</text>
+  
+  <rect x="1300" y="210" width="220" height="55" rx="5" fill="#FF6F00"/>
+  <text x="1410" y="248" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFFFFF">Free Download</text>
+</svg>

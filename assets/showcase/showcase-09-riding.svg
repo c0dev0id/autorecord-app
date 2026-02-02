@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- Motorcycle Riding Scenario -->
+  
+  <defs>
+    <linearGradient id="sceneSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB"/>
+      <stop offset="100%" style="stop-color:#E0F7FA"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1920" height="1080" fill="url(#sceneSky)"/>
+  
+  <!-- Sun -->
+  <circle cx="1600" cy="200" r="100" fill="#FFF176" opacity="0.8"/>
+  
+  <!-- Mountains far -->
+  <path d="M0 600 L200 400 L400 550 L600 350 L800 480 L1000 300 L1200 450 L1400 380 L1600 500 L1920 400 L1920 1080 L0 1080 Z" fill="#90CAF9"/>
+  
+  <!-- Mountains near -->
+  <path d="M0 700 L300 500 L500 620 L750 450 L950 580 L1150 420 L1350 550 L1550 480 L1750 600 L1920 520 L1920 1080 L0 1080 Z" fill="#64B5F6"/>
+  
+  <!-- Road -->
+  <path d="M600 1080 L850 650 L1070 650 L1320 1080 Z" fill="#424242"/>
+  
+  <!-- Road line -->
+  <path d="M900 1080 L940 700 L980 700 L1020 1080" fill="#FFA726"/>
+  
+  <!-- Road lines dashed -->
+  <path d="M935 750 L945 700" stroke="#FFA726" stroke-width="8" stroke-linecap="round"/>
+  <path d="M920 850 L935 780" stroke="#FFA726" stroke-width="10" stroke-linecap="round"/>
+  <path d="M900 1000 L920 880" stroke="#FFA726" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- Grass/terrain -->
+  <path d="M0 750 Q200 700 400 750 Q600 800 800 750 L600 1080 L0 1080 Z" fill="#81C784"/>
+  <path d="M1920 750 Q1700 700 1500 750 Q1300 800 1100 750 L1320 1080 L1920 1080 Z" fill="#81C784"/>
+  
+  <!-- Motorcycle with rider -->
+  <g transform="translate(920, 720)">
+    <!-- Wheel back -->
+    <circle cx="-40" cy="45" r="25" fill="#212121"/>
+    <circle cx="-40" cy="45" r="15" fill="#424242"/>
+    
+    <!-- Wheel front -->
+    <circle cx="50" cy="45" r="25" fill="#212121"/>
+    <circle cx="50" cy="45" r="15" fill="#424242"/>
+    
+    <!-- Body -->
+    <path d="M-50 30 Q0 0 50 20 L60 35 L50 45 L-30 45 L-50 30 Z" fill="#E53935"/>
+    
+    <!-- Seat -->
+    <ellipse cx="-10" cy="10" rx="30" ry="12" fill="#212121"/>
+    
+    <!-- Rider body -->
+    <ellipse cx="0" cy="-20" rx="15" ry="25" fill="#1A1A2E"/>
+    
+    <!-- Rider head with helmet -->
+    <ellipse cx="10" cy="-55" rx="18" ry="20" fill="#1976D2"/>
+    <ellipse cx="15" cy="-55" rx="12" ry="10" fill="#212121"/>
+    
+    <!-- Arms on handlebars -->
+    <path d="M15 -30 Q30 -20 45 0" stroke="#1A1A2E" stroke-width="8" fill="none"/>
+  </g>
+  
+  <!-- App interface overlay (helmet display simulation) -->
+  <g transform="translate(100, 100)">
+    <rect x="0" y="0" width="400" height="250" rx="20" fill="#FFFFFF" opacity="0.95"/>
+    
+    <rect x="0" y="0" width="400" height="60" rx="20" fill="#1976D2"/>
+    <rect x="0" y="30" width="400" height="30" fill="#1976D2"/>
+    <text x="200" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">🎤 Voice Notes</text>
+    
+    <circle cx="200" cy="130" r="40" fill="#E53935"/>
+    <rect x="185" y="115" width="30" height="30" rx="5" fill="#FFFFFF"/>
+    
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#E53935" font-weight="bold">● REC 00:15</text>
+    <text x="200" y="235" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">📍 Highway 101, Mile 47</text>
+  </g>
+  
+  <!-- GPS Pin markers along the route -->
+  <g transform="translate(950, 680)">
+    <path d="M0 0 C0 0 15 25 15 35 C15 45 8 50 0 50 C-8 50 -15 45 -15 35 C-15 25 0 0 0 0 Z" fill="#FF6F00"/>
+    <circle cx="0" cy="34" r="5" fill="#FFFFFF"/>
+  </g>
+  
+  <g transform="translate(850, 550)">
+    <path d="M0 0 C0 0 12 20 12 28 C12 36 6 40 0 40 C-6 40 -12 36 -12 28 C-12 20 0 0 0 0 Z" fill="#1976D2"/>
+    <circle cx="0" cy="27" r="4" fill="#FFFFFF"/>
+    <text x="25" y="20" font-family="Arial, sans-serif" font-size="16" fill="#212121">#1</text>
+  </g>
+  
+  <g transform="translate(1000, 600)">
+    <path d="M0 0 C0 0 12 20 12 28 C12 36 6 40 0 40 C-6 40 -12 36 -12 28 C-12 20 0 0 0 0 Z" fill="#1976D2"/>
+    <circle cx="0" cy="27" r="4" fill="#FFFFFF"/>
+    <text x="25" y="20" font-family="Arial, sans-serif" font-size="16" fill="#212121">#2</text>
+  </g>
+  
+  <!-- Feature callouts -->
+  <g transform="translate(1450, 200)">
+    <rect x="0" y="0" width="400" height="180" rx="15" fill="#FFFFFF" opacity="0.95"/>
+    <circle cx="50" cy="50" r="30" fill="#1976D2"/>
+    <rect x="35" y="35" width="30" height="30" rx="15" fill="#FFFFFF"/>
+    <text x="100" y="45" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#212121">Quick Launch</text>
+    <text x="100" y="75" font-family="Arial, sans-serif" font-size="18" fill="#757575">Press button to record</text>
+    
+    <circle cx="50" cy="130" r="30" fill="#FF6F00"/>
+    <path d="M50 110 C50 110 65 130 65 140 C65 150 58 155 50 155 C42 155 35 150 35 140 C35 130 50 110 50 110 Z" fill="#FFFFFF"/>
+    <text x="100" y="125" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#212121">Auto GPS</text>
+    <text x="100" y="155" font-family="Arial, sans-serif" font-size="18" fill="#757575">Location saved instantly</text>
+  </g>
+  
+  <g transform="translate(1450, 420)">
+    <rect x="0" y="0" width="400" height="100" rx="15" fill="#FFFFFF" opacity="0.95"/>
+    <circle cx="50" cy="50" r="30" fill="#2196F3"/>
+    <path d="M50 30 L50 70 M50 30 L65 45 L50 60 L65 75 L50 70" stroke="#FFFFFF" stroke-width="5" fill="none"/>
+    <text x="100" y="45" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#212121">Bluetooth Audio</text>
+    <text x="100" y="75" font-family="Arial, sans-serif" font-size="18" fill="#757575">Helmet mic support</text>
+  </g>
+  
+  <!-- Title banner -->
+  <rect x="550" y="920" width="820" height="120" rx="20" fill="#1976D2" opacity="0.95"/>
+  <text x="960" y="980" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">Voice Notes</text>
+  <text x="960" y="1020" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF" opacity="0.9">Record Your Journey • GPS-Tagged Voice Notes for Riders</text>
+</svg>

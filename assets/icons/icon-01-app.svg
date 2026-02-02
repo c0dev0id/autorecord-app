@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Primary app icon -->
+  <defs>
+    <linearGradient id="iconBg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2196F3"/>
+      <stop offset="100%" style="stop-color:#1565C0"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="128" height="128" rx="28" fill="url(#iconBg1)"/>
+  
+  <!-- Microphone -->
+  <rect x="46" y="30" width="36" height="50" rx="18" fill="#FFFFFF"/>
+  <path d="M64 80 L64 100" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M44 100 L84 100" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+  <path d="M34 60 C34 85 47 100 64 100 C81 100 94 85 94 60" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- GPS Pin -->
+  <path d="M95 70 C95 70 108 88 108 98 C108 106 102 112 95 112 C88 112 82 106 82 98 C82 88 95 70 95 70 Z" fill="#FF6F00"/>
+  <circle cx="95" cy="97" r="5" fill="#FFFFFF"/>
+</svg>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Reddit / Forum avatar style -->
+  
+  <!-- Blue background -->
+  <rect width="600" height="600" fill="#1976D2"/>
+  
+  <!-- Circle frame -->
+  <circle cx="300" cy="300" r="250" fill="#FFFFFF" opacity="0.1"/>
+  <circle cx="300" cy="300" r="220" fill="#FFFFFF"/>
+  
+  <!-- Microphone icon -->
+  <rect x="250" y="200" width="100" height="140" rx="50" fill="#1976D2"/>
+  
+  <!-- Grille lines -->
+  <line x1="265" y1="230" x2="335" y2="230" stroke="#FFFFFF" stroke-width="4" opacity="0.5"/>
+  <line x1="265" y1="260" x2="335" y2="260" stroke="#FFFFFF" stroke-width="4" opacity="0.5"/>
+  <line x1="265" y1="290" x2="335" y2="290" stroke="#FFFFFF" stroke-width="4" opacity="0.5"/>
+  
+  <!-- Stand -->
+  <path d="M300 340 L300 400" stroke="#1976D2" stroke-width="12" stroke-linecap="round"/>
+  <path d="M250 400 L350 400" stroke="#1976D2" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- Arc -->
+  <path d="M220 280 C220 360 255 400 300 400 C345 400 380 360 380 280" stroke="#1976D2" stroke-width="12" fill="none" stroke-linecap="round"/>
+  
+  <!-- Sound waves -->
+  <path d="M180 240 C170 200 200 160 250 140" stroke="#1976D2" stroke-width="6" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <path d="M420 240 C430 200 400 160 350 140" stroke="#1976D2" stroke-width="6" fill="none" opacity="0.4" stroke-linecap="round"/>
+  
+  <!-- GPS Pin -->
+  <g transform="translate(380, 200)">
+    <path d="M0 0 C0 0 35 55 35 78 C35 98 20 112 0 112 C-20 112 -35 98 -35 78 C-35 55 0 0 0 0 Z" fill="#FF6F00"/>
+    <circle cx="0" cy="76" r="14" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- App name in circle -->
+  <text x="300" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#1976D2">VOICE NOTES</text>
+</svg>

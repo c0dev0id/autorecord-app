@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Export icon -->
+  <rect width="128" height="128" rx="28" fill="#43A047"/>
+  
+  <!-- Document -->
+  <rect x="30" y="25" width="55" height="75" rx="5" fill="#FFFFFF"/>
+  
+  <!-- Document fold -->
+  <path d="M65 25 L85 45 L65 45 Z" fill="#43A047" opacity="0.3"/>
+  
+  <!-- Lines on document -->
+  <line x1="40" y1="55" x2="75" y2="55" stroke="#43A047" stroke-width="3" stroke-linecap="round"/>
+  <line x1="40" y1="68" x2="75" y2="68" stroke="#43A047" stroke-width="3" stroke-linecap="round"/>
+  <line x1="40" y1="81" x2="60" y2="81" stroke="#43A047" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Upload arrow -->
+  <circle cx="85" cy="85" r="25" fill="#FFFFFF"/>
+  <path d="M85 100 L85 72 M72 82 L85 70 L98 82" stroke="#43A047" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

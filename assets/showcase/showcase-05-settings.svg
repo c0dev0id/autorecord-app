@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <!-- App Screenshot Mockup: Settings Screen -->
+  
+  <!-- Background -->
+  <rect width="1080" height="1920" fill="#F5F5F5"/>
+  
+  <!-- Status bar -->
+  <rect x="0" y="0" width="1080" height="100" fill="#0D47A1"/>
+  <text x="50" y="65" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF">9:41</text>
+  
+  <!-- Header -->
+  <rect x="0" y="100" width="1080" height="140" fill="#1976D2"/>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">⚙️ Settings</text>
+  
+  <!-- Settings sections -->
+  
+  <!-- Recording settings -->
+  <rect x="40" y="280" width="1000" height="60" rx="0" fill="#E3F2FD"/>
+  <text x="80" y="320" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1976D2">RECORDING</text>
+  
+  <rect x="40" y="340" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="400" font-family="Arial, sans-serif" font-size="28" fill="#212121">Recording Duration</text>
+  <text x="920" y="400" text-anchor="end" font-family="Arial, sans-serif" font-size="28" fill="#757575">30 seconds ›</text>
+  
+  <rect x="40" y="440" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="500" font-family="Arial, sans-serif" font-size="28" fill="#212121">Extension Duration</text>
+  <text x="920" y="500" text-anchor="end" font-family="Arial, sans-serif" font-size="28" fill="#757575">15 seconds ›</text>
+  
+  <rect x="40" y="540" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="600" font-family="Arial, sans-serif" font-size="28" fill="#212121">Audio Source</text>
+  <text x="920" y="600" text-anchor="end" font-family="Arial, sans-serif" font-size="28" fill="#757575">Bluetooth ›</text>
+  
+  <!-- Location settings -->
+  <rect x="40" y="680" width="1000" height="60" rx="0" fill="#E3F2FD"/>
+  <text x="80" y="720" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1976D2">LOCATION</text>
+  
+  <rect x="40" y="740" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="800" font-family="Arial, sans-serif" font-size="28" fill="#212121">GPS Tagging</text>
+  <rect x="870" y="770" width="80" height="44" rx="22" fill="#43A047"/>
+  <circle cx="928" cy="792" r="18" fill="#FFFFFF"/>
+  
+  <rect x="40" y="840" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="900" font-family="Arial, sans-serif" font-size="28" fill="#212121">Announce Location</text>
+  <rect x="870" y="870" width="80" height="44" rx="22" fill="#43A047"/>
+  <circle cx="928" cy="892" r="18" fill="#FFFFFF"/>
+  
+  <!-- Transcription settings -->
+  <rect x="40" y="980" width="1000" height="60" rx="0" fill="#E3F2FD"/>
+  <text x="80" y="1020" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1976D2">TRANSCRIPTION</text>
+  
+  <rect x="40" y="1040" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="1100" font-family="Arial, sans-serif" font-size="28" fill="#212121">Auto Transcribe</text>
+  <rect x="870" y="1070" width="80" height="44" rx="22" fill="#43A047"/>
+  <circle cx="928" cy="1092" r="18" fill="#FFFFFF"/>
+  
+  <rect x="40" y="1140" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="1200" font-family="Arial, sans-serif" font-size="28" fill="#212121">Language</text>
+  <text x="920" y="1200" text-anchor="end" font-family="Arial, sans-serif" font-size="28" fill="#757575">English (US) ›</text>
+  
+  <!-- Export settings -->
+  <rect x="40" y="1280" width="1000" height="60" rx="0" fill="#E3F2FD"/>
+  <text x="80" y="1320" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1976D2">EXPORT</text>
+  
+  <rect x="40" y="1340" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="1400" font-family="Arial, sans-serif" font-size="28" fill="#212121">Default Format</text>
+  <text x="920" y="1400" text-anchor="end" font-family="Arial, sans-serif" font-size="28" fill="#757575">GPX ›</text>
+  
+  <rect x="40" y="1440" width="1000" height="100" rx="0" fill="#FFFFFF"/>
+  <text x="80" y="1500" font-family="Arial, sans-serif" font-size="28" fill="#212121">Include Transcriptions</text>
+  <rect x="870" y="1470" width="80" height="44" rx="22" fill="#43A047"/>
+  <circle cx="928" cy="1492" r="18" fill="#FFFFFF"/>
+  
+  <!-- Version info -->
+  <text x="540" y="1620" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">Voice Notes v1.0.0</text>
+  <text x="540" y="1660" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#9E9E9E">CC BY-NC 4.0 License</text>
+  
+  <!-- Bottom navigation -->
+  <rect x="0" y="1700" width="1080" height="220" fill="#FFFFFF"/>
+</svg>

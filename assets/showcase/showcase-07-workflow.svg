@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- How It Works - Step by Step -->
+  
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="#1A1A2E"/>
+  
+  <!-- Grid pattern -->
+  <pattern id="workflowGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#2196F3" stroke-width="0.5" opacity="0.1"/>
+  </pattern>
+  <rect width="1920" height="1080" fill="url(#workflowGrid)"/>
+  
+  <!-- Header -->
+  <text x="960" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="64" font-weight="bold" fill="#FFFFFF">How Voice Notes Works</text>
+  <text x="960" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#2196F3">Simple 4-Step Workflow for Riders</text>
+  
+  <!-- Step connection line -->
+  <path d="M300 450 L1620 450" stroke="#2196F3" stroke-width="4" stroke-dasharray="15 10"/>
+  
+  <!-- Step 1: Record -->
+  <g transform="translate(200, 280)">
+    <circle cx="100" cy="170" r="80" fill="#1976D2"/>
+    <rect x="70" y="130" width="60" height="80" rx="30" fill="#FFFFFF"/>
+    <path d="M100 210 L100 240" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="100" cy="170" r="100" fill="none" stroke="#1976D2" stroke-width="3" opacity="0.3"/>
+    
+    <text x="100" y="-20" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#2196F3">STEP 1</text>
+    <text x="100" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">Record</text>
+    <text x="100" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">Press quick-launch</text>
+    <text x="100" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">button to start</text>
+  </g>
+  
+  <!-- Step 2: Tag -->
+  <g transform="translate(620, 280)">
+    <circle cx="100" cy="170" r="80" fill="#FF6F00"/>
+    <path d="M100 110 C100 110 140 165 140 195 C140 217 122 235 100 235 C78 235 60 217 60 195 C60 165 100 110 100 110 Z" fill="#FFFFFF"/>
+    <circle cx="100" cy="193" r="15" fill="#FF6F00"/>
+    
+    <text x="100" y="-20" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#FF6F00">STEP 2</text>
+    <text x="100" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">GPS Tag</text>
+    <text x="100" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">Location captured</text>
+    <text x="100" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">automatically</text>
+  </g>
+  
+  <!-- Step 3: Transcribe -->
+  <g transform="translate(1040, 280)">
+    <circle cx="100" cy="170" r="80" fill="#9C27B0"/>
+    <path d="M60 120 L140 120 L140 200 L100 230 L60 200 Z" fill="#FFFFFF"/>
+    <line x1="75" y1="145" x2="125" y2="145" stroke="#9C27B0" stroke-width="4"/>
+    <line x1="75" y1="165" x2="120" y2="165" stroke="#9C27B0" stroke-width="4"/>
+    <line x1="75" y1="185" x2="110" y2="185" stroke="#9C27B0" stroke-width="4"/>
+    
+    <text x="100" y="-20" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#9C27B0">STEP 3</text>
+    <text x="100" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">Transcribe</text>
+    <text x="100" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">Voice converted</text>
+    <text x="100" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">to text</text>
+  </g>
+  
+  <!-- Step 4: Export -->
+  <g transform="translate(1460, 280)">
+    <circle cx="100" cy="170" r="80" fill="#43A047"/>
+    <rect x="65" y="115" width="70" height="90" rx="5" fill="#FFFFFF"/>
+    <path d="M100 230 L100 185 M80 200 L100 180 L120 200" stroke="#43A047" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <text x="100" y="-20" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#43A047">STEP 4</text>
+    <text x="100" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">Export</text>
+    <text x="100" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">Share as GPX,</text>
+    <text x="100" y="400" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#FFFFFF" opacity="0.7">CSV, or audio</text>
+  </g>
+  
+  <!-- Arrow indicators -->
+  <polygon points="480,450 510,430 510,470" fill="#2196F3"/>
+  <polygon points="900,450 930,430 930,470" fill="#2196F3"/>
+  <polygon points="1320,450 1350,430 1350,470" fill="#2196F3"/>
+  
+  <!-- Use cases at bottom -->
+  <rect x="200" y="750" width="1520" height="250" rx="30" fill="#FFFFFF" opacity="0.05"/>
+  
+  <text x="960" y="820" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">Perfect For</text>
+  
+  <g transform="translate(350, 870)">
+    <circle cx="30" cy="30" r="30" fill="#FF6F00"/>
+    <text x="30" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#FFFFFF">🏍️</text>
+    <text x="80" y="40" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Motorcycle tours</text>
+  </g>
+  
+  <g transform="translate(700, 870)">
+    <circle cx="30" cy="30" r="30" fill="#1976D2"/>
+    <text x="30" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#FFFFFF">📍</text>
+    <text x="80" y="40" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">POI logging</text>
+  </g>
+  
+  <g transform="translate(1020, 870)">
+    <circle cx="30" cy="30" r="30" fill="#9C27B0"/>
+    <text x="30" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#FFFFFF">🗺️</text>
+    <text x="80" y="40" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Route documentation</text>
+  </g>
+  
+  <g transform="translate(1400, 870)">
+    <circle cx="30" cy="30" r="30" fill="#43A047"/>
+    <text x="30" y="38" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#FFFFFF">💡</text>
+    <text x="80" y="40" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Quick thoughts</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="960" y="1040" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF" opacity="0.6">Voice Notes • Free & Open Source • Android 8.0+</text>
+</svg>

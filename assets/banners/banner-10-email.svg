@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <!-- Email signature / footer banner -->
+  
+  <!-- White background -->
+  <rect width="1200" height="400" fill="#FFFFFF"/>
+  
+  <!-- Blue accent stripe -->
+  <rect x="0" y="0" width="1200" height="8" fill="#1976D2"/>
+  
+  <!-- Left section: Logo -->
+  <circle cx="150" cy="200" r="100" fill="#1976D2"/>
+  <rect x="115" y="145" width="70" height="95" rx="35" fill="#FFFFFF"/>
+  <path d="M150 240 L150 275" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M115 275 L185 275" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M95 195 C95 245 120 275 150 275 C180 275 205 245 205 195" stroke="#FFFFFF" stroke-width="8" fill="none"/>
+  
+  <!-- GPS pin on logo -->
+  <path d="M210 155 C210 155 235 190 235 210 C235 225 222 235 210 235 C198 235 185 225 185 210 C185 190 210 155 210 155 Z" fill="#FF6F00"/>
+  <circle cx="210" cy="208" r="8" fill="#FFFFFF"/>
+  
+  <!-- Center section: Text -->
+  <text x="350" y="170" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#1976D2">Voice Notes</text>
+  <text x="350" y="220" font-family="Arial, sans-serif" font-size="24" fill="#757575">GPS-Tagged Voice Recording for Motorcycle Riders</text>
+  
+  <!-- Feature icons row -->
+  <g transform="translate(350, 260)">
+    <rect x="0" y="0" width="140" height="40" rx="20" fill="#F5F5F5"/>
+    <text x="70" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#757575">🎤 Record</text>
+    
+    <rect x="160" y="0" width="140" height="40" rx="20" fill="#F5F5F5"/>
+    <text x="230" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#757575">📍 GPS Tag</text>
+    
+    <rect x="320" y="0" width="140" height="40" rx="20" fill="#F5F5F5"/>
+    <text x="390" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#757575">📝 Transcribe</text>
+    
+    <rect x="480" y="0" width="140" height="40" rx="20" fill="#F5F5F5"/>
+    <text x="550" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#757575">📁 Export</text>
+  </g>
+  
+  <!-- Right section: CTA -->
+  <rect x="950" y="120" width="200" height="160" rx="15" fill="#F5F5F5"/>
+  <text x="1050" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Available on</text>
+  <text x="1050" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1976D2">Android</text>
+  <rect x="980" y="230" width="140" height="40" rx="20" fill="#FF6F00"/>
+  <text x="1050" y="258" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF">Free Download</text>
+  
+  <!-- Bottom line -->
+  <rect x="0" y="350" width="1200" height="50" fill="#1976D2"/>
+  <text x="600" y="382" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">github.com/c0dev0id/autorecord-app • Open Source • CC BY-NC 4.0</text>
+</svg>

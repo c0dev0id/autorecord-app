@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <!-- App Screenshot Mockup: GPS Map View -->
+  
+  <!-- Map background -->
+  <rect width="1080" height="1920" fill="#E8F5E9"/>
+  
+  <!-- Map grid lines -->
+  <path d="M0 400 L1080 400 M0 800 L1080 800 M0 1200 L1080 1200" stroke="#C8E6C9" stroke-width="2"/>
+  <path d="M270 0 L270 1920 M540 0 L540 1920 M810 0 L810 1920" stroke="#C8E6C9" stroke-width="2"/>
+  
+  <!-- Road lines -->
+  <path d="M0 600 Q300 500 500 700 Q700 900 1080 800" stroke="#FFE082" stroke-width="30" fill="none"/>
+  <path d="M200 1920 Q400 1400 600 1000 Q800 600 1080 500" stroke="#FFE082" stroke-width="25" fill="none"/>
+  
+  <!-- GPS markers -->
+  <g transform="translate(300, 500)">
+    <path d="M0 0 C0 0 30 50 30 70 C30 88 17 100 0 100 C-17 100 -30 88 -30 70 C-30 50 0 0 0 0 Z" fill="#FF6F00"/>
+    <circle cx="0" cy="68" r="10" fill="#FFFFFF"/>
+    <text x="40" y="50" font-family="Arial, sans-serif" font-size="24" fill="#212121">#1</text>
+  </g>
+  
+  <g transform="translate(550, 750)">
+    <path d="M0 0 C0 0 30 50 30 70 C30 88 17 100 0 100 C-17 100 -30 88 -30 70 C-30 50 0 0 0 0 Z" fill="#1976D2"/>
+    <circle cx="0" cy="68" r="10" fill="#FFFFFF"/>
+    <text x="40" y="50" font-family="Arial, sans-serif" font-size="24" fill="#212121">#2</text>
+  </g>
+  
+  <g transform="translate(780, 600)">
+    <path d="M0 0 C0 0 30 50 30 70 C30 88 17 100 0 100 C-17 100 -30 88 -30 70 C-30 50 0 0 0 0 Z" fill="#FF6F00"/>
+    <circle cx="0" cy="68" r="10" fill="#FFFFFF"/>
+    <text x="40" y="50" font-family="Arial, sans-serif" font-size="24" fill="#212121">#3</text>
+  </g>
+  
+  <g transform="translate(450, 1100)">
+    <path d="M0 0 C0 0 30 50 30 70 C30 88 17 100 0 100 C-17 100 -30 88 -30 70 C-30 50 0 0 0 0 Z" fill="#1976D2"/>
+    <circle cx="0" cy="68" r="10" fill="#FFFFFF"/>
+    <text x="40" y="50" font-family="Arial, sans-serif" font-size="24" fill="#212121">#4</text>
+  </g>
+  
+  <!-- Current location marker -->
+  <g transform="translate(650, 900)">
+    <circle cx="0" cy="0" r="40" fill="#1976D2" opacity="0.2"/>
+    <circle cx="0" cy="0" r="25" fill="#1976D2" opacity="0.4"/>
+    <circle cx="0" cy="0" r="15" fill="#1976D2"/>
+    <circle cx="0" cy="0" r="6" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Status bar overlay -->
+  <rect x="0" y="0" width="1080" height="100" fill="#1976D2"/>
+  <text x="50" y="65" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF">9:41</text>
+  
+  <!-- Header overlay -->
+  <rect x="0" y="100" width="1080" height="140" fill="#1976D2"/>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">📍 Route Map</text>
+  
+  <!-- Info card at bottom -->
+  <rect x="40" y="1400" width="1000" height="280" rx="20" fill="#FFFFFF"/>
+  
+  <text x="80" y="1470" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#212121">Today's Route</text>
+  
+  <g transform="translate(80, 1510)">
+    <circle cx="15" cy="15" r="15" fill="#FF6F00"/>
+    <text x="50" y="22" font-family="Arial, sans-serif" font-size="28" fill="#212121">4 Voice Notes</text>
+  </g>
+  
+  <g transform="translate(400, 1510)">
+    <circle cx="15" cy="15" r="15" fill="#1976D2"/>
+    <text x="50" y="22" font-family="Arial, sans-serif" font-size="28" fill="#212121">127 miles</text>
+  </g>
+  
+  <g transform="translate(680, 1510)">
+    <circle cx="15" cy="15" r="15" fill="#43A047"/>
+    <text x="50" y="22" font-family="Arial, sans-serif" font-size="28" fill="#212121">3h 45m</text>
+  </g>
+  
+  <!-- Export button -->
+  <rect x="80" y="1580" width="400" height="70" rx="35" fill="#1976D2"/>
+  <text x="280" y="1625" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">Export as GPX</text>
+  
+  <rect x="520" y="1580" width="400" height="70" rx="35" fill="#FF6F00"/>
+  <text x="720" y="1625" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">Export as CSV</text>
+  
+  <!-- Bottom navigation -->
+  <rect x="0" y="1700" width="1080" height="220" fill="#FFFFFF"/>
+  <rect x="0" y="1700" width="1080" height="2" fill="#E0E0E0"/>
+</svg>

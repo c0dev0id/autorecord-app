@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2196F3"/>
+      <stop offset="100%" style="stop-color:#1565C0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- White background -->
+  <rect width="400" height="400" fill="#FFFFFF"/>
+  
+  <!-- Shield/badge shape -->
+  <path d="M200 30 L350 80 L350 200 C350 280 280 350 200 380 C120 350 50 280 50 200 L50 80 Z" 
+        fill="url(#badgeGrad)" stroke="#1565C0" stroke-width="4"/>
+  
+  <!-- Inner shield border -->
+  <path d="M200 50 L330 95 L330 195 C330 265 268 325 200 350 C132 325 70 265 70 195 L70 95 Z" 
+        fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+  
+  <!-- Microphone icon -->
+  <rect x="175" y="100" width="50" height="75" rx="25" fill="#FFFFFF"/>
+  
+  <!-- Stand -->
+  <path d="M200 175 L200 210" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M170 210 L230 210" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  
+  <!-- Arc -->
+  <path d="M155 150 C155 190 175 210 200 210 C225 210 245 190 245 150" 
+        stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Location pin -->
+  <path d="M270 175 C270 175 290 205 290 220 C290 232 280 240 268 240 C256 240 246 232 246 220 C246 205 266 175 270 175 Z" 
+        fill="#FF6F00"/>
+  <circle cx="268" cy="218" r="6" fill="#FFFFFF"/>
+  
+  <!-- Text banner -->
+  <path d="M80 250 L320 250 L300 280 L320 310 L80 310 L100 280 Z" fill="#FF6F00"/>
+  <text x="200" y="288" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFFFFF">VOICE NOTES</text>
+  
+  <!-- Stars -->
+  <polygon points="120,90 125,105 140,105 128,115 133,130 120,120 107,130 112,115 100,105 115,105" fill="#FFA726"/>
+  <polygon points="280,90 285,105 300,105 288,115 293,130 280,120 267,130 272,115 260,105 275,105" fill="#FFA726"/>
+</svg>

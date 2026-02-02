@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <defs>
+    <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1565C0"/>
+      <stop offset="50%" style="stop-color:#1976D2"/>
+      <stop offset="100%" style="stop-color:#2196F3"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1080" height="1080" fill="url(#igGrad)"/>
+  
+  <!-- Abstract circles -->
+  <circle cx="900" cy="180" r="200" fill="#FFFFFF" opacity="0.05"/>
+  <circle cx="180" cy="900" r="250" fill="#FFFFFF" opacity="0.05"/>
+  
+  <!-- Central icon area -->
+  <circle cx="540" cy="400" r="180" fill="#FFFFFF" opacity="0.15"/>
+  <circle cx="540" cy="400" r="140" fill="#FFFFFF"/>
+  
+  <!-- Microphone -->
+  <rect x="500" y="320" width="80" height="120" rx="40" fill="#1976D2"/>
+  <path d="M540 440 L540 490" stroke="#1976D2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M490 490 L590 490" stroke="#1976D2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M465 390 C465 460 500 490 540 490 C580 490 615 460 615 390" stroke="#1976D2" stroke-width="10" fill="none"/>
+  
+  <!-- Sound waves -->
+  <circle cx="540" cy="380" r="90" stroke="#1976D2" stroke-width="3" fill="none" opacity="0.3"/>
+  <circle cx="540" cy="380" r="110" stroke="#1976D2" stroke-width="2" fill="none" opacity="0.2"/>
+  
+  <!-- GPS Pin -->
+  <g transform="translate(640, 350)">
+    <path d="M0 0 C0 0 30 50 30 70 C30 88 17 100 0 100 C-17 100 -30 88 -30 70 C-30 50 0 0 0 0 Z" fill="#FF6F00"/>
+    <circle cx="0" cy="68" r="10" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Main text -->
+  <text x="540" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#FFFFFF">VOICE</text>
+  <text x="540" y="740" text-anchor="middle" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#FFFFFF">NOTES</text>
+  
+  <!-- Tagline -->
+  <text x="540" y="820" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF" opacity="0.9">GPS-Tagged Recording</text>
+  
+  <!-- Feature badges -->
+  <rect x="270" y="880" width="180" height="60" rx="30" fill="#FFFFFF" opacity="0.2"/>
+  <text x="360" y="920" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Free App</text>
+  
+  <rect x="470" y="880" width="180" height="60" rx="30" fill="#FF6F00"/>
+  <text x="560" y="920" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Download</text>
+  
+  <rect x="670" y="880" width="180" height="60" rx="30" fill="#FFFFFF" opacity="0.2"/>
+  <text x="760" y="920" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Android</text>
+</svg>

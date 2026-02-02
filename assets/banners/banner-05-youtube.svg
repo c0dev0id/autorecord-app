@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- YouTube thumbnail dimensions -->
+  
+  <defs>
+    <linearGradient id="ytGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1565C0"/>
+      <stop offset="100%" style="stop-color:#0D47A1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#ytGrad)"/>
+  
+  <!-- Road perspective -->
+  <path d="M400 720 L580 400 L700 400 L880 720 Z" fill="#1A1A2E"/>
+  <path d="M580 720 L620 450 L660 450 L700 720 Z" fill="#FFA726"/>
+  
+  <!-- Mountain silhouettes -->
+  <path d="M0 500 L200 300 L350 420 L500 280 L650 380 L800 250 L950 350 L1100 280 L1280 400 L1280 720 L0 720 Z" fill="#1A1A2E" opacity="0.5"/>
+  
+  <!-- Large app icon -->
+  <circle cx="300" cy="300" r="150" fill="#FFFFFF" opacity="0.15"/>
+  <circle cx="300" cy="300" r="120" fill="#FFFFFF"/>
+  
+  <!-- Microphone -->
+  <rect x="260" y="230" width="80" height="110" rx="40" fill="#1976D2"/>
+  <path d="M300 340 L300 390" stroke="#1976D2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M250 390 L350 390" stroke="#1976D2" stroke-width="10" stroke-linecap="round"/>
+  <path d="M225 295 C225 360 260 390 300 390 C340 390 375 360 375 295" stroke="#1976D2" stroke-width="10" fill="none"/>
+  
+  <!-- GPS pin -->
+  <path d="M380 240 C380 240 415 290 415 315 C415 335 400 350 380 350 C360 350 345 335 345 315 C345 290 380 240 380 240 Z" fill="#FF6F00"/>
+  <circle cx="380" cy="313" r="12" fill="#FFFFFF"/>
+  
+  <!-- Main headline -->
+  <text x="550" y="260" font-family="Arial, sans-serif" font-size="96" font-weight="bold" fill="#FFFFFF">VOICE</text>
+  <text x="550" y="370" font-family="Arial, sans-serif" font-size="96" font-weight="bold" fill="#FFFFFF">NOTES</text>
+  
+  <!-- Tagline -->
+  <text x="550" y="440" font-family="Arial, sans-serif" font-size="36" fill="#FF6F00">The Motorcycle Rider's Recording Companion</text>
+  
+  <!-- Features -->
+  <rect x="550" y="480" width="650" height="80" rx="10" fill="#FFFFFF" opacity="0.1"/>
+  <text x="875" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#FFFFFF">📍 Auto GPS • 🎤 Quick Record • 📝 Transcription • 📁 Export</text>
+  
+  <!-- Play button overlay -->
+  <circle cx="640" cy="600" r="50" fill="#FF0000" opacity="0.9"/>
+  <polygon points="625,580 625,620 665,600" fill="#FFFFFF"/>
+  
+  <!-- Watch Now text -->
+  <text x="720" y="610" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">APP REVIEW</text>
+</svg>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="darkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A1A2E"/>
+      <stop offset="100%" style="stop-color:#16213E"/>
+    </linearGradient>
+    <linearGradient id="blueGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2196F3"/>
+      <stop offset="100%" style="stop-color:#1976D2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" rx="40" fill="url(#darkBg)"/>
+  
+  <!-- Glow effect -->
+  <circle cx="200" cy="175" r="100" fill="#2196F3" opacity="0.1"/>
+  
+  <!-- Microphone body -->
+  <rect x="165" y="90" width="70" height="110" rx="35" fill="url(#blueGlow)"/>
+  
+  <!-- Microphone details -->
+  <line x1="175" y1="120" x2="225" y2="120" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+  <line x1="175" y1="140" x2="225" y2="140" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+  <line x1="175" y1="160" x2="225" y2="160" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+  
+  <!-- Microphone stand -->
+  <path d="M200 200 L200 245" stroke="#2196F3" stroke-width="8" stroke-linecap="round"/>
+  <path d="M160 245 L240 245" stroke="#2196F3" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Microphone arc -->
+  <path d="M140 160 C140 210 165 245 200 245 C235 245 260 210 260 160" 
+        stroke="#2196F3" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- Sound waves animated style -->
+  <path d="M110 120 Q110 80 150 55" stroke="#FF6F00" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M100 150 Q95 90 160 45" stroke="#FF6F00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+  <path d="M290 120 Q290 80 250 55" stroke="#FF6F00" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M300 150 Q305 90 240 45" stroke="#FF6F00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+  
+  <!-- Location marker -->
+  <circle cx="310" cy="275" r="25" fill="#FF6F00"/>
+  <path d="M310 250 L310 235 M295 255 L285 245 M325 255 L335 245" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="310" cy="275" r="8" fill="#FFFFFF"/>
+  
+  <!-- App name -->
+  <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">VOICE NOTES</text>
+  <text x="200" y="355" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#2196F3">GPS-Tagged Recording</text>
+</svg>

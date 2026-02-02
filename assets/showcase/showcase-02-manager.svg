@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <!-- App Screenshot Mockup: Recording Manager Screen -->
+  
+  <!-- Phone frame background -->
+  <rect width="1080" height="1920" fill="#F5F5F5"/>
+  
+  <!-- Status bar -->
+  <rect x="0" y="0" width="1080" height="100" fill="#1565C0"/>
+  <text x="50" y="65" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF">9:41</text>
+  
+  <!-- App header -->
+  <rect x="0" y="100" width="1080" height="140" fill="#1976D2"/>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">Recording Manager</text>
+  
+  <!-- Download all button -->
+  <circle cx="980" cy="170" r="40" fill="#FFFFFF" opacity="0.2"/>
+  <path d="M980 150 L980 180 M965 170 L980 185 L995 170" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Recording list -->
+  <g transform="translate(40, 280)">
+    <!-- Recording item 1 -->
+    <rect x="0" y="0" width="1000" height="200" rx="15" fill="#FFFFFF"/>
+    <circle cx="80" cy="100" r="50" fill="#1976D2"/>
+    <polygon points="65,80 65,120 100,100" fill="#FFFFFF"/>
+    
+    <text x="160" y="60" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Voice Note #1</text>
+    <text x="160" y="100" font-family="Arial, sans-serif" font-size="24" fill="#757575">📍 Highway 101, CA</text>
+    <text x="160" y="140" font-family="Arial, sans-serif" font-size="24" fill="#757575">🕐 2:35 • Jan 15, 2025</text>
+    
+    <rect x="160" y="160" width="80" height="30" rx="15" fill="#43A047"/>
+    <text x="200" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">Done</text>
+    
+    <circle cx="920" cy="100" r="35" fill="#F5F5F5"/>
+    <text x="920" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">⋯</text>
+  </g>
+  
+  <g transform="translate(40, 500)">
+    <!-- Recording item 2 -->
+    <rect x="0" y="0" width="1000" height="200" rx="15" fill="#FFFFFF"/>
+    <circle cx="80" cy="100" r="50" fill="#FF6F00"/>
+    <rect x="60" y="80" width="40" height="40" rx="5" fill="#FFFFFF"/>
+    
+    <text x="160" y="60" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Voice Note #2</text>
+    <text x="160" y="100" font-family="Arial, sans-serif" font-size="24" fill="#757575">📍 Mountain View, CA</text>
+    <text x="160" y="140" font-family="Arial, sans-serif" font-size="24" fill="#757575">🕐 1:12 • Jan 15, 2025</text>
+    
+    <rect x="160" y="160" width="120" height="30" rx="15" fill="#FF6F00"/>
+    <text x="220" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">Processing</text>
+    
+    <circle cx="920" cy="100" r="35" fill="#F5F5F5"/>
+    <text x="920" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">⋯</text>
+  </g>
+  
+  <g transform="translate(40, 720)">
+    <!-- Recording item 3 -->
+    <rect x="0" y="0" width="1000" height="200" rx="15" fill="#FFFFFF"/>
+    <circle cx="80" cy="100" r="50" fill="#1976D2"/>
+    <polygon points="65,80 65,120 100,100" fill="#FFFFFF"/>
+    
+    <text x="160" y="60" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Voice Note #3</text>
+    <text x="160" y="100" font-family="Arial, sans-serif" font-size="24" fill="#757575">📍 San Francisco, CA</text>
+    <text x="160" y="140" font-family="Arial, sans-serif" font-size="24" fill="#757575">🕐 0:45 • Jan 14, 2025</text>
+    
+    <rect x="160" y="160" width="80" height="30" rx="15" fill="#43A047"/>
+    <text x="200" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">Done</text>
+    
+    <circle cx="920" cy="100" r="35" fill="#F5F5F5"/>
+    <text x="920" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">⋯</text>
+  </g>
+  
+  <g transform="translate(40, 940)">
+    <!-- Recording item 4 -->
+    <rect x="0" y="0" width="1000" height="200" rx="15" fill="#FFFFFF"/>
+    <circle cx="80" cy="100" r="50" fill="#1976D2"/>
+    <polygon points="65,80 65,120 100,100" fill="#FFFFFF"/>
+    
+    <text x="160" y="60" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Voice Note #4</text>
+    <text x="160" y="100" font-family="Arial, sans-serif" font-size="24" fill="#757575">📍 Oakland, CA</text>
+    <text x="160" y="140" font-family="Arial, sans-serif" font-size="24" fill="#757575">🕐 3:20 • Jan 14, 2025</text>
+    
+    <rect x="160" y="160" width="80" height="30" rx="15" fill="#43A047"/>
+    <text x="200" y="182" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF">Done</text>
+    
+    <circle cx="920" cy="100" r="35" fill="#F5F5F5"/>
+    <text x="920" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">⋯</text>
+  </g>
+  
+  <!-- Floating action button -->
+  <circle cx="960" cy="1600" r="70" fill="#FF6F00"/>
+  <path d="M960 1570 L960 1630 M930 1600 L990 1600" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Bottom navigation -->
+  <rect x="0" y="1700" width="1080" height="220" fill="#FFFFFF"/>
+  <rect x="0" y="1700" width="1080" height="2" fill="#E0E0E0"/>
+  
+  <g transform="translate(180, 1780)">
+    <circle cx="0" cy="0" r="40" fill="#F5F5F5"/>
+    <rect x="-12" y="-18" width="24" height="32" rx="12" fill="#757575"/>
+    <text x="0" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">Record</text>
+  </g>
+  
+  <g transform="translate(540, 1780)">
+    <circle cx="0" cy="0" r="40" fill="#1976D2"/>
+    <rect x="-20" y="-20" width="40" height="40" rx="5" fill="#FFFFFF"/>
+    <text x="0" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#1976D2">Manager</text>
+  </g>
+  
+  <g transform="translate(900, 1780)">
+    <circle cx="0" cy="0" r="40" fill="#F5F5F5"/>
+    <circle cx="0" cy="0" r="20" fill="none" stroke="#757575" stroke-width="5"/>
+    <text x="0" y="70" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#757575">Settings</text>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Transcription icon -->
+  <rect width="128" height="128" rx="28" fill="#7B1FA2"/>
+  
+  <!-- Speech bubble -->
+  <path d="M20 30 L108 30 L108 80 L70 80 L55 100 L55 80 L20 80 Z" rx="10" fill="#FFFFFF"/>
+  
+  <!-- Text lines -->
+  <line x1="32" y1="45" x2="96" y2="45" stroke="#7B1FA2" stroke-width="4" stroke-linecap="round"/>
+  <line x1="32" y1="58" x2="85" y2="58" stroke="#7B1FA2" stroke-width="4" stroke-linecap="round"/>
+  <line x1="32" y1="71" x2="70" y2="71" stroke="#7B1FA2" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Microphone small -->
+  <circle cx="95" cy="95" r="20" fill="#FFFFFF"/>
+  <rect x="88" y="82" width="14" height="20" rx="7" fill="#7B1FA2"/>
+  <path d="M95 102 L95 108" stroke="#7B1FA2" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Microphone only icon -->
+  <rect width="128" height="128" rx="28" fill="#1976D2"/>
+  
+  <!-- Microphone body -->
+  <rect x="42" y="25" width="44" height="60" rx="22" fill="#FFFFFF"/>
+  
+  <!-- Grille lines -->
+  <line x1="50" y1="40" x2="78" y2="40" stroke="#1976D2" stroke-width="2" opacity="0.4"/>
+  <line x1="50" y1="52" x2="78" y2="52" stroke="#1976D2" stroke-width="2" opacity="0.4"/>
+  <line x1="50" y1="64" x2="78" y2="64" stroke="#1976D2" stroke-width="2" opacity="0.4"/>
+  
+  <!-- Stand -->
+  <path d="M64 85 L64 105" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+  <path d="M42 105 L86 105" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+  
+  <!-- Arc -->
+  <path d="M30 60 C30 90 45 105 64 105 C83 105 98 90 98 60" stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round"/>
+</svg>

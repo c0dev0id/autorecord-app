@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- Feature Overview Infographic -->
+  
+  <defs>
+    <linearGradient id="overviewGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1565C0"/>
+      <stop offset="100%" style="stop-color:#0D47A1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#overviewGrad)"/>
+  
+  <!-- Header -->
+  <text x="960" y="100" text-anchor="middle" font-family="Arial, sans-serif" font-size="64" font-weight="bold" fill="#FFFFFF">Voice Notes - Feature Overview</text>
+  <text x="960" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF" opacity="0.8">GPS-Tagged Voice Recording for Motorcycle Riders</text>
+  
+  <!-- Feature cards -->
+  
+  <!-- Card 1: Quick Recording -->
+  <g transform="translate(80, 220)">
+    <rect x="0" y="0" width="400" height="350" rx="20" fill="#FFFFFF"/>
+    <circle cx="200" cy="100" r="60" fill="#1976D2"/>
+    <rect x="175" y="65" width="50" height="70" rx="25" fill="#FFFFFF"/>
+    <path d="M200 135 L200 155" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Quick Recording</text>
+    <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">One-tap voice recording</text>
+    <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Auto-save and exit</text>
+    <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Extend recording time</text>
+  </g>
+  
+  <!-- Card 2: GPS Tagging -->
+  <g transform="translate(520, 220)">
+    <rect x="0" y="0" width="400" height="350" rx="20" fill="#FFFFFF"/>
+    <circle cx="200" cy="100" r="60" fill="#FF6F00"/>
+    <path d="M200 50 C200 50 240 105 240 130 C240 152 222 170 200 170 C178 170 160 152 160 130 C160 105 200 50 200 50 Z" fill="#FFFFFF"/>
+    <circle cx="200" cy="128" r="12" fill="#FF6F00"/>
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">GPS Tagging</text>
+    <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Automatic location capture</text>
+    <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">High precision coordinates</text>
+    <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Location announcement</text>
+  </g>
+  
+  <!-- Card 3: Bluetooth Support -->
+  <g transform="translate(960, 220)">
+    <rect x="0" y="0" width="400" height="350" rx="20" fill="#FFFFFF"/>
+    <circle cx="200" cy="100" r="60" fill="#2196F3"/>
+    <path d="M200 50 L200 150 M200 50 L230 80 L200 110 L230 140 L200 150" stroke="#FFFFFF" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Bluetooth Audio</text>
+    <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Headset microphone support</text>
+    <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Hands-free recording</text>
+    <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Clear audio quality</text>
+  </g>
+  
+  <!-- Card 4: Transcription -->
+  <g transform="translate(1400, 220)">
+    <rect x="0" y="0" width="400" height="350" rx="20" fill="#FFFFFF"/>
+    <circle cx="200" cy="100" r="60" fill="#9C27B0"/>
+    <path d="M160 60 L240 60 L240 130 L200 150 L160 130 Z" fill="#FFFFFF"/>
+    <line x1="175" y1="80" x2="225" y2="80" stroke="#9C27B0" stroke-width="4"/>
+    <line x1="175" y1="100" x2="220" y2="100" stroke="#9C27B0" stroke-width="4"/>
+    <line x1="175" y1="120" x2="210" y2="120" stroke="#9C27B0" stroke-width="4"/>
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Transcription</text>
+    <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Google Cloud powered</text>
+    <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Multiple languages</text>
+    <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Editable results</text>
+  </g>
+  
+  <!-- Bottom row cards -->
+  
+  <!-- Card 5: Export Options -->
+  <g transform="translate(300, 620)">
+    <rect x="0" y="0" width="400" height="350" rx="20" fill="#FFFFFF"/>
+    <circle cx="200" cy="100" r="60" fill="#43A047"/>
+    <rect x="165" y="55" width="70" height="90" rx="5" fill="#FFFFFF"/>
+    <path d="M200 170 L200 130 M180 145 L200 125 L220 145" stroke="#43A047" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Easy Export</text>
+    <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">GPX for navigation apps</text>
+    <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">CSV for spreadsheets</text>
+    <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Audio file sharing</text>
+  </g>
+  
+  <!-- Card 6: Recording Manager -->
+  <g transform="translate(760, 620)">
+    <rect x="0" y="0" width="400" height="350" rx="20" fill="#FFFFFF"/>
+    <circle cx="200" cy="100" r="60" fill="#FF5722"/>
+    <rect x="160" y="60" width="80" height="80" rx="10" fill="#FFFFFF"/>
+    <line x1="175" y1="85" x2="225" y2="85" stroke="#FF5722" stroke-width="4"/>
+    <line x1="175" y1="105" x2="225" y2="105" stroke="#FF5722" stroke-width="4"/>
+    <line x1="175" y1="125" x2="210" y2="125" stroke="#FF5722" stroke-width="4"/>
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Manager</text>
+    <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Browse all recordings</text>
+    <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Playback & edit</text>
+    <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Batch operations</text>
+  </g>
+  
+  <!-- Card 7: Open Source -->
+  <g transform="translate(1220, 620)">
+    <rect x="0" y="0" width="400" height="350" rx="20" fill="#FFFFFF"/>
+    <circle cx="200" cy="100" r="60" fill="#607D8B"/>
+    <text x="200" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" fill="#FFFFFF">&lt;/&gt;</text>
+    <text x="200" y="200" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#212121">Open Source</text>
+    <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Free to use</text>
+    <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">Community driven</text>
+    <text x="200" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#757575">CC BY-NC 4.0 License</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="960" y="1040" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#FFFFFF" opacity="0.8">Download free from GitHub • github.com/c0dev0id/autorecord-app</text>
+</svg>

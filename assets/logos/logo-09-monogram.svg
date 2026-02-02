@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Pure white background -->
+  <rect width="400" height="400" fill="#FFFFFF"/>
+  
+  <!-- Large V and N monogram -->
+  <text x="130" y="250" font-family="Arial, sans-serif" font-size="200" font-weight="bold" fill="#1976D2" opacity="0.1">VN</text>
+  
+  <!-- Combined icon: Microphone + Pin merged -->
+  <path d="M200 60 
+           C200 60 230 60 230 90 
+           L230 140 
+           C230 170 200 170 200 170 
+           C200 170 170 170 170 140 
+           L170 90 
+           C170 60 200 60 200 60 Z" 
+        fill="#1976D2"/>
+  
+  <!-- Microphone grille -->
+  <line x1="180" y1="85" x2="220" y2="85" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+  <line x1="180" y1="100" x2="220" y2="100" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+  <line x1="180" y1="115" x2="220" y2="115" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+  <line x1="180" y1="130" x2="220" y2="130" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Combined stand and pin -->
+  <path d="M200 170 L200 200 
+           C200 200 200 200 200 200
+           L200 220 
+           C200 220 170 260 170 275
+           C170 295 185 305 200 305
+           C215 305 230 295 230 275
+           C230 260 200 220 200 220
+           L200 200" 
+        fill="#FF6F00"/>
+  <circle cx="200" cy="275" r="8" fill="#FFFFFF"/>
+  
+  <!-- Arc -->
+  <path d="M155 120 C155 175 175 200 200 200 C225 200 245 175 245 120" 
+        stroke="#1976D2" stroke-width="5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Brand -->
+  <text x="200" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#1976D2">Voice Notes</text>
+  <text x="200" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#757575">Record • Tag • Remember</text>
+</svg>

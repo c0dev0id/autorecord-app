@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="fbGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976D2"/>
+      <stop offset="100%" style="stop-color:#0D47A1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#fbGrad1)"/>
+  
+  <!-- Abstract wave pattern -->
+  <path d="M0 400 Q300 350 600 400 T1200 380 L1200 630 L0 630 Z" fill="#1565C0" opacity="0.5"/>
+  <path d="M0 450 Q300 400 600 450 T1200 430 L1200 630 L0 630 Z" fill="#1565C0" opacity="0.3"/>
+  
+  <!-- Large microphone icon -->
+  <g transform="translate(150, 150)">
+    <rect x="0" y="0" width="120" height="180" rx="60" fill="#FFFFFF"/>
+    <path d="M60 180 L60 260" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
+    <path d="M10 260 L110 260" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
+    <path d="M-30 120 C-30 210 15 260 60 260 C105 260 150 210 150 120" 
+          stroke="#FFFFFF" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <!-- Sound waves -->
+    <circle cx="60" cy="90" r="100" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.3"/>
+    <circle cx="60" cy="90" r="130" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.2"/>
+  </g>
+  
+  <!-- Location pin -->
+  <g transform="translate(320, 300)">
+    <path d="M0 0 C0 0 35 55 35 80 C35 100 20 115 0 115 C-20 115 -35 100 -35 80 C-35 55 0 0 0 0 Z" fill="#FF6F00"/>
+    <circle cx="0" cy="78" r="12" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Main text -->
+  <text x="500" y="250" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="#FFFFFF">Voice Notes</text>
+  <text x="500" y="330" font-family="Arial, sans-serif" font-size="36" fill="#FFFFFF" opacity="0.9">GPS-Tagged Voice Recording for Riders</text>
+  
+  <!-- Feature highlights -->
+  <g transform="translate(500, 400)">
+    <circle cx="0" cy="0" r="8" fill="#FF6F00"/>
+    <text x="20" y="6" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Auto-record with GPS</text>
+    
+    <circle cx="280" cy="0" r="8" fill="#FF6F00"/>
+    <text x="300" y="6" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Bluetooth Support</text>
+    
+    <circle cx="520" cy="0" r="8" fill="#FF6F00"/>
+    <text x="540" y="6" font-family="Arial, sans-serif" font-size="24" fill="#FFFFFF">Export to GPX</text>
+  </g>
+  
+  <!-- Call to action -->
+  <rect x="500" y="480" width="280" height="60" rx="30" fill="#FF6F00"/>
+  <text x="640" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFFFFF">Download Free</text>
+</svg>

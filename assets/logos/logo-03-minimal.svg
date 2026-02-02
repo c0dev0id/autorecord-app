@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- Clean white background -->
+  <rect width="400" height="400" fill="#FFFFFF"/>
+  
+  <!-- Simple microphone icon -->
+  <rect x="170" y="100" width="60" height="95" rx="30" fill="#1976D2"/>
+  
+  <!-- Stand -->
+  <path d="M200 195 L200 240" stroke="#1976D2" stroke-width="6" stroke-linecap="round"/>
+  <path d="M165 240 L235 240" stroke="#1976D2" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Arc -->
+  <path d="M145 155 C145 205 170 240 200 240 C230 240 255 205 255 155" 
+        stroke="#1976D2" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- Location dot -->
+  <circle cx="280" cy="220" r="18" fill="#FF6F00"/>
+  <circle cx="280" cy="220" r="6" fill="#FFFFFF"/>
+  
+  <!-- App name -->
+  <text x="200" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#1976D2">Voice Notes</text>
+  <text x="200" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#757575">Record anywhere, remember everywhere</text>
+</svg>
