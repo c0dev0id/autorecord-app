@@ -3,7 +3,6 @@ name: Fast PR Check
 on:
   push:
     branches:
-      - claude/android-voice-notes-app-PHSNL
       - main
       - develop
     paths-ignore:
@@ -13,7 +12,6 @@ on:
       - 'LICENSE'
   pull_request:
     branches:
-      - claude/android-voice-notes-app-PHSNL
       - main
       - develop
     paths-ignore:
