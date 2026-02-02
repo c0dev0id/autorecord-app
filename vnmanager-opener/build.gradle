@@ -38,23 +38,6 @@ def getVersionName() {
         return "unknown"
     }
 }
-        
-        // Not on a tagged commit, get short commit hash
-        def hashProcess = 'git rev-parse --short HEAD'.execute()
-        hashProcess.waitFor()
-        
-        if (hashProcess.exitValue() == 0) {
-            def hash = hashProcess.text.trim()
-            return "dev-${hash}"
-        }
-        
-        return "unknown"
-        
-    } catch (Exception e) {
-        // Git not available or other error
-        return "unknown"
-    }
-}
 
 def getVersionCode() {
     try {
