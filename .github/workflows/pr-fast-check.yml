@@ -62,7 +62,6 @@ jobs:
 
       - name: Create gradle.properties
         run: |
-          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -73,6 +72,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Warm up Gradle cache
         run: ./gradlew tasks --no-daemon --build-cache
@@ -114,7 +114,6 @@ jobs:
 
       - name: Create gradle.properties
         run: |
-          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -125,6 +124,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest --stacktrace --build-cache --parallel
@@ -176,7 +176,6 @@ jobs:
 
       - name: Create gradle.properties
         run: |
-          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -187,6 +186,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Run Android Lint
         run: ./gradlew lintDebug --stacktrace --build-cache --parallel
@@ -293,7 +293,6 @@ jobs:
 
       - name: Create gradle.properties
         run: |
-          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -304,6 +303,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       # Optional: Setup signing if secrets are available
       - name: Setup Signing (Optional)
@@ -446,7 +446,6 @@ jobs:
 
       - name: Create gradle.properties
         run: |
-          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -457,6 +456,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Update cache
         run: ./gradlew tasks --no-daemon --build-cache
