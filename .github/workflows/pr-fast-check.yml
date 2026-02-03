@@ -72,6 +72,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Warm up Gradle cache
         run: ./gradlew tasks --no-daemon --build-cache
@@ -123,6 +124,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest --stacktrace --build-cache --parallel
@@ -184,6 +186,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Run Android Lint
         run: ./gradlew lintDebug --stacktrace --build-cache --parallel
@@ -300,6 +303,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       # Optional: Setup signing if secrets are available
       - name: Setup Signing (Optional)
@@ -452,6 +456,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       - name: Update cache
         run: ./gradlew tasks --no-daemon --build-cache

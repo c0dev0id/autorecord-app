@@ -46,42 +46,6 @@ tasks.register('jacocoTestReport', JacocoReport) {
     ]))
 }
 
-def getVersionName() {
-    try {
-        // Check if .git file or directory exists
-        def gitDir = new File(rootProject.projectDir, '.git')
-        if (!gitDir.exists()) {
-            return "unknown"
-        }
-        
-        // Try to get the exact tag on current commit
-        def tagProcess = 'git describe --tags --always --dirty'.execute()
-        tagProcess.waitFor()
-
-        // Git call failed
-        if (gitCheckProcess.exitValue() != 0) {
-            return "unknown"
-        }
-
-        // Git call was successful
-        if (tagProcess.exitValue() == 0) {
-            def version = tagProcess.text.trim()
-            // Strip 'v' prefix if present (v0.0.15 -> 0.0.15)
-            if (version.startsWith('v')) {
-                version = version.substring(1)
-            }
-            return version
-        }
-
-        // Fallback
-        return "unknown"
-        
-    } catch (Exception e) {
-        // Git not available or other error
-        return "unknown"
-    }
-}
-
 def getVersionCode() {
     try {
         // Count commits in current branch
@@ -110,10 +74,10 @@ android {
         minSdk 26
         targetSdk 34
         versionCode getVersionCode()
-        versionName getVersionName()
+        versionName project.findProperty('APP_VERSION') ?: 'unknown'
         
         // Explicitly expose VERSION_NAME to BuildConfig
-        buildConfigField "String", "VERSION_NAME", "\"${getVersionName()}\""
+        buildConfigField "String", "VERSION_NAME", "\"${project.findProperty('APP_VERSION') ?: 'unknown'}\""
         
         // Read service account JSON from gradle.properties and base64-encode it
         buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64", "\"${(project.findProperty('GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON') ?: '')?.bytes?.encodeBase64()?.toString() ?: ''}\""
