@@ -102,20 +102,6 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Set Version in gradle.properties
-        run: |
-          # Extract version from tag (v1.2.3 -> 1.2.3) or use "unknown"
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            VERSION="${GITHUB_REF#refs/tags/v}"
-          elif [[ -n "${{ github.event.inputs.release_version }}" ]]; then
-            VERSION="${{ github.event.inputs.release_version }}"
-            VERSION="${VERSION#v}"  # Remove leading 'v' if present
-          else
-            VERSION="unknown"
-          fi
-          echo "APP_VERSION=$VERSION" >> gradle.properties
-          echo "Set APP_VERSION to: $VERSION"
-
       - name: Create gradle.properties
         run: |
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
@@ -128,6 +114,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
+          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
 
       # Optional: Setup signing if secrets are available
       - name: Setup Signing (Optional)
