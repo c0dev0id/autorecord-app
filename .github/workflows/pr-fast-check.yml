@@ -62,6 +62,7 @@ jobs:
 
       - name: Create gradle.properties
         run: |
+          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -113,6 +114,7 @@ jobs:
 
       - name: Create gradle.properties
         run: |
+          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -174,6 +176,7 @@ jobs:
 
       - name: Create gradle.properties
         run: |
+          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -290,6 +293,7 @@ jobs:
 
       - name: Create gradle.properties
         run: |
+          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -442,6 +446,7 @@ jobs:
 
       - name: Create gradle.properties
         run: |
+          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties

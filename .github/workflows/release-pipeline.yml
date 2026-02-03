@@ -53,6 +53,7 @@ jobs:
 
       - name: Create gradle.properties
         run: |
+          echo "APP_VERSION=unknown" >> gradle.properties
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
           echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
           echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
@@ -101,6 +102,20 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Set Version in gradle.properties
+        run: |
+          # Extract version from tag (v1.2.3 -> 1.2.3) or use "unknown"
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          elif [[ -n "${{ github.event.inputs.release_version }}" ]]; then
+            VERSION="${{ github.event.inputs.release_version }}"
+            VERSION="${VERSION#v}"  # Remove leading 'v' if present
+          else
+            VERSION="unknown"
+          fi
+          echo "APP_VERSION=$VERSION" >> gradle.properties
+          echo "Set APP_VERSION to: $VERSION"
 
       - name: Create gradle.properties
         run: |
