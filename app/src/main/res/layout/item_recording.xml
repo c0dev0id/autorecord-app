@@ -31,23 +31,12 @@
 
             <TextView
                 android:id="@+id/dateTimeText"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Jan 25, 2026 14:30"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#212121" />
-
-            <ImageView
-                android:id="@+id/playIcon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@android:drawable/ic_media_play"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Play recording"
-                android:padding="4dp"
-                app:tint="#1976D2" />
 
         </LinearLayout>
 
@@ -115,7 +104,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="transcribed text goes here... field can be changed!"
+                    android:hint=""
                     android:textSize="14sp"
                     android:textColor="#212121"
                     android:paddingStart="8dp"
@@ -123,10 +112,10 @@
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
                     android:background="#F5F5F5"
-                    android:singleLine="true"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:inputType="text" />
+                    android:minLines="1"
+                    android:maxLines="3"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:scrollbars="vertical" />
 
                 <Button
                     android:id="@+id/saveTranscriptionButton"

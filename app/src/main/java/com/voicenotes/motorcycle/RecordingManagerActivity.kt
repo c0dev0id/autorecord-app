@@ -38,6 +38,7 @@ class RecordingManagerActivity : AppCompatActivity() {
     private lateinit var emptyView: TextView
     private lateinit var adapter: RecordingAdapter
     private var mediaPlayer: MediaPlayer? = null
+    private var currentPlayingRecordingId: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +57,8 @@ class RecordingManagerActivity : AppCompatActivity() {
             onOpenMapsClick = { recording -> openMaps(recording) },
             onDeleteClick = { recording -> deleteRecording(recording) },
             onDownloadClick = { recording -> downloadRecording(recording) },
-            onSaveTranscriptionClick = { recording, newText -> saveTranscriptionText(recording, newText) }
+            onSaveTranscriptionClick = { recording, newText -> saveTranscriptionText(recording, newText) },
+            isRecordingPlaying = { recording -> currentPlayingRecordingId == recording.id }
         )
         recyclerView.adapter = adapter
 
@@ -100,9 +102,17 @@ class RecordingManagerActivity : AppCompatActivity() {
 
     private fun playRecording(recording: Recording) {
         try {
-            // Stop any currently playing audio
-            mediaPlayer?.release()
+            // If this recording is currently playing, stop it
+            if (currentPlayingRecordingId == recording.id) {
+                stopPlayback()
+                Toast.makeText(this, "Playback stopped", Toast.LENGTH_SHORT).show()
+                return
+            }
 
+            // Stop any currently playing audio
+            stopPlayback()
+
+            // Start playing new recording
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(recording.filepath)
                 prepare()
@@ -110,9 +120,13 @@ class RecordingManagerActivity : AppCompatActivity() {
                 setOnCompletionListener {
                     it.release()
                     mediaPlayer = null
+                    currentPlayingRecordingId = null
+                    adapter.notifyDataSetChanged() // Update all buttons
                     Toast.makeText(this@RecordingManagerActivity, "Playback finished", Toast.LENGTH_SHORT).show()
                 }
             }
+            currentPlayingRecordingId = recording.id
+            adapter.notifyDataSetChanged() // Update all buttons to show current playing state
             Toast.makeText(this, "Playing recording...", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Log.e("RecordingManager", "Error playing recording", e)
@@ -120,20 +134,27 @@ class RecordingManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun transcribeRecording(recording: Recording) {
-        // Check if transcription is already complete
-        if (recording.v2sStatus == V2SStatus.COMPLETED) {
-            Toast.makeText(this, "Already transcribed", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun stopPlayback() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+        currentPlayingRecordingId = null
+        adapter.notifyDataSetChanged() // Update all buttons
+    }
 
+    private fun transcribeRecording(recording: Recording) {
         // Check if already processing
         if (recording.v2sStatus == V2SStatus.PROCESSING) {
             Toast.makeText(this, "Transcription in progress...", Toast.LENGTH_SHORT).show()
             return
         }
 
-        Toast.makeText(this, "Starting transcription...", Toast.LENGTH_SHORT).show()
+        // Show appropriate message for retranscription
+        val message = if (recording.v2sStatus == V2SStatus.COMPLETED) {
+            "Retranscribing..."
+        } else {
+            "Starting transcription..."
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch {
             try {
@@ -491,8 +512,7 @@ class RecordingManagerActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        mediaPlayer?.release()
-        mediaPlayer = null
+        stopPlayback()
         super.onDestroy()
     }
 }
@@ -503,7 +523,8 @@ class RecordingAdapter(
     private val onOpenMapsClick: (Recording) -> Unit,
     private val onDeleteClick: (Recording) -> Unit,
     private val onDownloadClick: (Recording) -> Unit,
-    private val onSaveTranscriptionClick: (Recording, String) -> Unit
+    private val onSaveTranscriptionClick: (Recording, String) -> Unit,
+    private val isRecordingPlaying: (Recording) -> Boolean
 ) : RecyclerView.Adapter<RecordingAdapter.ViewHolder>() {
 
     private var recordings = listOf<Recording>()
@@ -583,7 +604,6 @@ class RecordingAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val dateTimeText: TextView = view.findViewById(R.id.dateTimeText)
         private val locationText: TextView = view.findViewById(R.id.locationText)
-        private val playIcon: ImageView = view.findViewById(R.id.playIcon)
 
         private val transcriptionEditText: EditText = view.findViewById(R.id.transcriptionEditText)
         private val saveTranscriptionButton: Button = view.findViewById(R.id.saveTranscriptionButton)
@@ -605,10 +625,7 @@ class RecordingAdapter(
             // Format location
             locationText.text = "${String.format("%.6f", recording.latitude)}, ${String.format("%.6f", recording.longitude)}"
 
-            // Play icon (top right)
-            playIcon.setOnClickListener { onPlayClick(recording) }
-
-            // Transcription EditText
+            // Transcription EditText - empty when no text available
             transcriptionEditText.setText(recording.v2sResult ?: "")
             
             // Save transcription button
@@ -625,7 +642,10 @@ class RecordingAdapter(
             downloadButton.setOnClickListener { onDownloadClick(recording) }
             openMapsButton.setOnClickListener { onOpenMapsClick(recording) }
             playButton.setOnClickListener { onPlayClick(recording) }
-            
+
+            // Update play button text based on playback state
+            playButton.text = if (isRecordingPlaying(recording)) "Stop" else "Play"
+
             // Download button visibility: show if recording has been transcoded or has data
             // For now, keeping it hidden by default as per spec (conditionally visible)
             downloadButton.visibility = if (shouldShowDownloadButton(recording)) View.VISIBLE else View.GONE
@@ -658,9 +678,10 @@ class RecordingAdapter(
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
                 }
                 V2SStatus.COMPLETED -> {
-                    transcribeButton.text = "Transcode"
-                    transcribeButton.isEnabled = false
+                    transcribeButton.text = "Retranscribe"
+                    transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
+                    transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.FALLBACK -> {
                     transcribeButton.text = "Retry"
